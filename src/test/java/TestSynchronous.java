@@ -135,8 +135,6 @@ public class TestSynchronous {
         }
         */
 
-        assertTrue("NO chccio", 3==2);
-
     }
 
     @Test
