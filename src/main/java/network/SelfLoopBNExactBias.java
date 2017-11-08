@@ -6,11 +6,11 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
 
-public class ExactBiasSelfLoop extends TopologySelfLoop<BitSet, Boolean> {
+public class SelfLoopBNExactBias extends TopologySelfLoop<BitSet, Boolean> {
 
     private final double bias;
 
-    public ExactBiasSelfLoop(int nodesNumber, int k, double bias, Random random) {
+    public SelfLoopBNExactBias(int nodesNumber, int k, double bias, Random random) {
         super(nodesNumber, k, random);
         this.bias = bias;
 

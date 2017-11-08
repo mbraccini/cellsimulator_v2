@@ -8,17 +8,17 @@ import java.util.stream.Collectors;
 
 import exceptions.InputConnectionsException;
 
-public abstract class TopologyClassical<K, V> extends AbstractBooleanNetwork<K, V> {
+public abstract class TopologyClassicalRBN<K, V> extends AbstractBooleanNetwork<K, V> {
 
     protected final Random random;
     protected final int k;
 
-    public TopologyClassical(int nodesNumber, int k, Random random) {
+    public TopologyClassicalRBN(int nodesNumber, int k, Random random) {
         super(nodesNumber);
         this.k = k;
         this.random = random;
         checkNodesNumberInvariant();
-        properties.setProperty("topology", "classical");
+        properties.setProperty("topology", "random");
     }
 
     private final void checkNodesNumberInvariant() {

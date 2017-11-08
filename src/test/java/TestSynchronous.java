@@ -15,7 +15,7 @@ import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
-import network.RBNClassical;
+import network.RBN;
 import network.NetworkFromFile;
 import org.junit.Test;
 
@@ -140,7 +140,7 @@ public class TestSynchronous {
     @Test
     public void Sync_TestIfStatesAreDifferent() {
         Random rnd = RandomnessFactory.newPseudoRandomGenerator(10);
-        BooleanNetwork<BitSet, Boolean> bn = new RBNClassical(50, 3, 0.7, rnd);
+        BooleanNetwork<BitSet, Boolean> bn = new RBN(50, 3, 0.7, rnd);
 
 
         /** Synchronous dynamics **/

@@ -69,8 +69,17 @@ public interface BooleanNetwork<K, V> { //OK
         return average;
     }
 
+    public static <K,V> double computeAverageNumberSelfLoopsPerNode(BooleanNetwork<K, V> bn) {
+        return bn.getNodes().stream().mapToInt(node -> { if (bn.getIncomingNodes(node).stream().anyMatch(x -> x.equals(node))) {
+                                                            return 1;
+                                                            } else {
+                                                            return 0;
+                                                            }
+                                                        }
+                                        ).average().getAsDouble();
+    }
 
-    public static <K, V> String getBNFileRepresentation(BooleanNetwork<K, Boolean> bn) {
+        public static <K, V> String getBNFileRepresentation(BooleanNetwork<K, Boolean> bn) {
         List<Node<K, Boolean>> nodesList = bn.getNodes();
         List<Node<K, Boolean>> incomingNodes = null;
         List<Row<K, Boolean>> rowsTruthTable = null;

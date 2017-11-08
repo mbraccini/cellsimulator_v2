@@ -6,11 +6,11 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
 
-public class ExactBiasClassical extends TopologyClassical<BitSet,Boolean> {
+public class RBNExactBias extends TopologyClassicalRBN<BitSet,Boolean> {
 
     private final double bias;
 
-    public ExactBiasClassical(int nodesNumber, int k, double bias, Random random) {
+    public RBNExactBias(int nodesNumber, int k, double bias, Random random) {
         super(nodesNumber, k, random);
         this.bias = bias;
 

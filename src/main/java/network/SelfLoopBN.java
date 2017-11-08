@@ -1,19 +1,18 @@
 package network;
 
 import java.util.BitSet;
-import java.util.Properties;
 import java.util.Random;
 
-public class ClassicalRBN extends ClassicalTopology<BitSet, Boolean> {
+public class SelfLoopBN extends TopologySelfLoop<BitSet, Boolean> {
 
     private final double bias;
 
-    public ClassicalRBN(int nodesNumber, int k, double bias, Random random) {
+    public SelfLoopBN(int nodesNumber, int k, double bias, Random random) {
         super(nodesNumber, k, random);
         this.bias = bias;
 
         configure();
-        properties.setProperty("bias", "classical");
+        properties.setProperty("bias", "unconstrained");
     }
 
     private void configure() {
@@ -24,8 +23,9 @@ public class ClassicalRBN extends ClassicalTopology<BitSet, Boolean> {
     @Override
     protected void initNodes() {
         for (int id = 0; id < this.nodesNumber; id++) {
-            nodesList.add(new NodeImpl<>("gene_" + id, id, new BiasedTable(k, bias, random)));
+            nodesList.add(new NodeImpl<>("gene_" + id, id, new BiasedTable(incomingNodesPerNode[id], this.bias, random)));
         }
     }
+
 
 }

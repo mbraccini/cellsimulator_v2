@@ -5,9 +5,7 @@ import interfaces.attractor.Generator;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
-import network.ExactBiasClassical;
-import network.ExactBiasSelfLoop;
-import network.RBNSelfLoop;
+import network.SelfLoopBN;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import simulator.AttractorsFinderService;
@@ -23,11 +21,11 @@ public class Main {
 
         Random pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(120);
         BooleanNetwork<BitSet, Boolean> bn;
-        // bn = new RBNClassical(20,2, 0.6, pseudoRandom);
+        // bn = new RBN(20,2, 0.6, pseudoRandom);
         // bn = new BNForTest();
-        //bn = new ExactBiasClassical(10, 2 , 0.6, pseudoRandom);
-        bn = new RBNSelfLoop(10, 2 , 0.7, pseudoRandom);
-        //bn2 = new ExactBiasSelfLoop(100, 3 , 0.7, pseudoRandom);
+        //bn = new RBNExactBias(10, 2 , 0.6, pseudoRandom);
+        bn = new SelfLoopBN(10, 2 , 0.7, pseudoRandom);
+        //bn2 = new SelfLoopBNExactBias(100, 3 , 0.7, pseudoRandom);
         System.out.println("AVG bias: " + BooleanNetwork.computeActualAverageBias(bn));
 
         System.out.println(bn);
