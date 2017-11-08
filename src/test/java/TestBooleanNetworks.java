@@ -2,8 +2,6 @@ import generator.RandomnessFactory;
 import interfaces.network.BooleanNetwork;
 import network.RBN;
 import network.RBNExactBias;
-import network.SelfLoopBN;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -11,7 +9,6 @@ import org.junit.Test;
 import java.util.BitSet;
 import java.util.Random;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class TestBooleanNetworks {
@@ -71,23 +68,4 @@ public class TestBooleanNetworks {
         }
     }
 
-    @Test
-    public void TestSelfLoopBN() {
-        Random pseudoRandom;
-        int nodesNumber = 30;
-        int k = 2;
-        double bias = 0.5;
-        while (iterations > 0) {
-            pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(pureRandomGenerator.nextLong());
-            BooleanNetwork<BitSet, Boolean> bn = new SelfLoopBN(nodesNumber, k, bias, pseudoRandom);
-            System.out.println("AVG bias: " + BooleanNetwork.computeActualAverageBias(bn));
-            System.out.println("AVG k: " + BooleanNetwork.computeActualAverageIncomingNodes(bn));
-            System.out.println("AVG selfloop per nodo: " + BooleanNetwork.computeAverageNumberSelfLoopsPerNode(bn));
-
-
-            assertFalse("numero selfloop medio per nodo uguale a 0", BooleanNetwork.computeAverageNumberSelfLoopsPerNode(bn) == 0);
-
-            iterations--;
-        }
-    }
 }
