@@ -11,26 +11,8 @@ public class ImmutableAttractorsListImpl<T extends Comparable<? super T>> implem
 
     private List<LabelledOrderedAttractor<T>> labelledAttractors;
 
-    public ImmutableAttractorsListImpl(Collection<AttractorInfo<T>> attractors) {
-        label(sort(attractors));
-    }
-
-    private Collection<AttractorInfo<T>> sort(Collection<AttractorInfo<T>> attractors) {
-        return attractors.stream()
-                .sorted((x, y) -> x.getFirstState().compareTo(y.getFirstState()))
-                .collect(Collectors.toList());
-    }
-
-    private void label(Collection<AttractorInfo<T>> attractors) {
-        List<LabelledOrderedAttractor<T>> temp = new ArrayList<>();
-        Integer counter = 1;
-        for (AttractorInfo<T> aInfo : attractors) {
-            aInfo.setID(counter);
-            temp.add(new AttractorImpl<>(aInfo));
-            counter++;
-        }
-
-        labelledAttractors = Collections.unmodifiableList(temp);
+    public ImmutableAttractorsListImpl(List<LabelledOrderedAttractor<T>> attractors) {
+        labelledAttractors = Collections.unmodifiableList(attractors);
     }
 
     @Override

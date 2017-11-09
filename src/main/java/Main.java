@@ -2,6 +2,7 @@ import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import generator.RandomnessFactory;
 import interfaces.attractor.Generator;
+import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
@@ -44,12 +45,13 @@ public class Main {
         System.out.println(state);*/
 
         DateTime startDate = new DateTime();
-        new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+        List<LabelledOrderedAttractor<BinaryState>> att = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+        System.out.println("DOPO:" + att);
+
         DateTime endDate = new DateTime();
         Interval interval = new Interval(startDate, endDate);
         System.out.println("Duration in seconds: " + interval.toDuration().getStandardSeconds());
 
-        System.out.println("yuppi");
 
         //System.out.println(Files.readFile("/Users/michelebraccini/Desktop/sshd_config"));
         List.of();

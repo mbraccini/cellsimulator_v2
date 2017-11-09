@@ -9,26 +9,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Information about an attractor; its states are unordered.
+ * @param <T>
+ */
 public class AttractorInfoImpl<T extends Comparable<? super T>> implements AttractorInfo<T> {
 
     private final List<T> states;
     //private final Set<T> basin;
     //private final List<Transient<T>> transients;
-    private Integer id;
 
     public AttractorInfoImpl(List<T> states) {
         this.states = states;
-        Collections.sort(this.states);
-    }
-
-    /**
-     * Only for testing
-     * @param states
-     * @param id
-     */
-    public AttractorInfoImpl(List<T> states, Integer id) {
-        this(states);
-        this.id = id;
     }
 
     @Override
@@ -36,20 +28,6 @@ public class AttractorInfoImpl<T extends Comparable<? super T>> implements Attra
         return this.states;
     }
 
-    @Override
-    public T getFirstState() {
-        return this.states.get(0);
-    }
-
-    @Override
-    public Optional<Integer> getID() {
-        return Optional.ofNullable(id);
-    }
-
-    @Override
-    public void setID(Integer id) {
-        this.id = id;
-    }
 
     @Override
     public Optional<Integer> getBasinSize() {

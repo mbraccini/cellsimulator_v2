@@ -19,9 +19,12 @@ public class AttractorImpl<T extends Comparable<? super T>> implements LabelledO
     private final AttractorInfo<T> info;
     private final List<T> states;
 
-    public AttractorImpl(AttractorInfo<T> info) {
+    public AttractorImpl(AttractorInfo<T> info, Integer id) {
         this.info = info;
-        this.id = info.getID().orElseThrow(AttractorIDNotSpecified::new);
+        if (Objects.isNull(id)) {
+            throw new AttractorIDNotSpecified();
+        }
+        this.id = id;
         this.states = new ArrayList<>(this.info.getStates()); //defensive copy;
     }
 

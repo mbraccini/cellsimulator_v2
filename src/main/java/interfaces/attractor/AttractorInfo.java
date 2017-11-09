@@ -6,19 +6,9 @@ import java.util.Optional;
 public interface AttractorInfo<T extends Comparable<? super T>> {
 
     /**
-     *  Ordered list of states.
+     *  UNOrdered list of states.
      */
     List<T> getStates();
-
-    /**
-     * First state of the attractor.
-     * @return
-     */
-    T getFirstState();
-
-
-    Optional<Integer> getID();
-    void setID(Integer id);
 
     /**
      * returns the current basin size
