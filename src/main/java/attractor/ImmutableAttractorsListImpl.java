@@ -131,6 +131,19 @@ public class ImmutableAttractorsListImpl<T extends Comparable<? super T>> implem
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ImmutableAttractorsListImpl<?> that = (ImmutableAttractorsListImpl<?>) o;
+        return Objects.equals(labelledAttractors, that.labelledAttractors);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(labelledAttractors);
+    }
+
+    @Override
     public String toString() {
         return "immutableAttList:::\n"
                 + labelledAttractors

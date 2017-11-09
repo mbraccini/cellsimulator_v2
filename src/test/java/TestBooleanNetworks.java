@@ -1,7 +1,9 @@
 import generator.RandomnessFactory;
 import interfaces.network.BooleanNetwork;
+import interfaces.network.Node;
 import network.RBN;
 import network.RBNExactBias;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -39,9 +41,10 @@ public class TestBooleanNetworks {
             System.out.println("AVG k: " + BooleanNetwork.computeActualAverageIncomingNodes(bn));
             System.out.println("AVG selfloop per nodo: " + BooleanNetwork.computeAverageNumberSelfLoopsPerNode(bn));
 
-
+            /** Tests **/
             assertTrue("k medio diverso da " + k, BooleanNetwork.computeActualAverageIncomingNodes(bn) == k);
             assertTrue("numero selfloop medio per nodo diverso da 0", BooleanNetwork.computeAverageNumberSelfLoopsPerNode(bn) == 0);
+            Assert.assertFalse("Almeno un nodo presenta un self-loop!", bn.getNodes().stream().anyMatch(x -> bn.getIncomingNodes(x).contains(x)));
 
             iterations--;
         }
@@ -60,9 +63,10 @@ public class TestBooleanNetworks {
             System.out.println("AVG k: " + BooleanNetwork.computeActualAverageIncomingNodes(bn));
             System.out.println("AVG selfloop per nodo: " + BooleanNetwork.computeAverageNumberSelfLoopsPerNode(bn));
 
-
+            /** Tests **/
             assertTrue("bias medio diverso da " + bias, BooleanNetwork.computeActualAverageBias(bn) == bias);
             assertTrue("numero selfloop medio per nodo diverso da 0", BooleanNetwork.computeAverageNumberSelfLoopsPerNode(bn) == 0);
+            Assert.assertFalse("Almeno un nodo presenta un self-loop!", bn.getNodes().stream().anyMatch(x -> bn.getIncomingNodes(x).contains(x)));
 
             iterations--;
         }

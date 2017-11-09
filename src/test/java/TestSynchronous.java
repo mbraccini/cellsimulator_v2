@@ -4,13 +4,14 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigInteger;
 import java.util.*;
 
-import attractor.AttractorImpl;
 import attractor.AttractorInfoImpl;
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import generator.RandomnessFactory;
 import generator.UniformlyDistributedGenerator;
+import interfaces.attractor.AttractorInfo;
 import interfaces.attractor.Generator;
+import interfaces.attractor.ImmutableAttractorsList;
 import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
@@ -82,13 +83,8 @@ public class TestSynchronous {
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
 
         /** Sync Attractors Finder **/
-        List<LabelledOrderedAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+        List<LabelledOrderedAttractor<BinaryState>> attractorsFound = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
 
-        attractors.forEach(System.out::println);
-
-        /** Tests **/
-		/* we check if there are 3 attractors */
-        assertTrue(attractors.size() == 3);
 
         /*********************************************************/ //Attrattori
         List<BinaryState> fixed_point_0 =  new ArrayList<>();
@@ -109,17 +105,25 @@ public class TestSynchronous {
         BinaryState s_3 = new ImmutableBinaryState(4,0, 3);
         cyclic_attractor.add(s_3);
         /*********************************************************/
-        LabelledOrderedAttractor<BinaryState> attractor_fixed_point = new AttractorImpl<>(new AttractorInfoImpl<>(fixed_point_0, 1));
-		/* we check if the attractors found contain 0000 */
-        assertTrue(attractors.contains(attractor_fixed_point));
+        List<AttractorInfo<BinaryState>> attInfo  = new ArrayList<>(Arrays.asList(
+                                                                        new AttractorInfoImpl<>(fixed_point_0),
+                                                                        new AttractorInfoImpl<>(fixed_point_1),
+                                                                        new AttractorInfoImpl<>(cyclic_attractor)
+                                                                ));
+        List<LabelledOrderedAttractor<BinaryState>> manuallyDefinedAttractors = ImmutableAttractorsList.fromInfoToAttractors(attInfo);
+        
 
-        LabelledOrderedAttractor<BinaryState> attractor_all_ones = new AttractorImpl<>(new AttractorInfoImpl<>(fixed_point_1, 3));
-		/* we check if the attractors found contain 1111 */
-        assertTrue(attractors.contains(attractor_all_ones));
+        /** Test 1 **/
+		/* we check if there are 3 attractors */
+        assertTrue(attractorsFound.size() == 3);
 
+        /** Test 2 **/
+        /* we check if the attractors found contain 0000 */
+        /* we check if the attractors found contain 1111 */
 		/* we check if the attractors found contain [{1010}, {1001}, {0110}] */
-        LabelledOrderedAttractor<BinaryState> attractor_cyclics = new AttractorImpl<>(new AttractorInfoImpl<>(cyclic_attractor, 2));
-        assertTrue(attractors.contains(attractor_cyclics));
+        assertTrue("Gli Attrattori trovati differiscono da quelli ottenuti con BoolNet", attractorsFound.equals(manuallyDefinedAttractors));
+
+
 
         /********************* Basins of Attraction *********************/
         /*

@@ -62,13 +62,14 @@ public class AttractorImpl<T extends Comparable<? super T>> implements LabelledO
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AttractorImpl<?> that = (AttractorImpl<?>) o;
-        return Objects.equals(states, that.states);
+        AttractorImpl<?> attractor = (AttractorImpl<?>) o;
+        return Objects.equals(id, attractor.id) &&
+                Objects.equals(states, attractor.states);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(states);
+        return Objects.hash(id, states);
     }
 
     @Override

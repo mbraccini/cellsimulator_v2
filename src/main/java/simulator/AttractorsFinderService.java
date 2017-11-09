@@ -46,7 +46,7 @@ public class AttractorsFinderService<T extends Comparable<? super T> > implement
         latch.await();
 
         list.forEach(x->System.out.println(x.getStates()));
-        return LabelledOrderedAttractor.fromInfoToAttractors(list);
+        return ImmutableAttractorsList.fromInfoToAttractors(list);
     }
 
     /*public List<OrderedAttractor<T>> find() {
