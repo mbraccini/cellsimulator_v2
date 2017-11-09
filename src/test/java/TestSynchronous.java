@@ -66,7 +66,7 @@ public class TestSynchronous {
      *  Genes are encoded in the following order: Gene0 Gene1 Gene2 Gene3
      **/
     @Test
-    public void Sync_TestBN_BoolNet() {
+    public void bnFromBoolNet() {
 
         /** BN from file "sync_bn" **/
         String bnFilename = rootDirectory
@@ -142,7 +142,7 @@ public class TestSynchronous {
     }
 
     @Test
-    public void Sync_TestIfStatesAreDifferent() {
+    public void ifStatesAreDifferent() {
         Random rnd = RandomnessFactory.newPseudoRandomGenerator(10);
         BooleanNetwork<BitSet, Boolean> bn = new RBN(50, 3, 0.7, rnd);
 
