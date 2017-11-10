@@ -1,6 +1,6 @@
 package simulator;
 
-import attractor.ImmutableAttractorsListImpl;
+import attractor.AttractorsUtility;
 import interfaces.attractor.*;
 import interfaces.dynamic.Dynamics;
 import interfaces.state.BinaryState;
@@ -47,7 +47,8 @@ public class AttractorsFinderService<T extends State> implements Callable<List<L
         latch.await();
 
         list.forEach(x->System.out.println(x.getStates()));
-        return ImmutableAttractorsList.fromInfoToAttractors(list);
+        List<LabelledOrderedAttractor<T>> l = AttractorsUtility.fromInfoToAttractors(list);
+        return l;
     }
 
     /*public List<OrderedAttractor<T>> find() {
