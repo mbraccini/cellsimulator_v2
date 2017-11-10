@@ -1,9 +1,11 @@
 package interfaces.attractor;
 
+import interfaces.state.State;
+
 import java.util.List;
 import java.util.Optional;
 
-public interface AttractorInfo<T extends Comparable<? super T>> {
+public interface AttractorInfo<T extends State> {
 
     /**
      *  UNOrdered list of states.

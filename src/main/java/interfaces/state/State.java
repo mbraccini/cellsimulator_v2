@@ -1,6 +1,6 @@
 package interfaces.state;
 
-public interface State extends Comparable<State> {
+public interface State extends Comparable<State>,Immutable {
 	
 
 	/**

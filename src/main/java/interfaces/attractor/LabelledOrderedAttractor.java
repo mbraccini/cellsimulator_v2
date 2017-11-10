@@ -2,12 +2,13 @@ package interfaces.attractor;
 
 import attractor.AttractorImpl;
 import attractor.ImmutableAttractorsListImpl;
+import interfaces.state.State;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public interface LabelledOrderedAttractor<T extends Comparable<? super T>>{
+public interface LabelledOrderedAttractor<T extends State>{
 
     /**
      * Gets the attractor's ID.

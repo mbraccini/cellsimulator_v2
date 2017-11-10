@@ -3,6 +3,7 @@ package attractor;
 import interfaces.attractor.AttractorInfo;
 import interfaces.attractor.Basin;
 import interfaces.attractor.Transient;
+import interfaces.state.State;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.Optional;
  * Information about an attractor; its states are unordered.
  * @param <T>
  */
-public class AttractorInfoImpl<T extends Comparable<? super T>> implements AttractorInfo<T> {
+public class AttractorInfoImpl<T extends State> implements AttractorInfo<T> {
 
     private final List<T> states;
     //private final Set<T> basin;

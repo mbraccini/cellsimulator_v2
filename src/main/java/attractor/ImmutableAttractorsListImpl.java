@@ -3,11 +3,12 @@ package attractor;
 import interfaces.attractor.AttractorInfo;
 import interfaces.attractor.ImmutableAttractorsList;
 import interfaces.attractor.LabelledOrderedAttractor;
+import interfaces.state.State;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ImmutableAttractorsListImpl<T extends Comparable<? super T>> implements ImmutableAttractorsList<T> {
+public class ImmutableAttractorsListImpl<T extends State> implements ImmutableAttractorsList<T> {
 
     private List<LabelledOrderedAttractor<T>> labelledAttractors;
 

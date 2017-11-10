@@ -3,13 +3,14 @@ package simulator;
 import attractor.AttractorInfoImpl;
 import interfaces.attractor.AttractorInfo;
 import interfaces.dynamic.Dynamics;
+import interfaces.state.State;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class AttractorFinderTask<T extends Comparable<? super T>> implements Callable<Void> {
+public class AttractorFinderTask<T extends State> implements Callable<Void> {
 
     private final MyCountDownLatch latch;
     private final T initialState;

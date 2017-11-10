@@ -5,6 +5,7 @@ import interfaces.attractor.AttractorInfo;
 import interfaces.attractor.Basin;
 import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.attractor.Transient;
+import interfaces.state.State;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class AttractorImpl<T extends Comparable<? super T>> implements LabelledOrderedAttractor<T> {
+public class AttractorImpl<T extends State> implements LabelledOrderedAttractor<T> {
 
     private final Integer id;
 

@@ -4,6 +4,7 @@ import attractor.ImmutableAttractorsListImpl;
 import interfaces.attractor.*;
 import interfaces.dynamic.Dynamics;
 import interfaces.state.BinaryState;
+import interfaces.state.State;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class AttractorsFinderService<T extends Comparable<? super T> > implements Callable<List<LabelledOrderedAttractor<T>>> {
+public class AttractorsFinderService<T extends State> implements Callable<List<LabelledOrderedAttractor<T>>> {
     /* thread pool */
     //final ExecutorService executor;
     private final Generator<T> generator;
