@@ -5,6 +5,7 @@ import interfaces.attractor.AttractorInfo;
 import interfaces.attractor.Basin;
 import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.attractor.Transient;
+import interfaces.state.Immutable;
 import interfaces.state.State;
 
 import java.util.ArrayList;

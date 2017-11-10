@@ -5,13 +5,14 @@ import java.math.BigInteger;
 import java.util.*;
 
 import attractor.AttractorInfoImpl;
+import attractor.AttractorsUtility;
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import generator.RandomnessFactory;
 import generator.UniformlyDistributedGenerator;
 import interfaces.attractor.AttractorInfo;
 import interfaces.attractor.Generator;
-import interfaces.attractor.ImmutableAttractorsList;
+import interfaces.attractor.ImmutableList;
 import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
@@ -82,7 +83,7 @@ public class TestSynchronous {
         /** Complete Enumeration **/
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
 
-        /** Sync Attractors Finder **/
+        /** Sync AttractorsUtility Finder **/
         List<LabelledOrderedAttractor<BinaryState>> attractorsFound = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
 
 
@@ -110,7 +111,7 @@ public class TestSynchronous {
                                                                         new AttractorInfoImpl<>(fixed_point_1),
                                                                         new AttractorInfoImpl<>(cyclic_attractor)
                                                                 ));
-        List<LabelledOrderedAttractor<BinaryState>> manuallyDefinedAttractors = ImmutableAttractorsList.fromInfoToAttractors(attInfo);
+        List<LabelledOrderedAttractor<BinaryState>> manuallyDefinedAttractors = AttractorsUtility.fromInfoToAttractors(attInfo);
         
 
         /** Test 1 **/

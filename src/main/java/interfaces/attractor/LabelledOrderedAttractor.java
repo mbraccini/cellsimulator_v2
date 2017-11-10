@@ -1,14 +1,11 @@
 package interfaces.attractor;
 
-import attractor.AttractorImpl;
-import attractor.ImmutableAttractorsListImpl;
+import interfaces.state.Immutable;
 import interfaces.state.State;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-public interface LabelledOrderedAttractor<T extends State>{
+public interface LabelledOrderedAttractor<T extends State> extends Immutable{
 
     /**
      * Gets the attractor's ID.
