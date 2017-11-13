@@ -123,6 +123,11 @@ public class ImmutableBinaryState implements BinaryState{
         return buffer.toString();
     }
 
+    @Override
+    public Integer getLength() {
+        return bitsNumber;
+    }
+
 
     @Override
     public int compareTo(State o) {

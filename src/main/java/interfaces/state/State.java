@@ -11,17 +11,19 @@ public interface State extends Comparable<State>,Immutable {
 
 
 	/**
+	 * Gives the number of nodes that it represents.
+	 * @return
+	 */
+	Integer getLength();
+
+	/**
 	 * Returns a copy of this object.
 	 * @return
 	 */
 	//State getCopy();
 
 
-	/**
-	 * Gives the number of nodes that it represents.
-	 * @return
-	 */
-	//Integer getLength();
+
 
 
 }

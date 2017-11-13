@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class AttractorsFinderService<T extends State> implements Callable<List<LabelledOrderedAttractor<T>>> {
+public class AttractorsFinderService<T extends State> implements Callable<ImmutableList<LabelledOrderedAttractor<T>>> {
     /* thread pool */
     //final ExecutorService executor;
     private final Generator<T> generator;
@@ -30,7 +30,7 @@ public class AttractorsFinderService<T extends State> implements Callable<List<L
     }
 
     @Override
-    public List<LabelledOrderedAttractor<T>> call(){
+    public ImmutableList<LabelledOrderedAttractor<T>> call(){
         BigInteger combinations = this.generator.totalNumberOfSamplesToBeGenerated();
         MyCountDownLatch latch = new MyCountDownLatch(combinations);
         Collection<AttractorInfo<T>> list = new ArrayList<>();
@@ -47,7 +47,7 @@ public class AttractorsFinderService<T extends State> implements Callable<List<L
         latch.await();
 
         list.forEach(x->System.out.println(x.getStates()));
-        List<LabelledOrderedAttractor<T>> l = AttractorsUtility.fromInfoToAttractors(list);
+        ImmutableList<LabelledOrderedAttractor<T>> l = AttractorsUtility.fromInfoToAttractors(list);
         return l;
     }
 

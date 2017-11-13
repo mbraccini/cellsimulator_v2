@@ -2,14 +2,18 @@ import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import generator.RandomnessFactory;
 import interfaces.attractor.Generator;
+import interfaces.attractor.ImmutableList;
 import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
+import interfaces.tes.Atm;
 import network.SelfLoopBN;
+import noise.CompletePerturbations;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import simulator.AttractorsFinderService;
+import utility.GenericUtility;
 
 import java.util.BitSet;
 import java.util.List;
@@ -45,13 +49,16 @@ public class Main {
         System.out.println(state);*/
 
         DateTime startDate = new DateTime();
-        List<LabelledOrderedAttractor<BinaryState>> att = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
-        System.out.println("DOPO:" + att);
+        ImmutableList<LabelledOrderedAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+        System.out.println("DOPO:" + attractors);
 
         DateTime endDate = new DateTime();
         Interval interval = new Interval(startDate, endDate);
         System.out.println("Duration in seconds: " + interval.toDuration().getStandardSeconds());
 
+        CompletePerturbations cp = new CompletePerturbations(attractors, dynamics, 50000);
+        Atm<BinaryState> atm = cp.call();
+        GenericUtility.printMatrix(atm.getMatrix());
 
         //System.out.println(Files.readFile("/Users/michelebraccini/Desktop/sshd_config"));
         List.of();
