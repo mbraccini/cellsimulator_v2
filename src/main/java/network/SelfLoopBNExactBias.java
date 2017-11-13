@@ -28,7 +28,7 @@ public class SelfLoopBNExactBias extends TopologySelfLoop<BitSet, Boolean> {
         int totalOutcomesNumber = 0;
 
         for (int nodeId = 0; nodeId < this.nodesNumber; nodeId++) {
-            totalOutcomesNumber += new Double(Math.pow(2, this.incomingNodesPerNode[nodeId])).intValue();
+            totalOutcomesNumber += Double.valueOf(Math.pow(2, this.incomingNodesPerNode[nodeId])).intValue();
         }
 
         List<Boolean> outcomeList = BooleanNetwork.generateExactBiasOutcomes(totalOutcomesNumber, bias, random);
@@ -39,7 +39,7 @@ public class SelfLoopBNExactBias extends TopologySelfLoop<BitSet, Boolean> {
         for (int nodeId = 0; nodeId < this.nodesNumber; nodeId++) {
             k = this.incomingNodesPerNode[nodeId];
 
-            incomingNodesNumber = new Double(Math.pow(2, k)).intValue();
+            incomingNodesNumber = Double.valueOf(Math.pow(2, k)).intValue();
             nodesList.add(new NodeImpl<>("gene_" + nodeId, nodeId,
                     new ConfigurableTable(k, outcomeList.subList(indicesSumSoFar, indicesSumSoFar + incomingNodesNumber))));
             indicesSumSoFar += incomingNodesNumber;

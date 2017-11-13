@@ -1,16 +1,15 @@
 package tes;
 
+import exceptions.AtmException;
 import interfaces.attractor.ImmutableList;
 import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.state.State;
 import interfaces.tes.Atm;
-import org.junit.Assert;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
 
 
@@ -181,10 +180,14 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 			converted = converted.setScale(2, RoundingMode.HALF_EVEN);
 			rowSum = converted.doubleValue();
 
-			Assert.assertTrue("The sum of each row must be 1.0", rowSum == 1.0);
+			if (rowSum != 1.0) {
+				throw new AtmException("The sum of each row must be 1.0, rowSum = " + rowSum);
+			}
 
 			for (int j = 0; j < atm.length; j++) {
-				Assert.assertTrue("Each element of the ATM must be between 0.0 and 1.0!", atm[i][j] >= 0.0 && atm[i][j] <= 1.0);
+				if (atm[i][j] < 0.0 || atm[i][j] > 1.0) {
+					throw new AtmException("Each element of the ATM must be between 0.0 and 1.0!\n element value = " + atm[i][j]);
+				}
 			}
 		}
 	}

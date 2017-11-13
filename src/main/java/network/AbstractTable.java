@@ -22,7 +22,7 @@ public abstract class AbstractTable<K,V> implements Table<K,V> {
 	public AbstractTable(int variablesNumber){
 		this.variablesNumber = variablesNumber;
 		
-		this.rowsNumber = new Double(Math.pow(2, variablesNumber)).intValue(); //2^(variablesNumber)
+		this.rowsNumber = Double.valueOf(Math.pow(2, variablesNumber)).intValue(); //2^(variablesNumber)
 		
 		this.rows = new ArrayList<Row<K,V>>(this.rowsNumber);
 		this.mapRows = new HashMap<>();

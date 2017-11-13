@@ -26,7 +26,7 @@ public class RBNExactBias extends TopologyClassicalRBN<BitSet,Boolean> {
 
     @Override
     protected void initNodes() {
-            int outcomesForTruthTable = new Double(Math.pow(2, this.k)).intValue(); //2^(variablesNumber)
+            int outcomesForTruthTable = Double.valueOf(Math.pow(2, this.k)).intValue(); //2^(variablesNumber)
             int totalOutcomesNumber = this.nodesNumber * outcomesForTruthTable;
             List<Boolean> outcomeList = BooleanNetwork.generateExactBiasOutcomes(totalOutcomesNumber, this.bias, random);
             for (int id = 0; id < this.nodesNumber; id++) {
