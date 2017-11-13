@@ -67,7 +67,7 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 	}
 
 	@Override
-	public Optional<Integer[][]> getOccurrenciesMatrix() {
+	public Optional<Integer[][]> getOccurrencesMatrix() {
 		if (this.occurrenciesIntegerMatrix !=  null) {
 			return Optional.of(this.occurrenciesIntegerMatrix);
 		}

@@ -10,7 +10,7 @@ public interface Atm<T extends State> {
 
 	ImmutableList<LabelledOrderedAttractor<T>> getAttractors();
 	
-	Optional<Integer[][]> getOccurrenciesMatrix();
+	Optional<Integer[][]> getOccurrencesMatrix();
 	
 	Double[][] getMatrix();
 
