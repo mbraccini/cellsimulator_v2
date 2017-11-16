@@ -1,5 +1,8 @@
 package utility;
 
+import java.util.Collections;
+import java.util.List;
+
 public class GenericUtility {
     private GenericUtility(){ }
 
@@ -39,6 +42,16 @@ public class GenericUtility {
             System.out.println();
         }
         System.out.println("---------------");
+    }
+
+
+    /**
+     * Checks if the List is not null
+     * @param other
+     * @return
+     */
+    public static <T> List<T> safeClient(List<T> other ) {
+        return other == null ? Collections.emptyList() : other;
     }
 
 }

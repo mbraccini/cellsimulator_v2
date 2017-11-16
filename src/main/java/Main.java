@@ -8,16 +8,22 @@ import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
+import interfaces.tes.DifferentiationTree;
+import interfaces.tes.Tes;
+import network.RBNExactBias;
 import network.SelfLoopBN;
 import noise.CompletePerturbations;
+import noise.IncompletePerturbations;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import simulator.AttractorsFinderService;
+import tes.TesCreator;
 import utility.GenericUtility;
 
 import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Callable;
 
 public class Main {
     public static void main (String [] args) {
@@ -29,7 +35,7 @@ public class Main {
         // bn = new RBN(20,2, 0.6, pseudoRandom);
         // bn = new BNForTest();
         //bn = new RBNExactBias(10, 2 , 0.6, pseudoRandom);
-        bn = new SelfLoopBN(10, 2 , 0.7, pseudoRandom);
+        bn = new RBNExactBias(15, 2 , 0.5, pseudoRandom);
         //bn2 = new SelfLoopBNExactBias(100, 3 , 0.7, pseudoRandom);
         System.out.println("AVG bias: " + BooleanNetwork.computeActualAverageBias(bn));
 
@@ -56,9 +62,25 @@ public class Main {
         Interval interval = new Interval(startDate, endDate);
         System.out.println("Duration in seconds: " + interval.toDuration().getStandardSeconds());
 
-        CompletePerturbations cp = new CompletePerturbations(attractors, dynamics, 50000);
-        Atm<BinaryState> atm = cp.call();
+        //Callable<Atm<BinaryState>> cp = new CompletePerturbations(attractors, dynamics, 50000);
+        Callable<Atm<BinaryState>> cp = new IncompletePerturbations(attractors, dynamics, 100, 80, 50000, pseudoRandom);
+        Atm<BinaryState> atm = null;
+        try {
+            atm = cp.call();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         GenericUtility.printMatrix(atm.getMatrix());
+
+        Callable<DifferentiationTree<Tes<BinaryState>>> tesCreator = new TesCreator<BinaryState>(atm, pseudoRandom);
+        DifferentiationTree<Tes<BinaryState>> differentiationTree = null;
+        try {
+            differentiationTree = tesCreator.call();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //System.out.println(differentiationTree.getRootLevel().get(0).getTreeLikeRepresentation("",true));
+        System.out.println(differentiationTree.getTreeRepresentation());
 
         //System.out.println(Files.readFile("/Users/michelebraccini/Desktop/sshd_config"));
         List.of();
