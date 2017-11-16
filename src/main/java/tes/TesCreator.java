@@ -27,6 +27,7 @@ public class TesCreator<T extends State> implements Callable<DifferentiationTree
 		this.atmCopy = this.atm.getMatrixCopy();
 		this.thresholds = thresholds;
 		// soglie in ordine crescente
+		this.thresholds = new ArrayList<>(thresholds);
 		if (!this.thresholds.contains(0.0)) {
 			this.thresholds.add(0, 0.0); //aggiungo soglia 0.0
 		}
