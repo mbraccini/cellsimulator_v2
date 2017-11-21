@@ -1,6 +1,9 @@
 package utility;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Files {
     /**
@@ -16,6 +19,7 @@ public class Files {
 
     /**
      * Read a file
+     *
      * @param path
      * @return
      */
@@ -44,6 +48,7 @@ public class Files {
 
     /**
      * Write a string to a file
+     *
      * @param filename
      * @param string
      */
@@ -51,7 +56,24 @@ public class Files {
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(filename));
-			writer.write(string);
+            writer.write(string);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void writeStringToFile2(String filename, String string) {
+        Path file = Paths.get(filename);
+        BufferedWriter writer = null;
+        try {
+            writer = java.nio.file.Files.newBufferedWriter(file, StandardCharsets.UTF_8);
+            writer.write(string);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
