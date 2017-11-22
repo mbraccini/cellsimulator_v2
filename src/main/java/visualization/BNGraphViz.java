@@ -10,10 +10,8 @@ public class BNGraphViz<K, V> extends GraphViz {
     public BNGraphViz(BooleanNetwork<K, V> bn, String filenames) {
         super("digraph", "bn", filenames);
         this.bn = bn;
-        starting();
         init();
         arcs();
-        ending();
     }
 
     private void arcs() {

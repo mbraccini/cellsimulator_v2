@@ -19,7 +19,12 @@ import org.joda.time.Interval;
 import simulator.AttractorsFinderService;
 import tes.TesCreator;
 import utility.GenericUtility;
+import visualization.AtmGraphViz;
+import visualization.BNGraphViz;
+import visualization.DifferentiationTesTreeGraphViz;
+import visualization.DifferentiationTreeGraphViz;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
@@ -36,6 +41,7 @@ public class Main {
         // bn = new BNForTest();
         //bn = new RBNExactBias(10, 2 , 0.6, pseudoRandom);
         bn = new RBNExactBias(15, 2 , 0.5, pseudoRandom);
+
         //bn2 = new SelfLoopBNExactBias(100, 3 , 0.7, pseudoRandom);
         System.out.println("AVG bias: " + BooleanNetwork.computeActualAverageBias(bn));
 
@@ -82,7 +88,25 @@ public class Main {
         //System.out.println(differentiationTree.getRootLevel().get(0).getTreeLikeRepresentation("",true));
         System.out.println(differentiationTree.getTreeRepresentation());
 
+
+
+        Callable<DifferentiationTree<Tes<BinaryState>>> tesCreator2 = new TesCreator<BinaryState>(atm, Arrays.asList(0.29), pseudoRandom);
+        DifferentiationTree<Tes<BinaryState>> differentiationTree2 = null;
+        try {
+            differentiationTree2 = tesCreator2.call();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("Con soglia");
+        System.out.println(differentiationTree2.getTreeRepresentation());
+
         //System.out.println(Files.readFile("/Users/michelebraccini/Desktop/sshd_config"));
+
+        //new AtmGraphViz(atm,"atm").generateDotFile().generateImg("jpg");
+        //new BNGraphViz<>(bn, "bn").generateDotFile().generateImg("jpg");
+        new DifferentiationTreeGraphViz<>(differentiationTree, "diffTree2").generateDotFile().generateImg("jpg");
+        new DifferentiationTesTreeGraphViz<BinaryState>(differentiationTree, "diffTree4").generateDotFile().generateImg("jpg");
+
         List.of();
     }
 

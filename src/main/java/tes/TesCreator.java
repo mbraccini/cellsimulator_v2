@@ -227,7 +227,7 @@ public class TesCreator<T extends State> implements Callable<DifferentiationTree
 		att2.add(att.get(2));
 
 		Atm<T> atm = AtmImpl.newAtm(att2, adjacencyMatrix2);
-		DifferentiationTreeGraphviz<T> diffTree = new DifferentiationTreeGraphviz<>(new TesCreator<>(atm, new ArrayList<>(Arrays.asList(0.2, 0.4 ,0.8))).call());
+		DifferentiationTreeGraphViz<T> diffTree = new DifferentiationTreeGraphViz<>(new TesCreator<>(atm, new ArrayList<>(Arrays.asList(0.2, 0.4 ,0.8))).call());
 		diffTree.generateFile("ah.gv");
 		
 	}*/

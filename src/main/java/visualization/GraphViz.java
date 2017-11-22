@@ -19,7 +19,7 @@ public abstract class GraphViz {
 	public static final String Windows = "c:/Program Files (x86)/Graphviz 2.28/bin/dot.exe";
 	public static final String MacOSX = "/usr/local/bin/dot";
 
-	private String graph, dotPath, graphType, graphName, filenames;
+	private String graph = "", dotPath, graphType, graphName, filenames;
 
 	public GraphViz(String graphType, String graphName, String filenames) {
 		String os = System.getProperty("os.name").replaceAll("\\s", "");
@@ -33,8 +33,8 @@ public abstract class GraphViz {
 		this.filenames = filenames;
 	}
 
-	protected void starting(){
-		graph = graphType + " " + graphName +" { " 		+ Files.NEW_LINE
+	protected String starting(){
+		return graphType + " " + graphName +" { " 		+ Files.NEW_LINE
 						+ "forcelabels=true; " 			+ Files.NEW_LINE
 						+ "node [fontname=\"Arial\"];" 	+ Files.NEW_LINE;
 	}
@@ -43,12 +43,16 @@ public abstract class GraphViz {
 		graph += line + Files.NEW_LINE;
 	}
 
-	protected void ending() {
-		graph +=  "}"; //end
+	protected String ending() {
+		return "}"; //end
 	}
 
 	private boolean dotFileAlreadyGenerated = false;
 	public GraphViz generateDotFile() {
+		if (!dotFileAlreadyGenerated) {
+			StringBuilder sb = new StringBuilder();
+			graph = sb.append(starting()).append(graph).append(ending()).toString();
+		}
 		String dotFilename = filenames + ".gv";
 		Files.writeStringToFile2(dotFilename, graph);
 		dotFileAlreadyGenerated = true;
