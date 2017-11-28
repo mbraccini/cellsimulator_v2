@@ -82,5 +82,12 @@ public class AttractorInfoImpl<T extends State> implements AttractorInfo<T> {
     public int hashCode() {
         return Objects.hash(states);
     }
+
+    @Override
+    public String toString() {
+        return "AttractorInfo{" +
+                "states=" + states +
+                '}';
+    }
 }
 

@@ -46,7 +46,7 @@ public class AttractorsFinderService<T extends State> implements Callable<Immuta
         }
         latch.await();
 
-        list.forEach(x->System.out.println(x.getStates()));
+        //list.forEach(x->System.out.println(x.getStates()));
         ImmutableList<LabelledOrderedAttractor<T>> l = AttractorsUtility.fromInfoToAttractors(list);
         return l;
     }

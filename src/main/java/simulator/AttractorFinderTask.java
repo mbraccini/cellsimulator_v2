@@ -58,7 +58,7 @@ public class AttractorFinderTask<T extends State> implements Callable<Void> {
 
     }
 
-    private boolean checksIfAlreadyPresent(T state) {
+    protected boolean checksIfAlreadyPresent(T state) {
         if (collectionAttractorInfo.stream().anyMatch(x -> x.getStates().contains(state))) {
             return true;
         }
