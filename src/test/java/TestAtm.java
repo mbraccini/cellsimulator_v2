@@ -7,7 +7,8 @@ import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
-import network.NetworkFromFile;
+import network.BNFromASTDescription;
+import network.BooleanNetworkFactory;
 import noise.CompletePerturbations;
 import org.junit.Test;
 import simulator.AttractorsFinderService;
@@ -59,7 +60,7 @@ public class TestAtm {
                 + "self_loop_bn_1";
         Random pseudoRandom;
 
-        BooleanNetwork<BitSet, Boolean> bn = NetworkFromFile.newNetworkFromFile(bnFilename);
+        BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newNetworkFromFile(bnFilename);
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
         ImmutableList<LabelledOrderedAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();

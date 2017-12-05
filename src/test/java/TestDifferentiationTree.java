@@ -17,7 +17,8 @@ import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
 import interfaces.tes.DifferentiationTree;
 import interfaces.tes.Tes;
-import network.NetworkFromFile;
+import network.BNFromASTDescription;
+import network.BooleanNetworkFactory;
 import noise.CompletePerturbations;
 import org.junit.Test;
 import simulator.AttractorsFinderService;
@@ -29,7 +30,7 @@ public class TestDifferentiationTree {
 	public void DiffTree_1() {
 
 		/** BN from file*/
-		BooleanNetwork<BitSet, Boolean> read_bn = NetworkFromFile.newNetworkFromFile("testing/diff_trees/bn");
+		BooleanNetwork<BitSet, Boolean> read_bn = BooleanNetworkFactory.newNetworkFromFile("testing/diff_trees/bn");
 
 		/** Synchronous dynamics **/
 		Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(read_bn);

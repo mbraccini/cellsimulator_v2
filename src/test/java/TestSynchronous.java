@@ -12,13 +12,13 @@ import generator.RandomnessFactory;
 import generator.UniformlyDistributedGenerator;
 import interfaces.attractor.AttractorInfo;
 import interfaces.attractor.Generator;
-import interfaces.attractor.ImmutableList;
 import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
+import network.BooleanNetworkFactory;
 import network.RBN;
-import network.NetworkFromFile;
+import network.BNFromASTDescription;
 import org.junit.Test;
 
 import simulator.AttractorsFinderService;
@@ -73,7 +73,7 @@ public class TestSynchronous {
         String bnFilename = rootDirectory
                             + Files.FILE_SEPARATOR
                             + "sync_bn_1";
-        BooleanNetwork<BitSet, Boolean> bn = NetworkFromFile.newNetworkFromFile(bnFilename);
+        BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newNetworkFromFile(bnFilename);
 
         System.out.println(bn);
 
