@@ -18,6 +18,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version:  junitVersion
     compile group: 'joda-time', name: 'joda-time', version: jodatimeVersion
     compile group: 'org.apache.commons', name: 'commons-math3', version: apachemathVersion
+    compile group: 'io.jenetics', name:'jenetics', version: jeneticsVersion
 }
 
 test {
