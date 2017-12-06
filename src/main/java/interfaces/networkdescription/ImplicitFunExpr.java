@@ -10,6 +10,10 @@ public interface ImplicitFunExpr {
 
     DescriptiveFunction getDescriptiveFunction();
 
+    /**
+     * Node index
+     * @return
+     */
     String getNode();
 
     List<String> getTerms();
