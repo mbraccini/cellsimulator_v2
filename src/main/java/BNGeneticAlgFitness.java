@@ -1,16 +1,29 @@
+import dynamic.SynchronousDynamicsImpl;
+import generator.CompleteGenerator;
+import generator.RandomnessFactory;
+import interfaces.attractor.Generator;
+import interfaces.attractor.ImmutableList;
+import interfaces.attractor.LabelledOrderedAttractor;
+import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.networkdescription.ExplicitFunExpr;
 import interfaces.networkdescription.NameExpr;
 import interfaces.networkdescription.NetworkAST;
 import interfaces.networkdescription.TopologyExpr;
+import interfaces.state.BinaryState;
+import interfaces.tes.Atm;
 import io.jenetics.*;
 import network.BooleanNetworkFactory;
 import network.NaiveBNParser;
+import noise.CompletePerturbations;
+import simulator.AttractorsFinderService;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static utility.GenericUtility.printMatrix;
 
 
 public class BNGeneticAlgFitness {
@@ -18,7 +31,7 @@ public class BNGeneticAlgFitness {
 
     }
 
-
+    Random pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(120);
     public static int BINARY_DIGIT_NUMBER = (int) Math.round(Math.pow(2, MainJenetics.K));
 
     public static double eval(Genotype<IntegerGene> gt) {
@@ -60,15 +73,25 @@ public class BNGeneticAlgFitness {
         NetworkAST ast = new NaiveBNParser.AST(topologyExprList, explicitFunExprList, new ArrayList<>() , nameExprList);
 
         BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newNetworkFromAST(ast);
-        //System.out.print(bn);
-
-
-        return 0;
+        return simulate(bn);
     }
 
+    private static double simulate(BooleanNetwork<BitSet, Boolean> bn) {
+        Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
+        Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
+        ImmutableList<LabelledOrderedAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+        Callable<Atm<BinaryState>> cp = new CompletePerturbations(attractors, dynamics, 50000);
+        Atm<BinaryState> atm = null;
+        try {
+            atm = cp.call();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 2;
+    }
 
     /**
-     * Converts a number in decimal representation to a binary representation with a number of digitNUmber digit
+     * Converts a number in decimal representation to a binary representation with a number of digitNumber digit
      *
      * @param value
      * @param digitNumber
@@ -86,4 +109,61 @@ public class BNGeneticAlgFitness {
         prefix.append(postfix);
         return prefix.toString();
     }
-}
+
+    /**
+     * Reorder a matrix with the main diagonal as the key
+     * @param m
+     * @return
+     */
+    private static double[][] reorder(double[][] m) {
+        List<Integer> indices = indicesSortedByDiagonalValues(m);
+        double[][] newMatrix = new double[m.length][m.length];
+
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[i].length; j++) {
+                newMatrix[i][j] = m[indices.get(i)][indices.get(j)];
+            }
+        }
+        return newMatrix;
+    }
+
+    /**
+     * Support function for the reorder method
+     * @param m
+     * @return
+     */
+    private static List<Integer> indicesSortedByDiagonalValues(double[][] m) {
+        Double[][] temp = new Double[m.length][2];
+
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[i].length; j++) {
+                if (i == j) {
+                    temp[i][0] = m[i][j];           //elemento su cui fare il sort
+                    temp[i][1] = Double.valueOf(i); // indice di riga
+                }
+            }
+        }
+        Arrays.sort(temp, Comparator.comparingDouble(arr -> arr[0]));
+
+        Stream<Double[]> stream = Arrays.stream(temp);
+        List<Integer> indices =  stream.map(x -> x[1].intValue()).collect(Collectors.toList());
+        return indices;
+    }
+
+    static double[][] matrix = new double[][] {
+            // 0	1	  2
+            {0.3, 0.7, 0.2},
+
+            {0.8, 0.5, 0.6},
+
+            {0.4, 0.9, 0.1}
+
+    };
+
+    public static void main (String [] args) {
+        printMatrix(reorder(matrix));
+
+    }
+
+
+    }
