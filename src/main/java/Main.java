@@ -3,7 +3,7 @@ import generator.CompleteGenerator;
 import generator.RandomnessFactory;
 import interfaces.attractor.Generator;
 import interfaces.attractor.ImmutableList;
-import interfaces.attractor.LabelledOrderedAttractor;
+import interfaces.attractor.ImmutableAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
@@ -11,16 +11,12 @@ import interfaces.tes.Atm;
 import interfaces.tes.DifferentiationTree;
 import interfaces.tes.Tes;
 import network.RBNExactBias;
-import network.SelfLoopBN;
-import noise.CompletePerturbations;
 import noise.IncompletePerturbations;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import simulator.AttractorsFinderService;
 import tes.TesCreator;
 import utility.GenericUtility;
-import visualization.AtmGraphViz;
-import visualization.BNGraphViz;
 import visualization.DifferentiationTesTreeGraphViz;
 import visualization.DifferentiationTreeGraphViz;
 
@@ -61,7 +57,7 @@ public class Main {
         System.out.println(state);*/
 
         DateTime startDate = new DateTime();
-        ImmutableList<LabelledOrderedAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+        ImmutableList<ImmutableAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
         System.out.println("DOPO:" + attractors);
 
         DateTime endDate = new DateTime();
@@ -108,6 +104,8 @@ public class Main {
         new DifferentiationTesTreeGraphViz<BinaryState>(differentiationTree, "diffTree4").generateDotFile().generateImg("jpg");
 
         List.of();
+
+
     }
 
 }

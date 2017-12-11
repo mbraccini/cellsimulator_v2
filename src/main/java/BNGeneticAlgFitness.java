@@ -2,8 +2,8 @@ import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import generator.RandomnessFactory;
 import interfaces.attractor.Generator;
+import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.ImmutableList;
-import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.networkdescription.ExplicitFunExpr;
@@ -31,10 +31,54 @@ public class BNGeneticAlgFitness {
 
     }
 
-    Random pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(120);
     public static int BINARY_DIGIT_NUMBER = (int) Math.round(Math.pow(2, MainJenetics.K));
 
     public static double eval(Genotype<IntegerGene> gt) {
+
+        BooleanNetwork<BitSet, Boolean> bn = fromGenotypeToBN(gt);
+        Double[][] atm = simulateBN(bn);
+        double[][] sorted = reorder(atm);
+        return f1_robustness(sorted) + f2_equallyDistributed(sorted) + f3_triangleDifference(sorted);
+    }
+
+    private static double f1_robustness(double[][] m) {
+        double sum = 0;
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[i].length; j++) {
+                if (i == j) {
+                    sum += m[i][j];
+                } else {
+                    sum -= m[i][j];
+                }
+            }
+        }
+        return sum;
+    }
+    private static double f2_equallyDistributed(double[][] m) {
+        int attractorsNumber = m.length;
+        double sum = 0;
+        Double previous = null;
+        for (int i = m.length - 1 ; i >= 0; i--) {
+            for (int j = m[i].length - 1; j >= 0; j--) {
+                if (i == j) {
+                    if (Objects.nonNull(previous)) {
+                        sum += previous - m[i][j];
+                    }
+                    previous = m[i][j];
+                }
+            }
+        }
+        return sum * attractorsNumber;
+    }
+
+    private static double f3_triangleDifference(double[][] m) {
+        double[] trianglesSums = summingLowerAndUpperTriangle(m);
+        double lower = trianglesSums[0];
+        double upper = trianglesSums[1];
+        return upper - lower;
+    }
+
+    private static BooleanNetwork<BitSet, Boolean> fromGenotypeToBN(Genotype<IntegerGene> gt) {
         /**
          * INPUT_NODES
          */
@@ -72,14 +116,13 @@ public class BNGeneticAlgFitness {
 
         NetworkAST ast = new NaiveBNParser.AST(topologyExprList, explicitFunExprList, new ArrayList<>() , nameExprList);
 
-        BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newNetworkFromAST(ast);
-        return simulate(bn);
+        return BooleanNetworkFactory.newNetworkFromAST(ast);
     }
 
-    private static double simulate(BooleanNetwork<BitSet, Boolean> bn) {
+    private static Double[][] simulateBN(BooleanNetwork<BitSet, Boolean> bn) {
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
-        ImmutableList<LabelledOrderedAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+        ImmutableList<ImmutableAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
         Callable<Atm<BinaryState>> cp = new CompletePerturbations(attractors, dynamics, 50000);
         Atm<BinaryState> atm = null;
         try {
@@ -87,7 +130,7 @@ public class BNGeneticAlgFitness {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return 2;
+        return atm.getMatrixCopy();
     }
 
     /**
@@ -115,7 +158,7 @@ public class BNGeneticAlgFitness {
      * @param m
      * @return
      */
-    private static double[][] reorder(double[][] m) {
+    private static double[][] reorder(Double[][] m) {
         List<Integer> indices = indicesSortedByDiagonalValues(m);
         double[][] newMatrix = new double[m.length][m.length];
 
@@ -132,7 +175,7 @@ public class BNGeneticAlgFitness {
      * @param m
      * @return
      */
-    private static List<Integer> indicesSortedByDiagonalValues(double[][] m) {
+    private static List<Integer> indicesSortedByDiagonalValues(Double[][] m) {
         Double[][] temp = new Double[m.length][2];
 
         for (int i = 0; i < m.length; i++) {
@@ -150,19 +193,41 @@ public class BNGeneticAlgFitness {
         return indices;
     }
 
-    static double[][] matrix = new double[][] {
+    static double[] summingLowerAndUpperTriangle(double[][] m) {
+        double[] sum = new double[2]; //lower, upper
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[i].length; j++) {
+                if (i > j) {
+                    sum[0] += m[i][j];
+                } else if (j > i) {
+                    sum[1] += m[i][j];
+                }
+            }
+        }
+        return sum;
+    }
+
+
+
+
+    static Double[][] matrix = new Double[][] {
             // 0	1	  2
             {0.3, 0.7, 0.2},
 
-            {0.8, 0.5, 0.6},
+            {0.8, 0.1, 0.6},
 
             {0.4, 0.9, 0.1}
 
     };
 
     public static void main (String [] args) {
-        printMatrix(reorder(matrix));
 
+
+        double [][] n = reorder(matrix);
+        printMatrix(n);
+        double [] m =  summingLowerAndUpperTriangle(n);
+        //System.out.println(f1_robustness(n));
+        System.out.println(f2_equallyDistributed(n));
     }
 
 

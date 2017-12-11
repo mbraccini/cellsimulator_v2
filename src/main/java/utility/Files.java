@@ -52,7 +52,7 @@ public class Files {
      * @param filename
      * @param string
      */
-    public static void writeStringToFile(String filename, String string) {
+    private static void writeStringToFile(String filename, String string) {
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(filename));
@@ -68,7 +68,7 @@ public class Files {
         }
     }
 
-    public static void writeStringToFile2(String filename, String string) {
+    public static void writeStringToFileUTF8(String filename, String string) {
         Path file = Paths.get(filename);
         BufferedWriter writer = null;
         try {
@@ -83,5 +83,55 @@ public class Files {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void createDirectories(String path) {
+        try {
+            java.nio.file.Files.createDirectories(Paths.get(path));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Serialize an object.
+     * @param o
+     * @param filename
+     */
+    public static void serializeObject(Object o, String filename) {
+        if (!filename.endsWith(".ser")) {
+            filename = filename + ".ser";
+        }
+        try {
+            FileOutputStream fileOut = new FileOutputStream(filename);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(o);
+            out.close();
+            fileOut.close();
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+    }
+
+    /**
+     * Deserialize an object specified by a file path.
+     * @param filename
+     * @return
+     */
+    public static Object deserializeObject(String filename) {
+        if (!filename.endsWith(".ser")) {
+            filename = filename + ".ser";
+        }
+        Object ret = null;
+        try {
+            FileInputStream fileIn = new FileInputStream(filename);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            ret = in.readObject();
+            in.close();
+            fileIn.close();
+        } catch (IOException | ClassNotFoundException i) {
+            i.printStackTrace();
+        }
+        return ret;
     }
 }

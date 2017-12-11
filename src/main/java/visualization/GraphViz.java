@@ -54,7 +54,7 @@ public abstract class GraphViz {
 			graph = sb.append(starting()).append(graph).append(ending()).toString();
 		}
 		String dotFilename = filenames + ".gv";
-		Files.writeStringToFile2(dotFilename, graph);
+		Files.writeStringToFileUTF8(dotFilename, graph);
 		dotFileAlreadyGenerated = true;
 		return this;
 	}
