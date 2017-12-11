@@ -2,7 +2,7 @@ package tes;
 
 import exceptions.AtmException;
 import interfaces.attractor.ImmutableList;
-import interfaces.attractor.LabelledOrderedAttractor;
+import interfaces.attractor.ImmutableAttractor;
 import interfaces.state.State;
 import interfaces.tes.Atm;
 
@@ -22,7 +22,7 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 	
 	protected int[][] intMatrix;
 	protected Integer[][] occurrenciesIntegerMatrix;
-	protected ImmutableList<LabelledOrderedAttractor<T>> attractorsList;
+	protected ImmutableList<ImmutableAttractor<T>> attractorsList;
 	protected Double[][] atm;
 	protected int[] perturbationsNumberPerAttractor;
 
@@ -31,18 +31,18 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 	 * @param occurrenciesIntMatrix
 	 * @param attractorsList
 	 */
-	public AtmImpl(int[][] occurrenciesIntMatrix, ImmutableList<LabelledOrderedAttractor<T>> attractorsList) {
+	public AtmImpl(int[][] occurrenciesIntMatrix, ImmutableList<ImmutableAttractor<T>> attractorsList) {
 		this.intMatrix = occurrenciesIntMatrix;
 		this.attractorsList = attractorsList;
 		initPerturbationsPerAttractor();
 	}
 
-	private AtmImpl(ImmutableList<LabelledOrderedAttractor<T>> attractorsList, Double[][] atm) {
+	private AtmImpl(ImmutableList<ImmutableAttractor<T>> attractorsList, Double[][] atm) {
 		this.attractorsList = attractorsList;
 		this.atm = atm;
 	}
 
-	public static <T extends State> Atm<T> newAtm(ImmutableList<LabelledOrderedAttractor<T>> attractorsList, Double[][] atm) {
+	public static <T extends State> Atm<T> newAtm(ImmutableList<ImmutableAttractor<T>> attractorsList, Double[][] atm) {
 		return new AtmImpl<>(attractorsList, atm);
 	}
 
@@ -62,7 +62,7 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 	 * la giusta corrispondenza tra attrattori e matrice ATM!
 	 */
 	@Override
-	public ImmutableList<LabelledOrderedAttractor<T>> getAttractors() {
+	public ImmutableList<ImmutableAttractor<T>> getAttractors() {
 		return this.attractorsList;
 	}
 

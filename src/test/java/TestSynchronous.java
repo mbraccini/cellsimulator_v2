@@ -4,21 +4,20 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigInteger;
 import java.util.*;
 
-import attractor.AttractorInfoImpl;
+import attractor.MutableAttractorImpl;
 import attractor.AttractorsUtility;
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import generator.RandomnessFactory;
 import generator.UniformlyDistributedGenerator;
-import interfaces.attractor.AttractorInfo;
+import interfaces.attractor.ImmutableAttractor;
+import interfaces.attractor.MutableAttractor;
 import interfaces.attractor.Generator;
-import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
 import network.BooleanNetworkFactory;
 import network.RBN;
-import network.BNFromASTDescription;
 import org.junit.Test;
 
 import simulator.AttractorsFinderService;
@@ -84,7 +83,7 @@ public class TestSynchronous {
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
 
         /** Sync AttractorsUtility Finder **/
-        List<LabelledOrderedAttractor<BinaryState>> attractorsFound = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+        List<ImmutableAttractor<BinaryState>> attractorsFound = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
 
 
         /*********************************************************/ //Attrattori
@@ -106,12 +105,12 @@ public class TestSynchronous {
         BinaryState s_3 = new ImmutableBinaryState(4,0, 3);
         cyclic_attractor.add(s_3);
         /*********************************************************/
-        List<AttractorInfo<BinaryState>> attInfo  = new ArrayList<>(Arrays.asList(
-                                                                        new AttractorInfoImpl<>(fixed_point_0),
-                                                                        new AttractorInfoImpl<>(fixed_point_1),
-                                                                        new AttractorInfoImpl<>(cyclic_attractor)
+        List<MutableAttractor<BinaryState>> attInfo  = new ArrayList<>(Arrays.asList(
+                                                                        new MutableAttractorImpl<>(fixed_point_0),
+                                                                        new MutableAttractorImpl<>(fixed_point_1),
+                                                                        new MutableAttractorImpl<>(cyclic_attractor)
                                                                 ));
-        List<LabelledOrderedAttractor<BinaryState>> manuallyDefinedAttractors = AttractorsUtility.fromInfoToAttractors(attInfo);
+        List<ImmutableAttractor<BinaryState>> manuallyDefinedAttractors = AttractorsUtility.fromInfoToAttractors(attInfo);
         
 
         /** Test 1 **/

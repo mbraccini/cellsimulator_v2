@@ -1,13 +1,12 @@
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import interfaces.attractor.Generator;
+import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.ImmutableList;
-import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
-import network.BNFromASTDescription;
 import network.BooleanNetworkFactory;
 import noise.CompletePerturbations;
 import org.junit.Test;
@@ -63,7 +62,7 @@ public class TestAtm {
         BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newNetworkFromFile(bnFilename);
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
-        ImmutableList<LabelledOrderedAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+        ImmutableList<ImmutableAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
         System.out.println(attractors);
         CompletePerturbations cp = new CompletePerturbations(attractors, dynamics, 50000);
         Atm<BinaryState> atm = cp.call();

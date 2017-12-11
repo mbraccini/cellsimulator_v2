@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
-import interfaces.attractor.LabelledOrderedAttractor;
+import interfaces.attractor.ImmutableAttractor;
 import interfaces.state.State;
 import interfaces.tes.Atm;
 import interfaces.tes.DifferentiationNode;
@@ -19,7 +19,7 @@ public class TesCreator<T extends State> implements Callable<DifferentiationTree
 	protected Atm<T> atm;
 	protected Double[][] atmCopy;
 	protected List<Double> thresholds;
-	protected List<LabelledOrderedAttractor<T>> attractorsList;
+	protected List<ImmutableAttractor<T>> attractorsList;
 	protected Set<String> nameAlreadyUsed = new HashSet<>();
 	private Map<Double, Set<List<Integer>>> chachedThresholdTes;
 	public TesCreator(Atm<T> atm, List<Double> thresholds, Random random) {
@@ -151,7 +151,7 @@ public class TesCreator<T extends State> implements Callable<DifferentiationTree
 	private List<DifferentiationNode<Tes<T>>> isChildOf(DifferentiationNode<Tes<T>> tes, List<DifferentiationNode<Tes<T>>> parentLevel) {
 		List<DifferentiationNode<Tes<T>>> listOfParents = new ArrayList<>();
 		for (DifferentiationNode<Tes<T>> parentDifferentiationNode: parentLevel) {
-			for (LabelledOrderedAttractor<T> attractor : tes.getWrappedElement().getTesAttractors()) {
+			for (ImmutableAttractor<T> attractor : tes.getWrappedElement().getTesAttractors()) {
 				if (parentDifferentiationNode.getWrappedElement().getTesAttractors().stream().anyMatch(x -> x.equals(attractor))) {
 					if (listOfParents.contains(parentDifferentiationNode) == false) {
 						listOfParents.add(parentDifferentiationNode);
@@ -220,8 +220,8 @@ public class TesCreator<T extends State> implements Callable<DifferentiationTree
 
 		};
 
-		List<LabelledOrderedAttractor<T>> att = (List<LabelledOrderedAttractor<T>>) UtilityFiles.deserializeObject("att_ser.ser");
-		List<LabelledOrderedAttractor<T>> att2 = new ArrayList<>();
+		List<ImmutableAttractor<T>> att = (List<ImmutableAttractor<T>>) UtilityFiles.deserializeObject("att_ser.ser");
+		List<ImmutableAttractor<T>> att2 = new ArrayList<>();
 		att2.add(att.get(0));
 		att2.add(att.get(1));
 		att2.add(att.get(2));

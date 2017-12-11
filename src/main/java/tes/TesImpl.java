@@ -5,21 +5,21 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import interfaces.attractor.LabelledOrderedAttractor;
+import interfaces.attractor.ImmutableAttractor;
 import interfaces.state.State;
 import interfaces.tes.Tes;
 
 public class TesImpl<T extends State> implements Tes<T> {
 
 	protected String name;
-	protected List<LabelledOrderedAttractor<T>> attractorsList;
+	protected List<ImmutableAttractor<T>> attractorsList;
 
-	public TesImpl(List<LabelledOrderedAttractor<T>> attractorsList) {
+	public TesImpl(List<ImmutableAttractor<T>> attractorsList) {
 		this.attractorsList = attractorsList;
 	}
 
 	@Override
-	public List<LabelledOrderedAttractor<T>> getTesAttractors() {
+	public List<ImmutableAttractor<T>> getTesAttractors() {
 		return this.attractorsList;
 	}
 

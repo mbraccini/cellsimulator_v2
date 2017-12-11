@@ -10,14 +10,13 @@ import generator.CompleteGenerator;
 import generator.RandomnessFactory;
 import interfaces.attractor.Generator;
 import interfaces.attractor.ImmutableList;
-import interfaces.attractor.LabelledOrderedAttractor;
+import interfaces.attractor.ImmutableAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
 import interfaces.tes.DifferentiationTree;
 import interfaces.tes.Tes;
-import network.BNFromASTDescription;
 import network.BooleanNetworkFactory;
 import noise.CompletePerturbations;
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class TestDifferentiationTree {
 		Generator<BinaryState> generator = new CompleteGenerator(read_bn.getNodesNumber());
 
 		/** Sync Attractors Finder **/
-		ImmutableList<LabelledOrderedAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+		ImmutableList<ImmutableAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
 
 		assertTrue("Dovrebbe trovare 4 attrattori", attractors.size() == 4);
 

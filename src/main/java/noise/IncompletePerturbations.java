@@ -2,8 +2,8 @@ package noise;
 
 import attractor.AttractorsUtility;
 import exceptions.EmptyAttractorsList;
+import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.ImmutableList;
-import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
@@ -23,7 +23,7 @@ import java.util.concurrent.Callable;
 public class IncompletePerturbations implements Callable<Atm<BinaryState>> {
 
 	protected final Random pseudoRandomInstance;
-	protected ImmutableList<LabelledOrderedAttractor<BinaryState>> attractorsList;
+	protected ImmutableList<ImmutableAttractor<BinaryState>> attractorsList;
 	protected Dynamics<BinaryState> dynamics;
 	protected int[][] atm;
 	protected int nodesNumber;
@@ -32,7 +32,7 @@ public class IncompletePerturbations implements Callable<Atm<BinaryState>> {
 	protected int cutoff;
 	protected int perturbationsLost;
 
-	public IncompletePerturbations(	ImmutableList<LabelledOrderedAttractor<BinaryState>> attractorsList,
+	public IncompletePerturbations(	ImmutableList<ImmutableAttractor<BinaryState>> attractorsList,
 									Dynamics<BinaryState> dynamics,
 									int percentageStatesToPerturb,
 									int percentageNodesToPerturb,
@@ -115,7 +115,7 @@ public class IncompletePerturbations implements Callable<Atm<BinaryState>> {
 				}
 			}
 		}
-		System.out.println("Perturbations LOST: " + perturbationsLost);
+		//System.out.println("Perturbations LOST: " + perturbationsLost);
 		return new AtmImpl<>(this.atm, this.attractorsList);
 	}
 

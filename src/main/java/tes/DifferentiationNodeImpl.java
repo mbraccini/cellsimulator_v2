@@ -3,11 +3,8 @@ package tes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
-import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.tes.DifferentiationNode;
-import interfaces.tes.Tes;
 
 public class DifferentiationNodeImpl<E> implements DifferentiationNode<E> {
 

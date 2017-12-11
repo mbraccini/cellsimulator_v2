@@ -1,6 +1,6 @@
 package visualization;
 
-import interfaces.attractor.LabelledOrderedAttractor;
+import interfaces.attractor.ImmutableAttractor;
 import interfaces.state.State;
 import interfaces.tes.DifferentiationNode;
 import interfaces.tes.DifferentiationTree;
@@ -33,7 +33,7 @@ public class DifferentiationTesTreeGraphViz<T extends State> extends Differentia
                         .filter(x -> x.getLevel().intValue() == levelInExam)
                         .collect(Collectors.toList());
                 //////////////////////////////////////////////////////////////////
-                for (LabelledOrderedAttractor<T> attractor : rootNode.getWrappedElement().getTesAttractors()) {
+                for (ImmutableAttractor<T> attractor : rootNode.getWrappedElement().getTesAttractors()) {
 
                     List<DifferentiationNode<Tes<T>>> nodesFound = previousLevel.stream()
                             .filter(x -> x.getWrappedElement().getTesAttractors().contains(attractor))

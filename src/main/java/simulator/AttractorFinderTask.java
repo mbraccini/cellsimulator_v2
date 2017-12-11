@@ -1,7 +1,7 @@
 package simulator;
 
-import attractor.AttractorInfoImpl;
-import interfaces.attractor.AttractorInfo;
+import attractor.MutableAttractorImpl;
+import interfaces.attractor.MutableAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.state.State;
 
@@ -14,15 +14,15 @@ public class AttractorFinderTask<T extends State> implements Callable<Void> {
 
     private final MyCountDownLatch latch;
     private final T initialState;
-    private final Collection<AttractorInfo<T>> collectionAttractorInfo;
+    private final Collection<MutableAttractor<T>> collectionMutableAttractor;
     private final Dynamics<T> dynamics;
     private final List<T> states;
 
-    public AttractorFinderTask(T initialState, Dynamics<T> dynamics, MyCountDownLatch latch, Collection<AttractorInfo<T>> collectionAttractorInfo) {
+    public AttractorFinderTask(T initialState, Dynamics<T> dynamics, MyCountDownLatch latch, Collection<MutableAttractor<T>> collectionMutableAttractor) {
         this.initialState = initialState;
         this.dynamics = dynamics;
         this.latch = latch;
-        this.collectionAttractorInfo = collectionAttractorInfo;
+        this.collectionMutableAttractor = collectionMutableAttractor;
         this.states = new ArrayList<>();
     }
 
@@ -47,7 +47,7 @@ public class AttractorFinderTask<T extends State> implements Callable<Void> {
 
             if (this.states.contains(state)) {
                 states.subList(0, states.indexOf(state)).clear(); //rimuovo gli stati da quello trovato (escluso) all'indietro
-                collectionAttractorInfo.add(new AttractorInfoImpl<>(states));
+                collectionMutableAttractor.add(new MutableAttractorImpl<>(states));
                 return;
             }
 
@@ -59,7 +59,7 @@ public class AttractorFinderTask<T extends State> implements Callable<Void> {
     }
 
     protected boolean checksIfAlreadyPresent(T state) {
-        if (collectionAttractorInfo.stream().anyMatch(x -> x.getStates().contains(state))) {
+        if (collectionMutableAttractor.stream().anyMatch(x -> x.getStates().contains(state))) {
             return true;
         }
         return false;

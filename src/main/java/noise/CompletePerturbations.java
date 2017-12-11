@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import attractor.AttractorsUtility;
 import exceptions.EmptyAttractorsList;
+import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.ImmutableList;
-import interfaces.attractor.LabelledOrderedAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
@@ -13,14 +13,14 @@ import tes.AtmImpl;
 
 public class CompletePerturbations implements Callable<Atm<BinaryState>> {
 	
-	protected ImmutableList<LabelledOrderedAttractor<BinaryState>> attractorsList;
+	protected ImmutableList<ImmutableAttractor<BinaryState>> attractorsList;
 	protected Dynamics<BinaryState> dynamics;
 	protected int[][] atm;
 	protected int nodesNumber;
 	protected int cutoff;
 	protected int perturbationsLost;
 
-	public CompletePerturbations(ImmutableList<LabelledOrderedAttractor<BinaryState>> attractorsList, Dynamics<BinaryState> dynamics, int cutoff){
+	public CompletePerturbations(ImmutableList<ImmutableAttractor<BinaryState>> attractorsList, Dynamics<BinaryState> dynamics, int cutoff){
 		if (attractorsList.size() == 0) {
 			throw new EmptyAttractorsList();
 		}
@@ -67,7 +67,7 @@ public class CompletePerturbations implements Callable<Atm<BinaryState>> {
 				}
 			}
 		}
-		System.out.println("Perturbations LOST: " + perturbationsLost);
+		//System.out.println("Perturbations LOST: " + perturbationsLost);
 		return new AtmImpl<>(this.atm, this.attractorsList);
 	}
 	

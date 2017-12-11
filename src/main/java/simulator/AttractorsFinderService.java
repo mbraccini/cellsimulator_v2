@@ -3,16 +3,14 @@ package simulator;
 import attractor.AttractorsUtility;
 import interfaces.attractor.*;
 import interfaces.dynamic.Dynamics;
-import interfaces.state.BinaryState;
 import interfaces.state.State;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.Callable;
 
-public class AttractorsFinderService<T extends State> implements Callable<ImmutableList<LabelledOrderedAttractor<T>>> {
+public class AttractorsFinderService<T extends State> implements Callable<ImmutableList<ImmutableAttractor<T>>> {
     /* thread pool */
     //final ExecutorService executor;
     private final Generator<T> generator;
@@ -30,10 +28,10 @@ public class AttractorsFinderService<T extends State> implements Callable<Immuta
     }
 
     @Override
-    public ImmutableList<LabelledOrderedAttractor<T>> call(){
+    public ImmutableList<ImmutableAttractor<T>> call(){
         BigInteger combinations = this.generator.totalNumberOfSamplesToBeGenerated();
         MyCountDownLatch latch = new MyCountDownLatch(combinations);
-        Collection<AttractorInfo<T>> list = new ArrayList<>();
+        Collection<MutableAttractor<T>> list = new ArrayList<>();
 
         T state = generator.nextSample();
         while (state != null) {
@@ -47,7 +45,7 @@ public class AttractorsFinderService<T extends State> implements Callable<Immuta
         latch.await();
 
         //list.forEach(x->System.out.println(x.getStates()));
-        ImmutableList<LabelledOrderedAttractor<T>> l = AttractorsUtility.fromInfoToAttractors(list);
+        ImmutableList<ImmutableAttractor<T>> l = AttractorsUtility.fromInfoToAttractors(list);
         return l;
     }
 

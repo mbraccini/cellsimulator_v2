@@ -1,6 +1,6 @@
 package interfaces.tes;
 
-import interfaces.attractor.LabelledOrderedAttractor;
+import interfaces.attractor.ImmutableAttractor;
 import interfaces.state.State;
 
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface Tes<T extends State> {
 
-	List<LabelledOrderedAttractor<T>> getTesAttractors();
+	List<ImmutableAttractor<T>> getTesAttractors();
 	
 	Optional<String> getName(); /* Name of the cell type */
 	
