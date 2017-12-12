@@ -1,9 +1,15 @@
 package utility;
 
+import com.opencsv.CSVWriter;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Files {
     /**
@@ -85,6 +91,11 @@ public class Files {
         }
     }
 
+    /**
+     * Create all the directories specified in the path (even the subfolders!)
+     *
+     * @param path
+     */
     public static void createDirectories(String path) {
         try {
             java.nio.file.Files.createDirectories(Paths.get(path));
@@ -95,6 +106,7 @@ public class Files {
 
     /**
      * Serialize an object.
+     *
      * @param o
      * @param filename
      */
@@ -115,6 +127,7 @@ public class Files {
 
     /**
      * Deserialize an object specified by a file path.
+     *
      * @param filename
      * @return
      */
@@ -134,4 +147,38 @@ public class Files {
         }
         return ret;
     }
+
+
+    /**
+     * write List of array to csv file
+     * @param elements
+     */
+    public static void writeToCsv(List<String[]> elements, String filename) {
+        if (!filename.endsWith(".csv")) filename = filename + ".csv";
+        try{
+            CSVWriter writer = new CSVWriter(new FileWriter(filename), ';', '"', '\\', "\n");
+            writer.writeAll(elements);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void writeMatrixToCsv(int[][] matrix, String filename) {
+        List<String[]> s = Arrays.stream(matrix).map(x -> Arrays.stream(x).mapToObj(String::valueOf).toArray(String[]::new)).collect(Collectors.toList());
+        writeToCsv(s, filename);
+    }
+    public static void writeMatrixToCsv(double[][] matrix, String filename) {
+        List<String[]> s = Arrays.stream(matrix).map(x -> Arrays.stream(x).mapToObj(String::valueOf).toArray(String[]::new)).collect(Collectors.toList());
+        writeToCsv(s, filename);
+    }
+    public static <T> void writeMatrixToCsv(T[][] matrix, String filename) {
+        List<String[]> s = Arrays.stream(matrix).map(x -> Arrays.stream(x).map(Object::toString).toArray(String[]::new)).collect(Collectors.toList());
+        writeToCsv(s, filename);
+    }
+    public static <T> void writeListsToCsv(List<List<T>> list, String filename) {
+        List<String[]> s = list.stream().map(x -> x.stream().map(Object::toString).toArray(String[]::new)).collect(Collectors.toList());
+        writeToCsv(s, filename);
+    }
+
 }

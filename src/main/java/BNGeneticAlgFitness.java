@@ -17,13 +17,16 @@ import network.BooleanNetworkFactory;
 import network.NaiveBNParser;
 import noise.CompletePerturbations;
 import simulator.AttractorsFinderService;
+import utility.Files;
+import utility.GenericUtility;
+import utility.MatrixUtility;
+import visualization.AtmGraphViz;
+import visualization.BNGraphViz;
 
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static utility.GenericUtility.printMatrix;
 
 
 public class BNGeneticAlgFitness {
@@ -36,8 +39,8 @@ public class BNGeneticAlgFitness {
     public static double eval(Genotype<IntegerGene> gt) {
 
         BooleanNetwork<BitSet, Boolean> bn = fromGenotypeToBN(gt);
-        Double[][] atm = simulateBN(bn);
-        double[][] sorted = reorder(atm);
+        Double[][] atm = simulateBN(bn).getMatrixCopy();
+        double[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
         return f1_robustness(sorted) + f2_equallyDistributed(sorted) + f3_triangleDifference(sorted);
     }
 
@@ -52,7 +55,7 @@ public class BNGeneticAlgFitness {
                 }
             }
         }
-        return sum;
+        return Math.round((sum) * 100.0) / 100.0;
     }
     private static double f2_equallyDistributed(double[][] m) {
         int attractorsNumber = m.length;
@@ -68,14 +71,15 @@ public class BNGeneticAlgFitness {
                 }
             }
         }
-        return sum * attractorsNumber;
+        return Math.round((sum * attractorsNumber) * 100.0) / 100.0;
+
     }
 
     private static double f3_triangleDifference(double[][] m) {
         double[] trianglesSums = summingLowerAndUpperTriangle(m);
         double lower = trianglesSums[0];
         double upper = trianglesSums[1];
-        return upper - lower;
+        return Math.round((upper - lower) * 100.0) / 100.0;
     }
 
     private static BooleanNetwork<BitSet, Boolean> fromGenotypeToBN(Genotype<IntegerGene> gt) {
@@ -110,7 +114,7 @@ public class BNGeneticAlgFitness {
 
         // List<String> booleanFunctionsOutput = booleanFunctions.stream().map(x -> ).collect(Collectors.toList());
         for (int bfIndex = 0; bfIndex < booleanFunctions.length(); bfIndex++) {
-            explicitFunExprList.add(new NaiveBNParser.ExplicitFunExprImpl("" + bfIndex, convertNumToBitString(booleanFunctions.getGene(bfIndex).getAllele(), BINARY_DIGIT_NUMBER)));
+            explicitFunExprList.add(new NaiveBNParser.ExplicitFunExprImpl("" + bfIndex, GenericUtility.digitToStringBinaryDigits(booleanFunctions.getGene(bfIndex).getAllele(), BINARY_DIGIT_NUMBER)));
             nameExprList.add(new NaiveBNParser.NameExprImpl("" + bfIndex, "gene_" + bfIndex));
         }
 
@@ -119,7 +123,7 @@ public class BNGeneticAlgFitness {
         return BooleanNetworkFactory.newNetworkFromAST(ast);
     }
 
-    private static Double[][] simulateBN(BooleanNetwork<BitSet, Boolean> bn) {
+    private static Atm<BinaryState> simulateBN(BooleanNetwork<BitSet, Boolean> bn) {
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
         ImmutableList<ImmutableAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
@@ -130,68 +134,12 @@ public class BNGeneticAlgFitness {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return atm.getMatrixCopy();
+        return atm;
     }
 
-    /**
-     * Converts a number in decimal representation to a binary representation with a number of digitNumber digit
-     *
-     * @param value
-     * @param digitNumber
-     * @return
-     */
-    public static String convertNumToBitString(int value, int digitNumber) {
-        StringBuilder postfix = new StringBuilder();
-        StringBuilder prefix = new StringBuilder();
 
-        postfix.append(Integer.toBinaryString(value));
-        while ((prefix.length() + postfix.length()) < digitNumber) {
-            prefix.append('0');
-        }
 
-        prefix.append(postfix);
-        return prefix.toString();
-    }
 
-    /**
-     * Reorder a matrix with the main diagonal as the key
-     * @param m
-     * @return
-     */
-    private static double[][] reorder(Double[][] m) {
-        List<Integer> indices = indicesSortedByDiagonalValues(m);
-        double[][] newMatrix = new double[m.length][m.length];
-
-        for (int i = 0; i < m.length; i++) {
-            for (int j = 0; j < m[i].length; j++) {
-                newMatrix[i][j] = m[indices.get(i)][indices.get(j)];
-            }
-        }
-        return newMatrix;
-    }
-
-    /**
-     * Support function for the reorder method
-     * @param m
-     * @return
-     */
-    private static List<Integer> indicesSortedByDiagonalValues(Double[][] m) {
-        Double[][] temp = new Double[m.length][2];
-
-        for (int i = 0; i < m.length; i++) {
-            for (int j = 0; j < m[i].length; j++) {
-                if (i == j) {
-                    temp[i][0] = m[i][j];           //elemento su cui fare il sort
-                    temp[i][1] = Double.valueOf(i); // indice di riga
-                }
-            }
-        }
-        Arrays.sort(temp, Comparator.comparingDouble(arr -> arr[0]));
-
-        Stream<Double[]> stream = Arrays.stream(temp);
-        List<Integer> indices =  stream.map(x -> x[1].intValue()).collect(Collectors.toList());
-        return indices;
-    }
 
     static double[] summingLowerAndUpperTriangle(double[][] m) {
         double[] sum = new double[2]; //lower, upper
@@ -222,12 +170,18 @@ public class BNGeneticAlgFitness {
 
     public static void main (String [] args) {
 
+        BooleanNetwork<BitSet,Boolean> bn = fromGenotypeToBN((Genotype<IntegerGene>)Files.deserializeObject("/Users/michelebraccini/IdeaProjects/Results/GeneticAlg/BestGenotype.ser"));
+        System.out.println(bn);
+        Atm<BinaryState> atm = simulateBN(bn);
 
-        double [][] n = reorder(matrix);
-        printMatrix(n);
-        double [] m =  summingLowerAndUpperTriangle(n);
-        //System.out.println(f1_robustness(n));
-        System.out.println(f2_equallyDistributed(n));
+        Files.createDirectories("../Results/visual");
+
+        Files.writeMatrixToCsv(atm.getMatrixCopy(), "../Results/visual/originalATM");
+        Files.writeMatrixToCsv(MatrixUtility.reorderByDiagonalValues(atm.getMatrixCopy()), "../Results/visual/sortedATM");
+
+        new AtmGraphViz(atm,"../Results/visual/atm").generateDotFile().generateImg("jpg");
+        new BNGraphViz<BitSet,Boolean>(bn,"../Results/visual/bn").generateDotFile().generateImg("jpg");
+
     }
 
 

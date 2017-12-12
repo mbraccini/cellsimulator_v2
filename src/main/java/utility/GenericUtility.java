@@ -46,6 +46,27 @@ public class GenericUtility {
 
 
     /**
+     * Converts a number in decimal representation to a binary representation with a number of digitNumber digit
+     *
+     * @param value
+     * @param digitNumber
+     * @return
+     */
+    public static String digitToStringBinaryDigits(int value, int digitNumber) {
+        StringBuilder postfix = new StringBuilder();
+        StringBuilder prefix = new StringBuilder();
+
+        postfix.append(Integer.toBinaryString(value));
+        while ((prefix.length() + postfix.length()) < digitNumber) {
+            prefix.append('0');
+        }
+
+        prefix.append(postfix);
+        return prefix.toString();
+    }
+
+
+    /**
      * Checks if the List is not null
      * @param other
      * @return

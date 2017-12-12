@@ -95,7 +95,7 @@ public abstract class AbstractBooleanNetwork<K,V> implements BooleanNetwork<K,V>
 							.sorted(Comparator.comparingInt( x -> x.getKey().getId()))
 							.map( r-> {
 							return r.getKey().toString() 
-							+ " --> "+ 
+							+ " <--- "+
 							r.getValue().toString();}).collect(Collectors.joining(" \n"))
 					+"\n--------------------\n"
 					+ this.nodesList.stream().map(x-> {return "NodeId=" + x.getId() +", "+ x.getFunction();}).collect(Collectors.joining(" \n"));

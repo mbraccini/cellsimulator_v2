@@ -16,7 +16,7 @@ public class MainJenetics {
     static final int POPULATION_SIZE = 100;
     static final int STEADY_FITNESS_LIMIT = 1000;
 
-    public static final int NODES_NUMBER = 10;
+    public static final int NODES_NUMBER = 20;
     public static final int K = 2;
     static final int Boolean_Function_Max_Value = (int)Math.round(Math.pow(2,Math.pow(2,K))) - 1;
 
@@ -32,7 +32,7 @@ public class MainJenetics {
         /*Factory<Genotype<BitGene>> gtf =
                 Genotype.of(BitChromosome.of(10 , 0.5));*/
 
-        System.out.println("Boolean_Function_Max_Value " + Boolean_Function_Max_Value);
+        System.out.println("Nodes: " + NODES_NUMBER);
         Factory<Genotype<IntegerGene>> gtf =
                 Genotype.of(IntegerChromosome.of(IntRange.of(0, NODES_NUMBER - 1),K * NODES_NUMBER),
                         IntegerChromosome.of(IntRange.of(0, Boolean_Function_Max_Value), NODES_NUMBER)); //rappresenta 1 individuo
