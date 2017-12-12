@@ -1,4 +1,3 @@
-import interfaces.core.Logger;
 import io.jenetics.*;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionResult;
