@@ -1,14 +1,17 @@
+import interfaces.network.BooleanNetwork;
 import io.jenetics.*;
 import io.jenetics.util.ISeq;
 import io.jenetics.util.IntRange;
 import io.jenetics.util.Seq;
 
 import java.io.Serializable;
+import java.util.BitSet;
 import java.util.Iterator;
 
 public class TopologyFixedKBNChromosome implements NumericChromosome<Integer, IntegerGene>, Serializable {
 
 
+    protected final boolean selfLoopEnabled;
     protected IntegerChromosome internalChromosome;
 
     /**
@@ -16,15 +19,16 @@ public class TopologyFixedKBNChromosome implements NumericChromosome<Integer, In
      */
     int k;
 
-    protected TopologyFixedKBNChromosome(ISeq<IntegerGene> genes, int k) {
+    protected TopologyFixedKBNChromosome(ISeq<IntegerGene> genes, int k, boolean selfLoopEnabled) {
         checkTopologyFeasibility(genes.length(), k);
 
         IntegerGene[] tempGenes = new IntegerGene[genes.length()];
         this.internalChromosome = IntegerChromosome.of(genes.toArray(tempGenes));
         this.k = k;
+        this.selfLoopEnabled = selfLoopEnabled;
     }
 
-    protected TopologyFixedKBNChromosome(Integer min, Integer max, IntRange lengthRange, int k) {
+    protected TopologyFixedKBNChromosome(Integer min, Integer max, IntRange lengthRange, int k, boolean selfLoopEnabled) {
         if (lengthRange.size() != 1) { //cioè vogliamo cromosomi di lunghezza fissa
             throw new VariableChromosomeLengthException();
         }
@@ -33,14 +37,16 @@ public class TopologyFixedKBNChromosome implements NumericChromosome<Integer, In
 
         this.internalChromosome = new IntegerChromosome(min, max, lengthRange);
         this.k = k;
+        this.selfLoopEnabled = selfLoopEnabled;
     }
 
-    public TopologyFixedKBNChromosome(Integer min, Integer max, int length, int k) {
+    public TopologyFixedKBNChromosome(Integer min, Integer max, int length, int k, boolean selfLoopEnabled) {
 
         checkTopologyFeasibility(length, k);
 
         this.internalChromosome = new IntegerChromosome(min, max, length);
         this.k = k;
+        this.selfLoopEnabled = selfLoopEnabled;
     }
 
     private void checkTopologyFeasibility(int length, int k) {
@@ -51,13 +57,18 @@ public class TopologyFixedKBNChromosome implements NumericChromosome<Integer, In
 
     @Override
     public boolean isValid() {
-
         ISeq<IntegerGene> seq = internalChromosome.toSeq();
         for (int i = 0, block = 1; i <= length() - k; i += k, block++) {
             if (seq.subSeq(i, (k * block)).stream().distinct().count() != k) {
-                System.out.println(this);
-                System.out.println("uguali: " + seq.subSeq(i, (k * block)));
+                //repeated incoming nodes
                 return false;
+            } else if (!selfLoopEnabled) {
+                for (int j = i; j < i + k; j++) {
+                    if (seq.get(j).getAllele().equals(block - 1)) {
+                        //there is a self-loop
+                        return false;
+                    }
+                }
             }
         }
         return true;
@@ -66,23 +77,21 @@ public class TopologyFixedKBNChromosome implements NumericChromosome<Integer, In
 
     @Override
     public TopologyFixedKBNChromosome newInstance(final ISeq<IntegerGene> genes) {
-        System.out.println("lengthRange: " + internalChromosome.lengthRange() + ",genes " + genes.length());
-        return new TopologyFixedKBNChromosome(genes, k);
+        return new TopologyFixedKBNChromosome(genes, k, selfLoopEnabled);
     }
 
     @Override
     public TopologyFixedKBNChromosome newInstance() {
-        System.out.println("newInstance");
-        return new TopologyFixedKBNChromosome(getMin(), getMax(), internalChromosome.lengthRange(), k);
+        return new TopologyFixedKBNChromosome(getMin(), getMax(), internalChromosome.lengthRange(), k, selfLoopEnabled);
 
     }
 
-    public static TopologyFixedKBNChromosome of(int min, int max, int length, int k) {
-        return new TopologyFixedKBNChromosome(min, max, length, k);
+    public static TopologyFixedKBNChromosome of(int min, int max, int length, int k, boolean selfLoopEnabled) {
+        return new TopologyFixedKBNChromosome(min, max, length, k, selfLoopEnabled);
     }
 
-    public static TopologyFixedKBNChromosome of(IntRange range, int length, int k) {
-        return new TopologyFixedKBNChromosome(range.getMin(), range.getMax(), length, k);
+    public static TopologyFixedKBNChromosome of(IntRange range, int length, int k, boolean selfLoopEnabled) {
+        return new TopologyFixedKBNChromosome(range.getMin(), range.getMax(), length, k, selfLoopEnabled);
     }
 
     @Override
@@ -154,36 +163,15 @@ public class TopologyFixedKBNChromosome implements NumericChromosome<Integer, In
         TopologyFixedKBNChromosome a = new TopologyFixedKBNChromosome(
                 (ISeq<IntegerGene>) Seq.of(
                         IntegerGene.of(2, 0, 3),
-                        IntegerGene.of(3, 0, 3)
+                        IntegerGene.of(4, 0, 3)
 
-                ), 2);
+                ), 2, true);
 
-        TopologyFixedKBNChromosome b = new TopologyFixedKBNChromosome((ISeq<IntegerGene>) Seq.of(IntegerGene.of(1, 10), IntegerGene.of(0, 9)), 2);
+        TopologyFixedKBNChromosome b = new TopologyFixedKBNChromosome((ISeq<IntegerGene>) Seq.of(IntegerGene.of(1, 10), IntegerGene.of(0, 9)), 2, true);
 
-        TopologyFixedKBNChromosome p = new TopologyFixedKBNChromosome(0, 10, IntRange.of(8), 2);
-        TopologyFixedKBNChromosome p1 = p.newInstance(
-                (ISeq<IntegerGene>) Seq.of(
-                        IntegerGene.of(2, 0, 3),
-                        IntegerGene.of(3, 0, 3),
-                        IntegerGene.of(1, 0, 3),
-                        IntegerGene.of(2, 0, 3),
-                        IntegerGene.of(3, 0, 3),
-                        IntegerGene.of(1, 0, 3),
-                        IntegerGene.of(1, 0, 3),
-                        IntegerGene.of(3, 0, 3)
-                ));
 
-        TopologyFixedKBNChromosome p2 = p.newInstance(
-                (ISeq<IntegerGene>) Seq.of(
-                        IntegerGene.of(2, 0, 3),
-                        IntegerGene.of(3, 0, 3),
-                        IntegerGene.of(1, 0, 3),
-                        IntegerGene.of(2, 0, 3),
-                        IntegerGene.of(3, 0, 3),
-                        IntegerGene.of(1, 0, 3),
-                        IntegerGene.of(1, 0, 3),
-                        IntegerGene.of(3, 0, 3)
-                ));
+
+
         /*System.out.println(p.length());
         System.out.println(p.getMin());
         System.out.println(p.getMax());
@@ -196,12 +184,30 @@ public class TopologyFixedKBNChromosome implements NumericChromosome<Integer, In
         System.out.println(p1);
         System.out.println(p2);
         */
-        System.out.println(z2);
-        System.out.println(a);
 
-        System.out.println(a.equals(z2));
+        TopologyFixedKBNChromosome p = new TopologyFixedKBNChromosome(0, 2, IntRange.of(6), 2, true);
+        TopologyFixedKBNChromosome top = p.newInstance(
+                (ISeq<IntegerGene>) Seq.of(
+                        IntegerGene.of(0, 0, 2),
+                        IntegerGene.of(1, 0, 2),
+                        IntegerGene.of(0, 0, 2),
+                        IntegerGene.of(2, 0, 2),
+                        IntegerGene.of(1, 0, 2),
+                        IntegerGene.of(0, 0, 2)
+                ));
 
-        //System.out.println(p1.isValid());
+        IntegerChromosome fun = IntegerChromosome.of(IntRange.of(0,2), IntRange.of(3));
+
+
+        Genotype<IntegerGene> gen = Genotype.of(top, fun);
+        System.out.println(gen.getChromosome(0));
+        System.out.println(gen.getChromosome(1));
+        BooleanNetwork<BitSet, Boolean> bn = BNGeneticAlgFitness.fromGenotypeToBN(gen, 2);
+
+
+        System.out.println(top.isValid());
+        System.out.println(bn);
+
 
 
     }

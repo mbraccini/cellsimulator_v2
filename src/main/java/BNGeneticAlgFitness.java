@@ -1,6 +1,5 @@
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
-import generator.RandomnessFactory;
 import interfaces.attractor.Generator;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.ImmutableList;
@@ -12,7 +11,9 @@ import interfaces.networkdescription.NetworkAST;
 import interfaces.networkdescription.TopologyExpr;
 import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
-import io.jenetics.*;
+import io.jenetics.Chromosome;
+import io.jenetics.Genotype;
+import io.jenetics.IntegerGene;
 import network.BooleanNetworkFactory;
 import network.NaiveBNParser;
 import noise.CompletePerturbations;
@@ -23,7 +24,10 @@ import utility.MatrixUtility;
 import visualization.AtmGraphViz;
 import visualization.BNGraphViz;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -34,11 +38,10 @@ public class BNGeneticAlgFitness {
 
     }
 
-    public static int BINARY_DIGIT_NUMBER = (int) Math.round(Math.pow(2, MainJenetics.K));
 
     public static double eval(Genotype<IntegerGene> gt) {
 
-        BooleanNetwork<BitSet, Boolean> bn = fromGenotypeToBN(gt);
+        BooleanNetwork<BitSet, Boolean> bn = fromGenotypeToBN(gt, MainJenetics.K);
         Double[][] atm = simulateBN(bn).getMatrixCopy();
         double[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
         return f1_robustness(sorted) + f2_equallyDistributed(sorted) + f3_triangleDifference(sorted);
@@ -82,7 +85,9 @@ public class BNGeneticAlgFitness {
         return Math.round((upper - lower) * 100.0) / 100.0;
     }
 
-    private static BooleanNetwork<BitSet, Boolean> fromGenotypeToBN(Genotype<IntegerGene> gt) {
+    public static BooleanNetwork<BitSet, Boolean> fromGenotypeToBN(Genotype<IntegerGene> gt, int k) {
+        int BINARY_DIGIT_NUMBER = (int) Math.round(Math.pow(2, k));
+
         /**
          * INPUT_NODES
          */
@@ -93,7 +98,7 @@ public class BNGeneticAlgFitness {
 
         for (int i = 0, nodeNumber = 1; i < inputNodes.length(); i++) {
             node.add(inputNodes.getGene(i));
-            if (i == (nodeNumber * MainJenetics.K) - 1) {
+            if (i == (nodeNumber * k) - 1) {
                 //Node found
                 topology.add(new ArrayList<>(node));
                 node.clear();
@@ -112,7 +117,6 @@ public class BNGeneticAlgFitness {
         List<ExplicitFunExpr> explicitFunExprList = new ArrayList<>();
         List<NameExpr> nameExprList = new ArrayList<>();
 
-        // List<String> booleanFunctionsOutput = booleanFunctions.stream().map(x -> ).collect(Collectors.toList());
         for (int bfIndex = 0; bfIndex < booleanFunctions.length(); bfIndex++) {
             explicitFunExprList.add(new NaiveBNParser.ExplicitFunExprImpl("" + bfIndex, GenericUtility.digitToStringBinaryDigits(booleanFunctions.getGene(bfIndex).getAllele(), BINARY_DIGIT_NUMBER)));
             nameExprList.add(new NaiveBNParser.NameExprImpl("" + bfIndex, "gene_" + bfIndex));
@@ -170,17 +174,20 @@ public class BNGeneticAlgFitness {
 
     public static void main (String [] args) {
 
-        BooleanNetwork<BitSet,Boolean> bn = fromGenotypeToBN((Genotype<IntegerGene>)Files.deserializeObject("/Users/michelebraccini/IdeaProjects/Results/GeneticAlg/BestGenotype.ser"));
+        //String genotype = "/Users/michelebraccini/IdeaProjects/Results/GeneticAlg/2/BestGenotype.ser";
+        String genotype = "/Users/michelebraccini/IdeaProjects/cellsimulator_v2/GeneticAlg/BestGenotype.ser";
+        BooleanNetwork<BitSet,Boolean> bn = fromGenotypeToBN((Genotype<IntegerGene>)Files.deserializeObject(genotype), 2);
         System.out.println(bn);
         Atm<BinaryState> atm = simulateBN(bn);
 
-        Files.createDirectories("../Results/visual");
+        String path = "/Users/michelebraccini/IdeaProjects/cellsimulator_v2/GeneticAlg/visual/";
+        Files.createDirectories(path);
 
-        Files.writeMatrixToCsv(atm.getMatrixCopy(), "../Results/visual/originalATM");
-        Files.writeMatrixToCsv(MatrixUtility.reorderByDiagonalValues(atm.getMatrixCopy()), "../Results/visual/sortedATM");
+        Files.writeMatrixToCsv(atm.getMatrixCopy(), path + "originalATM");
+        Files.writeMatrixToCsv(MatrixUtility.reorderByDiagonalValues(atm.getMatrixCopy()), path + "sortedATM");
 
-        new AtmGraphViz(atm,"../Results/visual/atm").generateDotFile().generateImg("jpg");
-        new BNGraphViz<BitSet,Boolean>(bn,"../Results/visual/bn").generateDotFile().generateImg("jpg");
+        new AtmGraphViz(atm,path + "atm").generateDotFile().generateImg("jpg");
+        new BNGraphViz<BitSet,Boolean>(bn,path + "bn").generateDotFile().generateImg("jpg");
 
     }
 

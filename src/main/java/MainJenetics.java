@@ -4,7 +4,6 @@ import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionResult;
 import io.jenetics.engine.EvolutionStatistics;
 import io.jenetics.util.Factory;
-import io.jenetics.util.ISeq;
 import io.jenetics.util.IntRange;
 import utility.Files;
 
@@ -36,7 +35,7 @@ public class MainJenetics {
                         IntegerChromosome.of(IntRange.of(0, Boolean_Function_Max_Value), NODES_NUMBER)); //rappresenta 1 individuo*/
 
         Factory<Genotype<IntegerGene>> gtf =
-                Genotype.of(TopologyFixedKBNChromosome.of(IntRange.of(0, NODES_NUMBER - 1), K * NODES_NUMBER, K),
+                Genotype.of(TopologyFixedKBNChromosome.of(IntRange.of(0, NODES_NUMBER - 1), K * NODES_NUMBER, K, false),
                         IntegerChromosome.of(IntRange.of(0, Boolean_Function_Max_Value), NODES_NUMBER)); //rappresenta 1 individuo
 
 
