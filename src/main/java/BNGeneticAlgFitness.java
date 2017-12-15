@@ -48,17 +48,21 @@ public class BNGeneticAlgFitness {
     }
 
     private static double f1_robustness(double[][] m) {
-        double sum = 0;
+        double minSum = 1.0;
         for (int i = 0; i < m.length; i++) {
+            double currentSum = 0;
             for (int j = 0; j < m[i].length; j++) {
                 if (i == j) {
-                    sum += m[i][j];
+                    currentSum += m[i][j];
                 } else {
-                    sum -= m[i][j];
+                    currentSum -= m[i][j];
                 }
             }
+            if (currentSum < minSum) {
+                minSum = currentSum;
+            }
         }
-        return Math.round((sum) * 100.0) / 100.0;
+        return Math.round((minSum) * 100.0) / 100.0;
     }
     private static double f2_equallyDistributed(double[][] m) {
         int attractorsNumber = m.length;
@@ -86,7 +90,7 @@ public class BNGeneticAlgFitness {
     }
 
     public static BooleanNetwork<BitSet, Boolean> fromGenotypeToBN(Genotype<IntegerGene> gt, int k) {
-        int BINARY_DIGIT_NUMBER = (int) Math.round(Math.pow(2, k));
+        final int BINARY_DIGIT_NUMBER = (int) Math.round(Math.pow(2, k));
 
         /**
          * INPUT_NODES
@@ -163,6 +167,16 @@ public class BNGeneticAlgFitness {
 
 
     static Double[][] matrix = new Double[][] {
+            // 0	1	  2
+            {0.3, 0.7, 0.2},
+
+            {0.8, 0.1, 0.6},
+
+            {0.4, 0.9, 0.1}
+
+    };
+
+    static double[][] matrix2 = new double[][] {
             // 0	1	  2
             {0.3, 0.7, 0.2},
 
