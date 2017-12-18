@@ -1,3 +1,5 @@
+package experiments.selfLoop;
+
 import exceptions.InputConnectionsException;
 import io.jenetics.*;
 import io.jenetics.engine.Engine;
@@ -11,14 +13,17 @@ import utility.Files;
 import static io.jenetics.engine.Limits.bySteadyFitness;
 
 
-public class MainJenetics {
-    static final long MAX_GENERATIONS = 50;
+public class Main {
+    /**
+     * PARAMETERS
+     */
+    static final long MAX_GENERATIONS = 10000;
     static final double ELITISM_FRACTION = 0.1;
-    static final int POPULATION_SIZE = 50;
-    static final int STEADY_FITNESS_LIMIT = 1000; //idle iterations
+    static final int POPULATION_SIZE = 1;
+    static final int STEADY_FITNESS_LIMIT = 500; //idle iterations
+    public static final int NODES_NUMBER = 20;
+    public static final int K = 2;
 
-    public static final int NODES_NUMBER = 3;
-    public static final int K = 3;
     static final int Boolean_Function_Max_Value = (int) Math.round(Math.pow(2, Math.pow(2, K))) - 1;
 
     public static void main(String[] args) {
@@ -35,7 +40,7 @@ public class MainJenetics {
                         IntegerChromosome.of(IntRange.of(0, Boolean_Function_Max_Value), NODES_NUMBER)); //rappresenta 1 individuo*/
 
         Factory<Genotype<IntegerGene>> gtf =
-                Genotype.of(TopologyFixedKBNChromosome.of(IntRange.of(0, NODES_NUMBER - 1), K * NODES_NUMBER, K, false),
+                Genotype.of(TopologyFixedKBNChromosome.of(IntRange.of(0, NODES_NUMBER - 1), K * NODES_NUMBER, K, true),
                         IntegerChromosome.of(IntRange.of(0, Boolean_Function_Max_Value), NODES_NUMBER)); //rappresenta 1 individuo
 
 

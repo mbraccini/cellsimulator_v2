@@ -1,3 +1,5 @@
+package experiments.selfLoop;
+
 import interfaces.network.BooleanNetwork;
 import io.jenetics.*;
 import io.jenetics.util.ISeq;
@@ -8,6 +10,9 @@ import java.io.Serializable;
 import java.util.BitSet;
 import java.util.Iterator;
 
+/**
+ * Custom chromosome to model a BN topology with no incoming nodes replication and, possibly, avoiding self loops.
+ */
 public class TopologyFixedKBNChromosome implements NumericChromosome<Integer, IntegerGene>, Serializable {
 
 

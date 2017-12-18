@@ -1,3 +1,5 @@
+package experiments.selfLoop;
+
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import interfaces.attractor.Generator;
@@ -41,7 +43,7 @@ public class BNGeneticAlgFitness {
 
     public static double eval(Genotype<IntegerGene> gt) {
 
-        BooleanNetwork<BitSet, Boolean> bn = fromGenotypeToBN(gt, MainJenetics.K);
+        BooleanNetwork<BitSet, Boolean> bn = fromGenotypeToBN(gt, Main.K);
         Double[][] atm = simulateBN(bn).getMatrixCopy();
         double[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
         return f1_robustness(sorted) + f2_equallyDistributed(sorted) + f3_triangleDifference(sorted);
@@ -188,21 +190,19 @@ public class BNGeneticAlgFitness {
 
     public static void main (String [] args) {
 
-        //String genotype = "/Users/michelebraccini/IdeaProjects/Results/GeneticAlg/2/BestGenotype.ser";
-        String genotype = "/Users/michelebraccini/IdeaProjects/cellsimulator_v2/GeneticAlg/BestGenotype.ser";
+        String genotype = "/Users/michelebraccini/IdeaProjects/GeneticResults/GeneticAlg/20nodi/3/BestGenotype.ser";
         BooleanNetwork<BitSet,Boolean> bn = fromGenotypeToBN((Genotype<IntegerGene>)Files.deserializeObject(genotype), 2);
         System.out.println(bn);
         Atm<BinaryState> atm = simulateBN(bn);
 
-        String path = "/Users/michelebraccini/IdeaProjects/cellsimulator_v2/GeneticAlg/visual/";
-        Files.createDirectories(path);
+        String path = "/Users/michelebraccini/IdeaProjects/GeneticResults/GeneticAlg/20nodi/3/";
+        //Files.createDirectories(path);
 
         Files.writeMatrixToCsv(atm.getMatrixCopy(), path + "originalATM");
         Files.writeMatrixToCsv(MatrixUtility.reorderByDiagonalValues(atm.getMatrixCopy()), path + "sortedATM");
 
         new AtmGraphViz(atm,path + "atm").generateDotFile().generateImg("jpg");
         new BNGraphViz<BitSet,Boolean>(bn,path + "bn").generateDotFile().generateImg("jpg");
-
     }
 
 
