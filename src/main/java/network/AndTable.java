@@ -1,17 +1,17 @@
 package network;
 
-import java.util.BitSet;
-import java.util.stream.Collectors;
-
-import interfaces.state.BinaryState;
 import interfaces.network.Row;
-import states.ImmutableBinaryState;
 import states.States;
+
+import java.util.BitSet;
 
 public class AndTable extends AbstractTable<BitSet, Boolean> {
 
+	protected int rowsNumber;
+
 	public AndTable(int variablesNumber) {
 		super(variablesNumber);
+		this.rowsNumber = Double.valueOf(Math.pow(2, variablesNumber)).intValue(); //2^(variablesNumber)
 		configure();
 	}
 

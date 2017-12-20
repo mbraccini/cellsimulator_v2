@@ -1,15 +1,17 @@
 package network;
 
-import java.util.BitSet;
-import java.util.stream.Collectors;
-
 import interfaces.network.Row;
 import states.States;
 
+import java.util.BitSet;
+
 public class OrTable extends AbstractTable<BitSet, Boolean> {
+
+    protected int rowsNumber;
 
     public OrTable(int variablesNumber) {
         super(variablesNumber);
+        this.rowsNumber = Double.valueOf(Math.pow(2, variablesNumber)).intValue(); //2^(variablesNumber)
         configure();
     }
 

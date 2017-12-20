@@ -9,8 +9,10 @@ import java.util.List;
 
 public class ConfigurableTable extends AbstractTable<BitSet, Boolean>{
     List<Boolean> outputsList;
+    protected int rowsNumber;
 
-	/*
+
+    /*
 	 * Esempio: outputList->{0,1,0,0,1}
 	 * truth table relativa:
 	 * Xn,.....,X0 | (t+1)
@@ -23,6 +25,7 @@ public class ConfigurableTable extends AbstractTable<BitSet, Boolean>{
 
     public ConfigurableTable(int variablesNumber, List<Boolean> outputsList) {
         super(variablesNumber);
+        this.rowsNumber = Double.valueOf(Math.pow(2, variablesNumber)).intValue(); //2^(variablesNumber)
         this.outputsList = outputsList;
         configure();
     }
@@ -41,5 +44,4 @@ public class ConfigurableTable extends AbstractTable<BitSet, Boolean>{
             this.mapRows.put(input, entry);
         }
     }
-
 }

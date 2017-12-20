@@ -5,20 +5,20 @@ import states.States;
 import utility.Randomness;
 
 import java.util.BitSet;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 
 public class BiasedTable extends AbstractTable<BitSet, Boolean> {
 
 	private final Random random;
 	protected double bias;
-	
+	protected int rowsNumber;
+
+
 
 	public BiasedTable(int variableNumber, double bias, Random random) {
 		super(variableNumber);
+		this.rowsNumber = Double.valueOf(Math.pow(2, variablesNumber)).intValue(); //2^(variablesNumber)
 		this.bias = bias;
 		this.random = random;
 		configure();

@@ -1,0 +1,53 @@
+package network;
+
+import generator.RandomnessFactory;
+import interfaces.network.Row;
+import interfaces.network.Table;
+import states.States;
+
+import java.util.BitSet;
+import java.util.List;
+import java.util.Random;
+import java.util.function.Supplier;
+
+public class ConfigurableGenericTable<K,V> extends AbstractTable<K,V>{
+
+    List<Row<K,V>> rowsToCopy;
+    private ConfigurableGenericTable(int variablesNumber, List<Row<K,V>> rowsToCopy) {
+        super(variablesNumber);
+        this.rowsToCopy = rowsToCopy;
+        configure();
+    }
+
+    public static <K,V> Table<K,V> newInstance(int variablesNumber, List<Row<K,V>> rowsToCopy) {
+        return new ConfigurableGenericTable(variablesNumber, rowsToCopy);
+    }
+
+    @Override
+    protected void configure(){
+        Row<K,V> row = null;
+        for (int i = 0; i < this.rowsToCopy.size(); i++) {
+            row = rowsToCopy.get(i);
+            row = new RowImpl<K,V>(row.getInput(), row.getOutput());
+            this.rows.add(row);
+            this.mapRows.put(row.getInput(), row);
+        }
+    }
+
+    public static void main(String args[]) {
+        Random r = RandomnessFactory.getPureRandomGenerator();
+        Supplier<Table<BitSet, Boolean>> suppliermiRNA = () -> new BiasedTable(2, 0.5, r);
+        Table<BitSet,Boolean> b = suppliermiRNA.get();
+        Table<BitSet,Boolean> bb = ConfigurableGenericTable.newInstance(2, b.getRows());
+        System.out.println(b == bb);
+        System.out.println(b.equals(bb));
+        System.out.println(bb.equals(b));
+
+        System.out.println(b);
+        System.out.println(bb);
+
+
+
+    }
+
+}

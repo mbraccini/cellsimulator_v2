@@ -1,9 +1,6 @@
 package network;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import exceptions.RowNotFoundException;
@@ -13,18 +10,13 @@ import interfaces.network.Table;
 public abstract class AbstractTable<K,V> implements Table<K,V> {
 
 	protected int variablesNumber;
-	protected int rowsNumber;
 	protected List<Row<K,V>> rows;
 	protected Map<K, Row<K,V>> mapRows;
 
-
-
 	public AbstractTable(int variablesNumber){
 		this.variablesNumber = variablesNumber;
-		
-		this.rowsNumber = Double.valueOf(Math.pow(2, variablesNumber)).intValue(); //2^(variablesNumber)
-		
-		this.rows = new ArrayList<Row<K,V>>(this.rowsNumber);
+
+		this.rows = new ArrayList<Row<K,V>>();
 		this.mapRows = new HashMap<>();
 	}
 	
@@ -64,6 +56,24 @@ public abstract class AbstractTable<K,V> implements Table<K,V> {
 				.collect(Collectors.joining(" \n", "----------\n", "\n----------"));
 		return s;
 	}
-	
 
+	@Override
+	public final boolean equals(Object o) {
+
+		if (this == o) return true;
+
+		if (!(o instanceof AbstractTable))
+			return false;
+
+		AbstractTable<?, ?> that = (AbstractTable<?, ?>) o;
+		return variablesNumber == that.variablesNumber &&
+				Objects.equals(rows, that.rows) &&
+				Objects.equals(mapRows, that.mapRows);
+	}
+
+	@Override
+	public int hashCode() {
+
+		return Objects.hash(variablesNumber, rows, mapRows);
+	}
 }

@@ -42,7 +42,7 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 		this.atm = atm;
 	}
 
-	public static <T extends State> Atm<T> newAtm(ImmutableList<ImmutableAttractor<T>> attractorsList, Double[][] atm) {
+	public static <T extends State> Atm<T> newInstance(ImmutableList<ImmutableAttractor<T>> attractorsList, Double[][] atm) {
 		return new AtmImpl<>(attractorsList, atm);
 	}
 
