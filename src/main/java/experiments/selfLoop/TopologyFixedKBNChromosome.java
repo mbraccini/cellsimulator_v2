@@ -15,6 +15,7 @@ import java.util.Iterator;
  */
 public class TopologyFixedKBNChromosome implements NumericChromosome<Integer, IntegerGene>, Serializable {
 
+    private static final long serialVersionUID = 1L;
 
     protected final boolean selfLoopEnabled;
     protected IntegerChromosome internalChromosome;

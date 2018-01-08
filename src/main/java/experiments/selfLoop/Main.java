@@ -19,7 +19,7 @@ public class Main {
      */
     static final long MAX_GENERATIONS = 10000;
     static final double ELITISM_FRACTION = 0.1;
-    static final int POPULATION_SIZE = 1;
+    static final int POPULATION_SIZE = 50;
     static final int STEADY_FITNESS_LIMIT = 500; //idle iterations
     public static final int NODES_NUMBER = 20;
     public static final int K = 2;
@@ -30,8 +30,15 @@ public class Main {
         // 1.) Define the genotype (factory) suitable
         //     for the problem.
 
-        System.out.println("Nodes: " + NODES_NUMBER);
+        System.out.println("NODES_NUMBER: " + NODES_NUMBER);
         System.out.println("K: " + K);
+        System.out.println("MAX_GENERATIONS: " + MAX_GENERATIONS);
+        System.out.println("ELITISM_FRACTION: " + ELITISM_FRACTION);
+        System.out.println("POPULATION_SIZE: " + POPULATION_SIZE);
+        System.out.println("STEADY_FITNESS_LIMIT: " + STEADY_FITNESS_LIMIT);
+
+        System.out.println("versione 3.0");
+
         if (K > NODES_NUMBER) {
             throw new InputConnectionsException("K must be <= #nodes!");
         }
@@ -65,7 +72,7 @@ public class Main {
                 .limit(bySteadyFitness(STEADY_FITNESS_LIMIT))
                 .limit(MAX_GENERATIONS)
                 .peek(statistics)
-                //.peek(r -> System.out.println(r.getGenotypes()))
+                .peek(r -> System.out.println("PEEK"))
                 .collect(EvolutionResult.toBestGenotype());
 
 
