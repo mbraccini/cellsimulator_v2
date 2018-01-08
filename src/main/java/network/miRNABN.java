@@ -4,6 +4,8 @@ import exceptions.RowNotFoundException;
 import generator.RandomnessFactory;
 import interfaces.network.*;
 import states.States;
+import utility.GenericUtility;
+import utility.Randomness;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -17,13 +19,13 @@ public class miRNABN<K, V> extends AbstractBooleanNetwork<K, V> implements miRNA
     private final BooleanNetwork<K, V> wrappedBN;
     private final int miRNA_Number;
     private final Random random;
-    private final int miRNA_FanOut;
+    private final int[] miRNA_FanOut;
     private final Supplier<Table<K, V>> miRNATableSupplier;
-    private List<Node<K,V>> miRNAnodesList;
+    private List<Node<K, V>> miRNAnodesList;
     private int[] miRNA_K;
-    private BiFunction<Integer, Table<K,V>, Table<K,V>> supplierDownstreamNode;
+    private BiFunction<Integer, Table<K, V>, Table<K, V>> supplierDownstreamNode;
 
-    protected miRNABN(int nodesNumber, int miRNA_Number, int miRNA_FanOut, BooleanNetwork<K, V> wrappedBN, Random random, Supplier<Table<K,V>> miRNATableSupplier, BiFunction<Integer, Table<K,V>, Table<K,V>> supplierDownstreamNode) {
+    protected miRNABN(int nodesNumber, int miRNA_Number, int[] miRNA_FanOut, BooleanNetwork<K, V> wrappedBN, Random random, Supplier<Table<K, V>> miRNATableSupplier, BiFunction<Integer, Table<K, V>, Table<K, V>> supplierDownstreamNode) {
         super(nodesNumber);
         this.wrappedBN = wrappedBN;
         this.miRNA_Number = miRNA_Number;
@@ -41,11 +43,11 @@ public class miRNABN<K, V> extends AbstractBooleanNetwork<K, V> implements miRNA
 
 
     public static <K, V> miRNABooleanNetwork<K, V> newInstance(int miRNA_Number,
-                                                               int miRNA_FanOut,
+                                                               int[] miRNA_FanOut,
                                                                BooleanNetwork<K, V> wrappedBN,
                                                                Random random,
-                                                               Supplier<Table<K,V>> miRNATableSupplier,
-                                                               BiFunction<Integer, Table<K,V>, Table<K,V>> supplierDownstreamNode) {
+                                                               Supplier<Table<K, V>> miRNATableSupplier,
+                                                               BiFunction<Integer, Table<K, V>, Table<K, V>> supplierDownstreamNode) {
         /**
          * Remark:
          *  - nodesNumber = miRNANodesNumber + getNodesNumber()
@@ -55,13 +57,11 @@ public class miRNABN<K, V> extends AbstractBooleanNetwork<K, V> implements miRNA
 
 
     public void configure() {
-
         initNodes();
-        //initTopology();
     }
 
     public void initNodes() {
-        List<Node<K,V>> wrappedNodesList = wrappedBN.getNodes();
+        List<Node<K, V>> wrappedNodesList = wrappedBN.getNodes();
         /**
          * miRNA nodes
          */
@@ -116,11 +116,10 @@ public class miRNABN<K, V> extends AbstractBooleanNetwork<K, V> implements miRNA
         nodesList.addAll(miRNAnodesList);                                               /* miRNA nodes added to nodesList */
 
 
-
         /**
          * indices of miRNAs' incoming nodes
          */
-        List<List<Integer>> miRNAIncomingNodes = chooseRandomNodes(miRNA_Number, miRNA_K[0], 0, wrappedBN.getNodesNumber());
+        List<List<Integer>> miRNAIncomingNodes = chooseRandomNodes(miRNA_Number, miRNA_K, 0, wrappedBN.getNodesNumber());
 
 
         /**
@@ -131,15 +130,14 @@ public class miRNABN<K, V> extends AbstractBooleanNetwork<K, V> implements miRNA
                         miRNAIncomingNodes.get(idx).stream().map(y -> nodesList.get(y)).collect(Collectors.toList())));
 
 
-
     }
 
-    private List<List<Integer>> chooseRandomNodes(int groupsNumber, int elementsNumberInEachGroup, int fromIndex, int toIndex) {
+    private List<List<Integer>> chooseRandomNodes(int groupsNumber, int[] elementsNumberInEachGroup, int fromIndex, int toIndex) {
         int range = toIndex - fromIndex;
         List<List<Integer>> set = new ArrayList<>();
         List<Integer> list;
         for (int group = 0; group < groupsNumber; group++) {
-            list = new ArrayList<>(elementsNumberInEachGroup);
+            list = new ArrayList<>(elementsNumberInEachGroup[group]);
             int nodesAdded = 0;
             do {
                 int candidate = random.nextInt(range) + fromIndex;
@@ -147,33 +145,11 @@ public class miRNABN<K, V> extends AbstractBooleanNetwork<K, V> implements miRNA
                     list.add(candidate);
                     nodesAdded++;
                 }
-            } while (nodesAdded < elementsNumberInEachGroup);
+            } while (nodesAdded < elementsNumberInEachGroup[group]);
             set.add(list);
         }
         return set;
     }
-
-
-    /*protected final void initTopology() {
-        List<Integer> list;
-        for (int nodeId = 0; nodeId < this.nodesNumber; nodeId++) {
-            list = new ArrayList<>(this.k);
-            int nodesAdded = 0;
-            do {
-                int candidate = random.nextInt(this.nodesNumber);
-
-                if (candidate != nodeId && !list.stream().anyMatch(x -> x == candidate)) {
-                    list.add(candidate);
-                    nodesAdded++;
-                }
-            } while (nodesAdded < this.k);
-
-            /* ora con le informazioni calcolate posso riempire la map */
-           /* this.nodesMap.put(this.nodesList.get(nodeId),
-                    list.stream().map(x -> nodesList.get(x)).collect(Collectors.toList()));
-        }
-
-    }*/
 
 
     @Override
@@ -194,63 +170,5 @@ public class miRNABN<K, V> extends AbstractBooleanNetwork<K, V> implements miRNA
     @Override
     public List<Node<K, V>> miRNADownstreamNodes() {
         return null;
-    }
-
-    public static void main (String [] arg) {
-        BitSet input1 = States.convert(2, 2);
-        BitSet input2 = States.convert(2, 100);
-        System.out.println(input1);
-        System.out.println(input2);
-        System.out.println(input1.equals(input2));
-
-
-
-        Random r = RandomnessFactory.getPureRandomGenerator();
-        Supplier<Table<BitSet, Boolean>> suppliermiRNA = () -> new BiasedTable(2, 0.5, r);
-        BiFunction<Integer, Table<BitSet, Boolean>, Table<BitSet, Boolean>> supplierDownstreamNode =
-                (Integer variablesToAdd, Table<BitSet, Boolean> table) ->
-                {
-                    final Boolean FALSE = false;
-                    int variablesNumber = table.getVariablesNumber() + variablesToAdd;
-                    List<Row<BitSet,Boolean>> rows = new ArrayList<>();
-                    int rowsNumber = Double.valueOf(Math.pow(2, variablesNumber)).intValue(); //2^(variablesNumber)
-                    for (int i = 0; i < rowsNumber; i++) {
-                         BitSet input = States.convert(i, variablesNumber);
-                         try {
-                             rows.add(new RowImpl<>(input, table.getRowByInput(input).getOutput()));
-                         } catch (RowNotFoundException e){
-                            rows.add(new RowImpl<>(input, FALSE));
-                         }
-                    }
-
-                    System.out.println(table);
-                    Table<BitSet,Boolean> newTable = ConfigurableGenericTable.newInstance(variablesNumber,rows);
-                    System.out.println(newTable);
-                    return newTable;
-                };
-
-        Function<Boolean, Boolean> supplierBoolfunct = (x) -> !x;
-
-       /* Stream<BiasedTable>  stream =  Stream.generate(() -> new BiasedTable(2, 0.5, r))
-                                        .limit(10);
-        */
-        //miRNABN.initNodes(supplier);
-
-        BooleanNetwork<BitSet, Boolean> wrappedBN = BooleanNetworkFactory.newNetworkFromFile("bn");
-        BooleanNetwork<BitSet, Boolean> bn = miRNABN.newInstance(3,
-                2,
-                wrappedBN,
-                r,
-                suppliermiRNA,
-                supplierDownstreamNode);
-
-        //System.out.println(bn.getNodesNumber());
-
-        //System.out.println(((miRNABN)bn).getWrappedBooleanNetwork());
-
-        System.out.println(bn);
-
-        System.out.println("\nWRAPPED\n");
-        System.out.println(wrappedBN);
     }
 }
