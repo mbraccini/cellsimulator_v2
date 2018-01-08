@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 
 public class ConfigurableGenericTable<K,V> extends AbstractTable<K,V>{
 
-    List<Row<K,V>> rowsToCopy;
+    private List<Row<K,V>> rowsToCopy;
     private ConfigurableGenericTable(int variablesNumber, List<Row<K,V>> rowsToCopy) {
         super(variablesNumber);
         this.rowsToCopy = rowsToCopy;
@@ -20,7 +20,7 @@ public class ConfigurableGenericTable<K,V> extends AbstractTable<K,V>{
     }
 
     public static <K,V> Table<K,V> newInstance(int variablesNumber, List<Row<K,V>> rowsToCopy) {
-        return new ConfigurableGenericTable(variablesNumber, rowsToCopy);
+        return new ConfigurableGenericTable<K,V>(variablesNumber, rowsToCopy);
     }
 
     @Override

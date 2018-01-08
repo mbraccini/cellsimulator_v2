@@ -9,7 +9,7 @@ import java.util.*;
 
 public interface BooleanNetwork<K, V> { //OK
 
-	/* Immutable */
+    /* Immutable */
 
     Integer getNodesNumber();
 
@@ -38,7 +38,7 @@ public interface BooleanNetwork<K, V> { //OK
     Properties getNetworkProperties();
 
 
-	/* Static methods */
+    /* Static methods */
 
     public static List<Boolean> generateExactBiasOutcomes(int totalOutcomesNumber, double bias, Random randomInstance) {
         List<Boolean> outcomeList;
@@ -69,26 +69,27 @@ public interface BooleanNetwork<K, V> { //OK
         return average;
     }
 
-    public static <K,V> double computeAverageNumberSelfLoopsPerNode(BooleanNetwork<K, V> bn) {
-        return bn.getNodes().stream().mapToInt(node -> { if (bn.getIncomingNodes(node).stream().anyMatch(x -> x.equals(node))) {
-                                                            return 1;
-                                                            } else {
-                                                            return 0;
-                                                            }
-                                                        }
-                                        ).average().getAsDouble();
+    public static <K, V> double computeAverageNumberSelfLoopsPerNode(BooleanNetwork<K, V> bn) {
+        return bn.getNodes().stream().mapToInt(node -> {
+                    if (bn.getIncomingNodes(node).stream().anyMatch(x -> x.equals(node))) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+        ).average().getAsDouble();
     }
 
-        public static <K, V> String getBNFileRepresentation(BooleanNetwork<K, Boolean> bn) {
+    public static <K, V> String getBNFileRepresentation(BooleanNetwork<K, Boolean> bn) {
         List<Node<K, Boolean>> nodesList = bn.getNodes();
         List<Node<K, Boolean>> incomingNodes = null;
         List<Row<K, Boolean>> rowsTruthTable = null;
 
         StringWriter writer = null;
         writer = new StringWriter();
-			/*
-			 * Topology section
-			 */
+        /*
+         * Topology section
+         */
         writer.append("Topology:");
         writer.append(Files.NEW_LINE);
         for (Node<K, Boolean> node : nodesList) {
@@ -99,9 +100,9 @@ public interface BooleanNetwork<K, V> { //OK
             }
             writer.append(Files.NEW_LINE);
         }
-			/*
-			 * Functions section
-			 */
+        /*
+         * Functions section
+         */
         writer.append("Functions E:");
         writer.append(Files.NEW_LINE);
         for (Node<K, Boolean> node : nodesList) {
@@ -120,9 +121,9 @@ public interface BooleanNetwork<K, V> { //OK
 
         }
 
-			/*
-			 * Names section
-			 */
+        /*
+         * Names section
+         */
         writer.append("Names:");
         writer.append(Files.NEW_LINE);
         for (Node<K, Boolean> node : nodesList) {
