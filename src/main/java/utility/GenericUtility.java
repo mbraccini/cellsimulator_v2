@@ -1,5 +1,6 @@
 package utility;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,6 +44,18 @@ public class GenericUtility {
         }
         System.out.println("---------------");
     }
+
+    public static void printMatrix(BigDecimal[][] matrix){
+        System.out.println("---------------");
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                System.out.print(matrix[i][j].toString() + " ");
+            }
+            System.out.println();
+        }
+        System.out.println("---------------");
+    }
+
 
 
     /**
