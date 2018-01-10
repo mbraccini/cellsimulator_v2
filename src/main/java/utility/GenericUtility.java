@@ -45,7 +45,7 @@ public class GenericUtility {
         System.out.println("---------------");
     }
 
-    public static void printMatrix(BigDecimal[][] matrix){
+    public static void printMatrix(Number[][] matrix){
         System.out.println("---------------");
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {

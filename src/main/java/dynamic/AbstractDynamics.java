@@ -1,13 +1,11 @@
 package dynamic;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import interfaces.network.BooleanNetwork;
 import interfaces.network.Node;
 import interfaces.network.Table;
-import interfaces.state.BinaryState;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class AbstractDynamics<K, V> {
 

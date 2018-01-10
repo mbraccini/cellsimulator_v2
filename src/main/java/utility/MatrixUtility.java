@@ -15,9 +15,9 @@ public class MatrixUtility {
      * @param m
      * @return
      */
-    public static double[][] reorderByDiagonalValues(Double[][] m) {
+    public static Number[][] reorderByDiagonalValues(Number[][] m) {
         List<Integer> indices = indicesSortedByDiagonalValues(m);
-        double[][] newMatrix = new double[m.length][m.length];
+        Number[][] newMatrix = new Number[m.length][m.length];
 
         for (int i = 0; i < m.length; i++) {
             for (int j = 0; j < m[i].length; j++) {
@@ -32,20 +32,20 @@ public class MatrixUtility {
      * @param m
      * @return
      */
-    private static List<Integer> indicesSortedByDiagonalValues(Double[][] m) {
-        Double[][] temp = new Double[m.length][2];
+    private static List<Integer> indicesSortedByDiagonalValues(Number[][] m) {
+        Number[][] temp = new Number[m.length][2];
 
         for (int i = 0; i < m.length; i++) {
             for (int j = 0; j < m[i].length; j++) {
                 if (i == j) {
                     temp[i][0] = m[i][j];           //elemento su cui fare il sort
-                    temp[i][1] = Double.valueOf(i); // indice di riga
+                    temp[i][1] = i; // indice di riga
                 }
             }
         }
-        Arrays.sort(temp, Comparator.comparingDouble(arr -> arr[0]));
+        Arrays.sort(temp, Comparator.comparingDouble(arr -> arr[0].doubleValue()));
 
-        Stream<Double[]> stream = Arrays.stream(temp);
+        Stream<Number[]> stream = Arrays.stream(temp);
         List<Integer> indices =  stream.map(x -> x[1].intValue()).collect(Collectors.toList());
         return indices;
     }

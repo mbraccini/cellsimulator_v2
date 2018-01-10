@@ -2,6 +2,7 @@ package visualization;
 
 import interfaces.tes.Atm;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,7 +31,7 @@ public class AtmGraphViz extends GraphViz {
 	private void arcs() {
 		for (int i = 0; i < this.atm.getMatrix().length; i++) {
 			for (int j = 0; j < this.atm.getMatrix().length; j++) {
-				if (this.atm.getMatrix()[i][j] > 0.0) {
+				if (this.atm.getMatrix()[i][j].compareTo(BigDecimal.ZERO) > 0.0) {
 					addLine(this.mapIdAtmIndex.get(i)
 								+ GraphViz.ARC_START
 								+ this.mapIdAtmIndex.get(j)

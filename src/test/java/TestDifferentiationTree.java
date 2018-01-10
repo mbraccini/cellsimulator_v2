@@ -22,6 +22,7 @@ import noise.CompletePerturbations;
 import org.junit.Test;
 import simulator.AttractorsFinderService;
 import tes.TesCreator;
+import utility.Constant;
 
 public class TestDifferentiationTree {
 
@@ -43,7 +44,7 @@ public class TestDifferentiationTree {
 		assertTrue("Dovrebbe trovare 4 attrattori", attractors.size() == 4);
 
 		
-		CompletePerturbations cp = new CompletePerturbations(attractors, dynamics, 50000);
+		CompletePerturbations cp = new CompletePerturbations(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
 		Atm<BinaryState> atm = cp.call();
 		
 		DifferentiationTree<Tes<BinaryState>> tesTree = new TesCreator<BinaryState>(atm, RandomnessFactory.getPureRandomGenerator()).call();

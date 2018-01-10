@@ -11,6 +11,7 @@ import network.BooleanNetworkFactory;
 import noise.CompletePerturbations;
 import org.junit.Test;
 import simulator.AttractorsFinderService;
+import utility.Constant;
 import utility.Files;
 import utility.GenericUtility;
 
@@ -64,7 +65,7 @@ public class TestAtm {
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
         ImmutableList<ImmutableAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
         System.out.println(attractors);
-        CompletePerturbations cp = new CompletePerturbations(attractors, dynamics, 50000);
+        CompletePerturbations cp = new CompletePerturbations(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
         Atm<BinaryState> atm = cp.call();
         GenericUtility.printMatrix(atm.getMatrix());
 

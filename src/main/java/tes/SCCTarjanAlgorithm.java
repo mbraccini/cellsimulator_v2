@@ -21,14 +21,14 @@ public class SCCTarjanAlgorithm {
 
 	private Stack<Integer> stack;
 
-	private Double[][] adjacencyMatrix;
+	private Number[][] adjacencyMatrix;
 
 	private Set<List<Integer>> sccComponents = new HashSet<>();
 
 	private int index;
 
 
-	public SCCTarjanAlgorithm(Double[][] adjacencyMatrix) {
+	public SCCTarjanAlgorithm(Number[][] adjacencyMatrix) {
 		this.adjacencyMatrix = adjacencyMatrix;
 		this.visited 	= new boolean[adjacencyMatrix.length];
 		this.onStack 	= new boolean[adjacencyMatrix.length]; 
@@ -80,7 +80,7 @@ public class SCCTarjanAlgorithm {
 	private List<Integer> getAdjacentVertices(int v){
 		List<Integer> adjacent = new ArrayList<>();
 		for(int i = 0; i< adjacencyMatrix.length; i++){
-			if(adjacencyMatrix[v][i] > 0.0){
+			if(adjacencyMatrix[v][i].doubleValue() > 0.0){
 				adjacent.add(i);
 			}
 		}

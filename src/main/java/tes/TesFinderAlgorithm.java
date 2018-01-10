@@ -18,9 +18,9 @@ public class TesFinderAlgorithm {
 	private SCCTarjanAlgorithm scc;
 	private Set<List<Integer>> sccComponents;
 	protected Set<List<Integer>> tesFound = new HashSet<>();
-	protected Double[][] atm;
+	protected Number[][] atm;
 
-	public TesFinderAlgorithm(Double[][] adjacencyMatrix) {
+	public TesFinderAlgorithm(Number[][] adjacencyMatrix) {
 		this.atm = adjacencyMatrix;
 		this.scc = new SCCTarjanAlgorithm(atm);
 		this.sccComponents = scc.getSCCComponents();
@@ -37,7 +37,7 @@ public class TesFinderAlgorithm {
 				for (Integer i : IntStream.range(0, this.atm.length).boxed().collect(Collectors.toList())){
 					//System.out.println(""+index +", "+i+" ->> "+Arrays.asList(atm[index]));
 
-					if (atm[index][i] > 0.0 && !sccComponentAnalyzed.stream().anyMatch(x -> x.intValue() == i.intValue())) {
+					if (atm[index][i].doubleValue() > 0.0 && !sccComponentAnalyzed.stream().anyMatch(x -> x.intValue() == i.intValue())) {
 						//se ha un arco in uscita che porta ad un elemento che non è nella stessa scc a cui lui appartiene quello non
 						// è un TES e lo rimuoviamo dal Set!
 						//System.out.println("C'è arco in uscita");
