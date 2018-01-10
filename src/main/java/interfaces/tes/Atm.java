@@ -4,6 +4,7 @@ import interfaces.attractor.ImmutableList;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.state.State;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public interface Atm<T extends State> {
@@ -12,7 +13,7 @@ public interface Atm<T extends State> {
 	
 	Optional<Integer[][]> getOccurrencesMatrix();
 	
-	Double[][] getMatrix();
+	BigDecimal[][] getMatrix();
 
-	Double[][] getMatrixCopy();
+	BigDecimal[][] getMatrixCopy();
 }

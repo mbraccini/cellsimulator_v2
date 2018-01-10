@@ -23,7 +23,7 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 	protected int[][] intMatrix;
 	protected Integer[][] occurrenciesIntegerMatrix;
 	protected ImmutableList<ImmutableAttractor<T>> attractorsList;
-	protected Double[][] atm;
+	protected BigDecimal[][] atm;
 	protected int[] perturbationsNumberPerAttractor;
 
 	/**
@@ -37,12 +37,12 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 		initPerturbationsPerAttractor();
 	}
 
-	private AtmImpl(ImmutableList<ImmutableAttractor<T>> attractorsList, Double[][] atm) {
+	private AtmImpl(ImmutableList<ImmutableAttractor<T>> attractorsList, BigDecimal[][] atm) {
 		this.attractorsList = attractorsList;
 		this.atm = atm;
 	}
 
-	public static <T extends State> Atm<T> newInstance(ImmutableList<ImmutableAttractor<T>> attractorsList, Double[][] atm) {
+	public static <T extends State> Atm<T> newInstance(ImmutableList<ImmutableAttractor<T>> attractorsList, BigDecimal[][] atm) {
 		return new AtmImpl<>(attractorsList, atm);
 	}
 
@@ -81,14 +81,14 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 			this.occurrenciesIntegerMatrix = new Integer[intMatrix.length][intMatrix.length];
 			for (int i = 0; i < occurrenciesIntegerMatrix.length; i++) {
 				for (int j = 0; j < occurrenciesIntegerMatrix.length; j++) {
-					this.occurrenciesIntegerMatrix[i][j] = Integer.valueOf(intMatrix[i][j]);
+					this.occurrenciesIntegerMatrix[i][j] = intMatrix[i][j];
 				}
 			}
 		}
 	}
 
 	@Override
-	public Double[][] getMatrix() {
+	public BigDecimal[][] getMatrix() {
 		if (this.atm != null) {
 			return this.atm;
 		}
@@ -98,70 +98,75 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 		return this.atm;
 	}
 
+
+
 	protected void normalize() {
-		this.atm = new Double[intMatrix.length][intMatrix.length];
+		this.atm = new BigDecimal[intMatrix.length][intMatrix.length];
 		for (int i = 0; i < atm.length; i++) {
 			for (int j = 0; j < atm.length; j++) {
-				//atm[i][j] = (((double) intMatrix[i][j]) / (this.perturbationsNumberPerAttractor[i]));
 				atm[i][j] = BigDecimal.valueOf(intMatrix[i][j])
-							.divide(BigDecimal.valueOf(this.perturbationsNumberPerAttractor[i]), 2, RoundingMode.HALF_EVEN)
-							.doubleValue();
+						.divide(BigDecimal.valueOf(this.perturbationsNumberPerAttractor[i]), 2, RoundingMode.HALF_EVEN);
 			}
 		}
 	}
 
 
 	@Override
-	public Double[][] getMatrixCopy() {
+	public BigDecimal[][] getMatrixCopy() {
 		if (this.atm == null) {
 			/* ATM not yet initialized */
 			getMatrix();
 		}
-		Double[][] newAtm = new Double[this.atm.length][this.atm.length];
+		BigDecimal[][] newAtm = new BigDecimal[this.atm.length][this.atm.length];
 		for (int i = 0; i < newAtm.length; i++) {
 			for (int j = 0; j < newAtm.length; j++) {
-				newAtm[i][j] = this.atm[i][j];
+				newAtm[i][j] = this.atm[i][j]; 			//because BigDecimal is immutable
 			}
 		}
 		return newAtm;
 	}
 
+
+	private void checkAsserts() {
+		BigDecimal rowSum;
+		for (int i = 0; i < atm.length; i++) {
+			rowSum = Arrays.stream(atm[i]).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+			if (rowSum.compareTo(BigDecimal.ONE) != 0) { // cioè non è 1
+				throw new AtmException("The sum of each row must be 1.0, rowSum = " + rowSum);
+			}
+
+			for (int j = 0; j < atm.length; j++) {
+				if (atm[i][j].compareTo(BigDecimal.ZERO) < 0  || atm[i][j].compareTo(BigDecimal.ONE) > 0) {
+					throw new AtmException("Each element of the ATM must be between 0.0 and 1.0!\n element value = " + atm[i][j]);
+				}
+			}
+		}
+	}
+
+
 	private void roundAndCheckInvariant() {
 		// This method round the double.
 		// The sum of the entry of each row must be 1!
 
-		BigDecimal converted;
 		for (int i = 0; i < this.atm.length; i++) {
-			double rowSum = 0.0;
+			BigDecimal rowSum = BigDecimal.ZERO;
 			for (int j = 0; j < this.atm.length; j++) {
-				if (atm[i][j] != 0.0) {
-
-					converted = BigDecimal.valueOf(atm[i][j]);
-					converted = converted.setScale(2, RoundingMode.HALF_EVEN);
-
-					atm[i][j] = converted.doubleValue();
-				}
-				rowSum += atm[i][j];
+				rowSum = rowSum.add(atm[i][j]);
 			}
 
 
 			//check invariant for each row!
-			if (rowSum != 1.0) {
-				double rest = 1.0 - rowSum;
-
-				converted = BigDecimal.valueOf(rest);
-				converted = converted.setScale(2, RoundingMode.HALF_EVEN);
-				rest = converted.doubleValue();
+			if (rowSum.compareTo(BigDecimal.ONE) != 0) {
+				BigDecimal rest = BigDecimal.ONE.subtract(rowSum);
 
 				//prendiamo il primo valore diverso da zero e aggiungiamo ciò che manca per arrivare ad 1.0
 				for (int j = 0; j < this.atm.length; j++) {
-					if (atm[i][j] != 0.0 && (atm[i][j] + rest) >= 0.0 && (atm[i][j] + rest) <= 1.0) {
+					if (atm[i][j].compareTo(BigDecimal.ZERO) != 0
+							&& atm[i][j].add(rest).compareTo(BigDecimal.ZERO) >= 0
+							&& atm[i][j].add(rest).compareTo(BigDecimal.ONE) <= 0) {
 
-						atm[i][j] += rest;
-						converted = BigDecimal.valueOf(atm[i][j]);
-						converted = converted.setScale(2, RoundingMode.HALF_EVEN);
-
-						atm[i][j] = converted.doubleValue();
+						atm[i][j] = atm[i][j].add(rest);
 
 						break;
 					}
@@ -169,28 +174,7 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 
 			}
 		}
+
 	}
-
-	private void checkAsserts() {
-		Double rowSum;
-		for (int i = 0; i < atm.length; i++) {
-			rowSum = Arrays.asList(atm[i]).stream().mapToDouble(x -> x.doubleValue()).sum();
-
-			BigDecimal converted = BigDecimal.valueOf(rowSum);
-			converted = converted.setScale(2, RoundingMode.HALF_EVEN);
-			rowSum = converted.doubleValue();
-
-			if (rowSum != 1.0) {
-				throw new AtmException("The sum of each row must be 1.0, rowSum = " + rowSum);
-			}
-
-			for (int j = 0; j < atm.length; j++) {
-				if (atm[i][j] < 0.0 || atm[i][j] > 1.0) {
-					throw new AtmException("Each element of the ATM must be between 0.0 and 1.0!\n element value = " + atm[i][j]);
-				}
-			}
-		}
-	}
-
 
 }
