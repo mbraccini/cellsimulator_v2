@@ -1,6 +1,5 @@
 package tes;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
@@ -18,7 +17,7 @@ public class TesCreator<T extends State> implements Callable<DifferentiationTree
 
 	protected final int NAME_LENGTH = 1;
 	protected Atm<T> atm;
-	protected BigDecimal[][] atmCopy;
+	protected Double[][] atmCopy;
 	protected List<Double> thresholds;
 	protected List<ImmutableAttractor<T>> attractorsList;
 	protected Set<String> nameAlreadyUsed = new HashSet<>();
@@ -62,7 +61,7 @@ public class TesCreator<T extends State> implements Callable<DifferentiationTree
 			DifferentiationNodesList = new ArrayList<>();
 
 			if (this.chachedThresholdTes == null) {
-				removeValueLowerOrEqualThan(this.atmCopy, BigDecimal.valueOf(threshold));
+				removeValueLowerOrEqualThan(this.atmCopy, threshold);
 				setTes = new TesFinderAlgorithm(atmCopy).call();
 			} else {
 				setTes = this.chachedThresholdTes.get(threshold);
@@ -125,23 +124,23 @@ public class TesCreator<T extends State> implements Callable<DifferentiationTree
 
 	private void searchCorrectThresholds() {
 		this.chachedThresholdTes = new HashMap<>();
-		Stream<BigDecimal[]> atm_stream = Arrays.stream(atm.getMatrix());
-		Stream<BigDecimal> atm_stream_flat = atm_stream.flatMap(Arrays::stream);
-		List<BigDecimal> atmFlattenedAndSorted = atm_stream_flat.distinct().sorted(BigDecimal::compareTo).collect(Collectors.toList());
+		Stream<Double[]> atm_stream = Arrays.stream(atm.getMatrix());
+		Stream<Double> atm_stream_flat = atm_stream.flatMap(x -> Arrays.stream(x));
+		List<Double> atmFlattenedAndSorted = atm_stream_flat.distinct().sorted(Double::compare).collect(Collectors.toList());
 
 		List<Double> thresholdsFound = new ArrayList<>();
 		thresholdsFound.add(0.0);
 
-		BigDecimal[][] atmOtherCopy = this.atm.getMatrixCopy();
+		Double[][] atmOtherCopy = this.atm.getMatrixCopy();
 		Set<List<Integer>> previousTes = new TesFinderAlgorithm(atmOtherCopy).call();
 		this.chachedThresholdTes.put(0.0, previousTes);
 		Set<List<Integer>> currentTes;
-		for (BigDecimal value : atmFlattenedAndSorted) {
+		for (Double value : atmFlattenedAndSorted) {
 			removeValueLowerOrEqualThan(atmOtherCopy, value);
 			currentTes = new TesFinderAlgorithm(atmOtherCopy).call();
 			if (!currentTes.equals(previousTes)) {
-				thresholdsFound.add(value.doubleValue());
-				this.chachedThresholdTes.put(value.doubleValue(), currentTes);
+				thresholdsFound.add(value);
+				this.chachedThresholdTes.put(value, currentTes);
 			}
 			previousTes = currentTes;
 		}
@@ -164,11 +163,11 @@ public class TesCreator<T extends State> implements Callable<DifferentiationTree
 	}
 
 
-	private static void removeValueLowerOrEqualThan(BigDecimal[][] atmCopy, BigDecimal threshold) {
+	private static void removeValueLowerOrEqualThan(Double[][] atmCopy, double threshold) {
 		for (int i = 0; i < atmCopy.length; i++) {
 			for (int j = 0; j < atmCopy.length; j++) {
-				if (atmCopy[i][j].compareTo(threshold) <= 0) {
-					atmCopy[i][j] = BigDecimal.ZERO;
+				if (atmCopy[i][j] <= threshold) {
+					atmCopy[i][j] = 0.0;
 				}
 			}
 		}
