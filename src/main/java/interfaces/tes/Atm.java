@@ -13,7 +13,7 @@ public interface Atm<T extends State> {
 	
 	Optional<Integer[][]> getOccurrencesMatrix();
 	
-	BigDecimal[][] getMatrix();
+	Double[][] getMatrix();
 
-	BigDecimal[][] getMatrixCopy();
+	Double[][] getMatrixCopy();
 }
