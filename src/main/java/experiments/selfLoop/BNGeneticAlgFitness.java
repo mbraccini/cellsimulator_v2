@@ -42,7 +42,7 @@ public class BNGeneticAlgFitness {
 
     public static double eval(Genotype<IntegerGene> gt) {
         BooleanNetwork<BitSet, Boolean> bn = fromGenotypeToBN(gt, MainJenetics.K);
-        BigDecimal[][] atm = simulateBN(bn).getMatrixCopy();
+        Double[][] atm = simulateBN(bn).getMatrixCopy();
         Number[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
         double[][] doubleSorted = fromNumberToDoubleMatrix(sorted);
         return f1_robustness(doubleSorted) + f2_equallyDistributed(doubleSorted) + f3_triangleDifference(doubleSorted);

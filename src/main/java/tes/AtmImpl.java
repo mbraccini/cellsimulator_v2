@@ -24,6 +24,7 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 	protected Integer[][] occurrenciesIntegerMatrix;
 	protected ImmutableList<ImmutableAttractor<T>> attractorsList;
 	protected BigDecimal[][] atm;
+	protected Double[][] doubleAtm;
 	protected int[] perturbationsNumberPerAttractor;
 
 	/**
@@ -88,16 +89,25 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 	}
 
 	@Override
-	public BigDecimal[][] getMatrix() {
-		if (this.atm != null) {
-			return this.atm;
+	public Double[][] getMatrix() {
+		if (this.doubleAtm != null) {
+			return this.doubleAtm;
 		}
 		this.normalize();
 		this.roundAndCheckInvariant();
 		this.checkAsserts();
-		return this.atm;
+		this.initializeDoubleAtm();
+		return this.doubleAtm;
 	}
 
+	private void initializeDoubleAtm() {
+		this.doubleAtm = new Double[this.atm.length][this.atm.length];
+		for (int i = 0; i < this.doubleAtm.length; i++) {
+			for (int j = 0; j < this.doubleAtm.length; j++) {
+				this.doubleAtm[i][j] = this.atm[i][j].doubleValue();
+			}
+		}
+	}
 
 
 	protected void normalize() {
@@ -112,15 +122,15 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 
 
 	@Override
-	public BigDecimal[][] getMatrixCopy() {
-		if (this.atm == null) {
+	public Double[][] getMatrixCopy() {
+		if (this.doubleAtm == null) {
 			/* ATM not yet initialized */
 			getMatrix();
 		}
-		BigDecimal[][] newAtm = new BigDecimal[this.atm.length][this.atm.length];
+		Double[][] newAtm = new Double[this.atm.length][this.atm.length];
 		for (int i = 0; i < newAtm.length; i++) {
 			for (int j = 0; j < newAtm.length; j++) {
-				newAtm[i][j] = this.atm[i][j]; 			//because BigDecimal is immutable
+				newAtm[i][j] = this.doubleAtm[i][j];
 			}
 		}
 		return newAtm;
