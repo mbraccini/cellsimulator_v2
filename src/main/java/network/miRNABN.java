@@ -24,6 +24,8 @@ public class miRNABN<K, V> extends AbstractBooleanNetwork<K, V> implements miRNA
     private List<Node<K, V>> miRNAnodesList;
     private int[] miRNA_K;
     private BiFunction<Integer, Table<K, V>, Table<K, V>> supplierDownstreamNode;
+    private List<Node<K, V>> miRNADownstreamNodesList;
+
 
     protected miRNABN(int nodesNumber, int miRNA_Number, int[] miRNA_FanOut, BooleanNetwork<K, V> wrappedBN, Random random, Supplier<Table<K, V>> miRNATableSupplier, BiFunction<Integer, Table<K, V>, Table<K, V>> supplierDownstreamNode) {
         super(nodesNumber);
@@ -33,6 +35,7 @@ public class miRNABN<K, V> extends AbstractBooleanNetwork<K, V> implements miRNA
         this.random = random;
         this.miRNATableSupplier = miRNATableSupplier;
         this.supplierDownstreamNode = supplierDownstreamNode;
+        this.miRNADownstreamNodesList = new ArrayList<>();
         this.miRNA_K = new int[miRNA_Number];
 
         configure();
@@ -110,6 +113,7 @@ public class miRNABN<K, V> extends AbstractBooleanNetwork<K, V> implements miRNA
                 List<Node<K, V>> incomingNodes = new ArrayList<>(wrappedBN.getIncomingNodes(wrappedNode));
                 incomingNodes.addAll(miRNAIncomingIndices.stream().map(x -> miRNAnodesList.get(x)).collect(Collectors.toList()));
                 nodesMap.put(newNode, incomingNodes);                                   /* MODIFIED wrapped nodes added to nodesMap */
+                this.miRNADownstreamNodesList.add(newNode);
             }
         }
 
@@ -169,6 +173,6 @@ public class miRNABN<K, V> extends AbstractBooleanNetwork<K, V> implements miRNA
 
     @Override
     public List<Node<K, V>> miRNADownstreamNodes() {
-        return null;
+        return miRNADownstreamNodesList;
     }
 }

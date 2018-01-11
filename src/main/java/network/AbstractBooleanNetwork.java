@@ -108,7 +108,31 @@ public abstract class AbstractBooleanNetwork<K,V> implements BooleanNetwork<K,V>
 	public Properties getNetworkProperties() {
 		return properties;
 	}
-	
-	
 
+
+	@Override
+	public boolean equals(Object o) {
+		//self check
+		if (this == o)
+			return true;
+
+		// null check
+		if (o == null)
+			return false;
+
+		// type check and cast
+		if (!(o instanceof AbstractBooleanNetwork))
+			return false;
+
+		AbstractBooleanNetwork<?, ?> that = (AbstractBooleanNetwork<?, ?>) o;
+		return nodesNumber == that.nodesNumber &&
+				Objects.equals(nodesList, that.nodesList) &&
+				Objects.equals(nodesMap, that.nodesMap);
+	}
+
+	@Override
+	public int hashCode() {
+
+		return Objects.hash(nodesNumber, nodesList, nodesMap);
+	}
 }
