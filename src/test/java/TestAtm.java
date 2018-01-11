@@ -15,6 +15,7 @@ import utility.Constant;
 import utility.Files;
 import utility.GenericUtility;
 
+import java.math.BigDecimal;
 import java.util.BitSet;
 import java.util.Random;
 
@@ -77,5 +78,17 @@ public class TestAtm {
         assertTrue("Occorrenze non corrette elm [1][0]", occurrencesAtm[1][0] == 2);
         assertTrue("Occorrenze non corrette elm [1][1]", occurrencesAtm[1][1] == 1);
 
+
+        BigDecimal[][] atmBD = atm.getMatrix();
+        assertTrue("BigDecimal elm [0][0] non corretto", atmBD[0][0].compareTo(BigDecimal.valueOf(0.67)) == 0);
+        assertTrue("BigDecimal elm [0][1] non corretto", atmBD[0][1].compareTo(BigDecimal.valueOf(0.33)) == 0);
+        assertTrue("BigDecimal elm [1][0] non corretto", atmBD[1][0].compareTo(BigDecimal.valueOf(0.67)) == 0);
+        assertTrue("BigDecimal elm [1][1] non corretto", atmBD[1][1].compareTo(BigDecimal.valueOf(0.33)) == 0);
+
+
+        assertTrue("double elm [0][0] non corretto", atmBD[0][0].doubleValue() == 0.67);
+        assertTrue("double elm [0][1] non corretto", atmBD[0][1].doubleValue() == 0.33);
+        assertTrue("double elm [1][0] non corretto", atmBD[1][0].doubleValue() == 0.67);
+        assertTrue("double elm [1][1] non corretto", atmBD[1][1].doubleValue() == 0.33);
     }
 }

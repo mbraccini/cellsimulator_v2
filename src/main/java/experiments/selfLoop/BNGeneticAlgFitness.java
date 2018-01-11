@@ -199,13 +199,13 @@ public class BNGeneticAlgFitness {
     public static void main (String [] args) {
 
 
-        String genotype = "/Users/michelebraccini/IdeaProjects/cellsimulator_v2/GeneticAlg/BestGenotype.ser";
+        String genotype = "/Users/michelebraccini/IdeaProjects/cellsimulator_v2/build/libs/GeneticAlg/BestGenotype.ser";
         System.out.println(genotype);
         BooleanNetwork<BitSet, Boolean> bn = fromGenotypeToBN((Genotype<IntegerGene>) Files.deserializeObject(genotype), 2);
         System.out.println(bn);
         Atm<BinaryState> atm = simulateBN(bn);
 
-        String path = "/Users/michelebraccini/IdeaProjects/cellsimulator_v2/GeneticAlg/";
+        String path = "/Users/michelebraccini/IdeaProjects/cellsimulator_v2/build/libs/GeneticAlg";
         Files.createDirectories(path);
 
         Files.writeMatrixToCsv(atm.getMatrixCopy(), path + "originalATM");

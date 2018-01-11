@@ -37,7 +37,7 @@ public class MainJenetics {
         System.out.println("POPULATION_SIZE: " + POPULATION_SIZE);
         System.out.println("STEADY_FITNESS_LIMIT: " + STEADY_FITNESS_LIMIT);
 
-        System.out.println("versione 4.0");
+        System.out.println("versione 5.0");
 
         if (K > NODES_NUMBER) {
             throw new InputConnectionsException("K must be <= #nodes!");
