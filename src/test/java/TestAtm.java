@@ -1,5 +1,6 @@
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
+import generator.RandomnessFactory;
 import interfaces.attractor.Generator;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.ImmutableList;
@@ -11,13 +12,17 @@ import network.BooleanNetworkFactory;
 import noise.CompletePerturbations;
 import org.junit.Test;
 import simulator.AttractorsFinderService;
+import tes.AtmImpl;
 import utility.Constant;
 import utility.Files;
 import utility.GenericUtility;
+import utility.Randomness;
 
 import java.math.BigDecimal;
 import java.util.BitSet;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertTrue;
 
@@ -96,4 +101,32 @@ public class TestAtm {
         assertTrue("double elm [0][0] non corretto", doubleAtm[0][0] == 0.67);
 
     }
+
+
+    @Test
+    public void atmSumsOfRows() {
+
+        Random rnd = RandomnessFactory.getPureRandomGenerator();
+        int iterations = 30000;
+        while (iterations > 0) {
+            int matrixSize = rnd.nextInt(10) + 2;
+            List<Integer> list = rnd.ints(0, 1000).limit(matrixSize * matrixSize).boxed().collect(Collectors.toList());
+
+            int[][] a = new int[matrixSize][matrixSize];
+
+            int start = 0;
+            for (int i = 0; i < matrixSize; i++) {
+                a[i] = list.subList(start, start + matrixSize).stream().mapToInt(x -> x).toArray();
+                start += matrixSize;
+            }
+
+            //GenericUtility.printMatrix(a);
+
+            Double[][] atm = new AtmImpl<>(a, null).getMatrix();
+            //GenericUtility.printMatrix(atm);
+
+            iterations --;
+        }
+    }
+
 }

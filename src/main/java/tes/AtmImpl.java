@@ -21,7 +21,7 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	protected int[][] intMatrix;
-	protected Integer[][] occurrenciesIntegerMatrix;
+	protected Integer[][] occurrencesIntegerMatrix;
 	protected ImmutableList<ImmutableAttractor<T>> attractorsList;
 	protected BigDecimal[][] atm;
 	protected Double[][] doubleAtm;
@@ -38,12 +38,13 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 		initPerturbationsPerAttractor();
 	}
 
-	private AtmImpl(ImmutableList<ImmutableAttractor<T>> attractorsList, BigDecimal[][] atm) {
+	private AtmImpl(ImmutableList<ImmutableAttractor<T>> attractorsList, Double[][] atm) {
 		this.attractorsList = attractorsList;
-		this.atm = atm;
+		this.doubleAtm = atm;
 	}
 
-	public static <T extends State> Atm<T> newInstance(ImmutableList<ImmutableAttractor<T>> attractorsList, BigDecimal[][] atm) {
+
+	public static <T extends State> Atm<T> newInstance(ImmutableList<ImmutableAttractor<T>> attractorsList, Double[][] atm) {
 		return new AtmImpl<>(attractorsList, atm);
 	}
 
@@ -69,20 +70,20 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 
 	@Override
 	public Optional<Integer[][]> getOccurrencesMatrix() {
-		if (this.occurrenciesIntegerMatrix !=  null) {
-			return Optional.of(this.occurrenciesIntegerMatrix);
+		if (this.occurrencesIntegerMatrix !=  null) {
+			return Optional.of(this.occurrencesIntegerMatrix);
 		}
 		this.matrixIntToInteger();
-		return Optional.ofNullable(this.occurrenciesIntegerMatrix);
+		return Optional.ofNullable(this.occurrencesIntegerMatrix);
 	}
 
 	// Convert int[][] to Integer[][]
 	private void matrixIntToInteger() {
 		if (intMatrix != null) {
-			this.occurrenciesIntegerMatrix = new Integer[intMatrix.length][intMatrix.length];
-			for (int i = 0; i < occurrenciesIntegerMatrix.length; i++) {
-				for (int j = 0; j < occurrenciesIntegerMatrix.length; j++) {
-					this.occurrenciesIntegerMatrix[i][j] = intMatrix[i][j];
+			this.occurrencesIntegerMatrix = new Integer[intMatrix.length][intMatrix.length];
+			for (int i = 0; i < occurrencesIntegerMatrix.length; i++) {
+				for (int j = 0; j < occurrencesIntegerMatrix.length; j++) {
+					this.occurrencesIntegerMatrix[i][j] = intMatrix[i][j];
 				}
 			}
 		}
@@ -143,12 +144,14 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 			rowSum = Arrays.stream(atm[i]).reduce(BigDecimal.ZERO, BigDecimal::add);
 
 			if (rowSum.compareTo(BigDecimal.ONE) != 0) { // cioè non è 1
-				throw new AtmException("The sum of each row must be 1.0, rowSum = " + rowSum);
+				//throw new AtmException("The sum of each row must be 1.0, rowSum = " + rowSum);
+				System.err.println("The sum of each row must be 1.0, rowSum = " + rowSum);
 			}
 
 			for (int j = 0; j < atm.length; j++) {
 				if (atm[i][j].compareTo(BigDecimal.ZERO) < 0  || atm[i][j].compareTo(BigDecimal.ONE) > 0) {
-					throw new AtmException("Each element of the ATM must be between 0.0 and 1.0!\n element value = " + atm[i][j]);
+					//throw new AtmException("Each element of the ATM must be between 0.0 and 1.0!\n element value = " + atm[i][j]);
+					System.err.println("Each element of the ATM must be between 0.0 and 1.0!\n element value = " + atm[i][j]);
 				}
 			}
 		}
