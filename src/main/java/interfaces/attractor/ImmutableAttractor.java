@@ -5,7 +5,12 @@ import interfaces.state.State;
 
 import java.util.*;
 
-public interface ImmutableAttractor<T extends State> extends Immutable{
+
+/**
+ * Immutable attractor with all states of the attractor lexicograpically ordered
+ * @param <T>
+ */
+public interface ImmutableAttractor<T extends State> extends Attractor<T>, Immutable{
 
     /**
      * Gets the attractor's ID.
@@ -13,12 +18,6 @@ public interface ImmutableAttractor<T extends State> extends Immutable{
      */
     Integer getId();
 
-    /**
-     * The all states of the attractor lexicograpically ordered
-     *
-     * @return
-     */
-    List<T> getStates(); //ci teniamo tutti gli stati dell'attrattore
 
     /**
      * The first, lexicographically ordered, state of the attractor
@@ -32,10 +31,6 @@ public interface ImmutableAttractor<T extends State> extends Immutable{
      * @return
      */
     Integer getLength();
-
-    Optional<Basin<T>> getBasin();
-
-    Optional<List<Transient<T>>> getTransients();
 
 
 

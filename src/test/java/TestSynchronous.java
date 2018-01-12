@@ -4,12 +4,14 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigInteger;
 import java.util.*;
 
+import attractor.ImmutableAttractorImpl;
 import attractor.MutableAttractorImpl;
 import attractor.AttractorsUtility;
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import generator.RandomnessFactory;
 import generator.UniformlyDistributedGenerator;
+import interfaces.attractor.Attractor;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.MutableAttractor;
 import interfaces.attractor.Generator;
@@ -85,6 +87,7 @@ public class TestSynchronous {
         /** Sync AttractorsUtility Finder **/
         List<ImmutableAttractor<BinaryState>> attractorsFound = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
 
+        System.out.println(attractorsFound);
 
         /*********************************************************/ //Attrattori
         List<BinaryState> fixed_point_0 =  new ArrayList<>();
@@ -126,18 +129,23 @@ public class TestSynchronous {
 
 
         /********************* Basins of Attraction *********************/
-        /*
-        for (CyclicAttractor<BitSet> att : attractors) {
-            System.out.println("Dimensione bacini -> " + att.getBasin().size());
-            if (att.equals(new CyclicAttractorImpl<BitSet>(fixed_point_0, 1))) {
-                assertTrue(att.getBasin().size() == 4);
-            } else if (att.equals(new CyclicAttractorImpl<BitSet>(fixed_point_1, 2))) {
-                assertTrue(att.getBasin().size() == 4);
-            } else if (att.equals(new CyclicAttractorImpl<BitSet>(cyclic_attractor, 3))) {
-                assertTrue(att.getBasin().size() == 8);
+
+        for (Attractor<BinaryState> att : attractorsFound) {
+            if (att.getBasin().isPresent()) {
+                System.out.println("Dimensione bacini -> " + att.getBasin().get().getDimension());
+                if (att.equals(new ImmutableAttractorImpl<>(new MutableAttractorImpl<>(fixed_point_0), 1))) {
+                    System.out.println(att.getBasin().get());
+                    assertTrue(att.getBasin().get().getDimension() == 4);
+                } else if (att.equals(new ImmutableAttractorImpl<>(new MutableAttractorImpl<>(fixed_point_1), 3))) {
+                    System.out.println(att.getBasin().get());
+                    assertTrue(att.getBasin().get().getDimension() == 4);
+                } else if (att.equals(new ImmutableAttractorImpl<>(new MutableAttractorImpl<>(cyclic_attractor), 2))) {
+                    System.out.println(att.getBasin().get());
+                    assertTrue(att.getBasin().get().getDimension() == 8);
+                }
             }
         }
-        */
+
 
     }
 

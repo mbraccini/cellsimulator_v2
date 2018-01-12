@@ -1,6 +1,8 @@
 package simulator;
 
+import attractor.AttractorsUtility;
 import attractor.MutableAttractorImpl;
+import interfaces.attractor.Attractor;
 import interfaces.attractor.MutableAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.state.State;
@@ -8,6 +10,7 @@ import interfaces.state.State;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 public class AttractorFinderTask<T extends State> implements Callable<Void> {
@@ -28,7 +31,6 @@ public class AttractorFinderTask<T extends State> implements Callable<Void> {
 
     @Override
     public Void call() throws Exception {
-        //System.out.println(Thread.currentThread().getName() + ", Long task executing.... " + initialState);
 
         findAttractor();
 
@@ -42,12 +44,15 @@ public class AttractorFinderTask<T extends State> implements Callable<Void> {
         while (true) {
 
             if (checksIfAlreadyPresent(state)) {
+                checkAndUpdateBasin(state);
                 return; //se è presente esco!
             }
 
             if (this.states.contains(state)) {
                 states.subList(0, states.indexOf(state)).clear(); //rimuovo gli stati da quello trovato (escluso) all'indietro
-                collectionMutableAttractor.add(new MutableAttractorImpl<>(states));
+                MutableAttractor<T> attractor = new MutableAttractorImpl<>(states);
+                collectionMutableAttractor.add(attractor);
+                updateItsBasin(attractor);
                 return;
             }
 
@@ -63,6 +68,13 @@ public class AttractorFinderTask<T extends State> implements Callable<Void> {
             return true;
         }
         return false;
+    }
+
+    private void checkAndUpdateBasin(T state) {
+        AttractorsUtility.retrieveAttractor(state, collectionMutableAttractor).ifPresent(attractor -> updateItsBasin((MutableAttractor<T>) attractor));
+    }
+    private void updateItsBasin(MutableAttractor<T> attractor) {
+        attractor.updateBasin(initialState);
     }
 
 

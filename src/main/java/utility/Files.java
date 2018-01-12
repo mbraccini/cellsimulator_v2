@@ -1,6 +1,10 @@
 package utility;
 
 import com.opencsv.CSVWriter;
+import interfaces.attractor.ImmutableAttractor;
+import interfaces.attractor.ImmutableList;
+import interfaces.state.Immutable;
+import interfaces.state.State;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -179,6 +183,32 @@ public class Files {
     public static <T> void writeListsToCsv(List<List<T>> list, String filename) {
         List<String[]> s = list.stream().map(x -> x.stream().map(Object::toString).toArray(String[]::new)).collect(Collectors.toList());
         writeToCsv(s, filename);
+    }
+
+
+    /**
+     * Writes an attractors list to a file.
+     * @param attractors
+     * @param filename
+     */
+    public static <T extends State> void writeAttractorsToReadableFile(final ImmutableList<ImmutableAttractor<T>> attractors, final String filename) {
+        StringWriter writer = new StringWriter();
+        List<T> statesInAttractor;
+        for (ImmutableAttractor<T> attractor : attractors) {
+            statesInAttractor = attractor.getStates();
+            writer.write("[id: " + attractor.getId() + " Attractor] Length= " + attractor.getLength()
+                    + ", BasinSize= " + (attractor.getBasin().isPresent() ? attractor.getBasin().get().getDimension() : "") + ":");
+            writer.append(Files.NEW_LINE);
+
+            for (int i = 0; i < attractor.getLength(); i++) {
+                writer.write("s" + i + ":  " + statesInAttractor.get(i).toString());
+                writer.append(Files.NEW_LINE);
+            }
+            writer.append(Files.NEW_LINE);
+        }
+
+
+        Files.writeStringToFileUTF8(filename, writer.toString());
     }
 
 }

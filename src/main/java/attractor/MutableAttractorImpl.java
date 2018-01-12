@@ -5,9 +5,7 @@ import interfaces.attractor.Basin;
 import interfaces.attractor.Transient;
 import interfaces.state.State;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Information about an attractor; its states are unordered.
@@ -16,7 +14,8 @@ import java.util.Optional;
 public class MutableAttractorImpl<T extends State> implements MutableAttractor<T> {
 
     private final List<T> states;
-    //private final Set<T> basin;
+    private Set<T> basin;
+    private Integer basinDimension;
     //private final List<Transient<T>> transients;
 
     public MutableAttractorImpl(List<T> states) {
@@ -31,22 +30,28 @@ public class MutableAttractorImpl<T extends State> implements MutableAttractor<T
 
     @Override
     public Optional<Integer> getBasinSize() {
-        return null;
+        return Optional.of(basinDimension);
     }
 
     @Override
     public Optional<Basin<T>> getBasin() {
-        return null;
+        if (Objects.isNull(basin)) {
+            return Optional.empty();
+        }
+        return Optional.of(new BasinImpl<T>(basin));
     }
 
     @Override
     public void updateBasin(T stateOfItsBasin) {
-
+        if (Objects.isNull(basin)) {
+            basin = new HashSet<>();
+        }
+        basin.add(stateOfItsBasin);
     }
 
     @Override
     public void updateBasinDimension(Integer dimension) {
-
+        basinDimension += dimension;
     }
 
     @Override

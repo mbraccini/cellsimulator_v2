@@ -84,7 +84,7 @@ public class GenericUtility {
      * @param other
      * @return
      */
-    public static <T> List<T> safeClient(List<T> other ) {
+    public static <T> List<T> safeClient(List<T> other) {
         return other == null ? Collections.emptyList() : other;
     }
 

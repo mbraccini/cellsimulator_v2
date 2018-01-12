@@ -75,17 +75,14 @@ public class miRNABN<K, V> extends AbstractBooleanNetwork<K, V> implements miRNA
                     return new NodeImpl<>("miRNA_" + (wrappedBN.getNodesNumber() + x), wrappedBN.getNodesNumber() + x, table);
                 })
                 .collect(Collectors.toList());
-        System.out.println(Arrays.toString(miRNA_K));
 
 
         /**
          * indices of the nodes influenced by miRNAs
          */
         List<List<Integer>> miRNADownstreamNodes = chooseRandomNodes(miRNA_Number, miRNA_FanOut, 0, wrappedBN.getNodesNumber());
-        System.out.println("miRNADownstreamNodes: " + miRNADownstreamNodes);
         Map<Integer, Integer> countsIncomingNodesToAdd = miRNADownstreamNodes.stream().flatMap(x -> x.stream()).collect(Collectors.toList()).stream().collect(Collectors.groupingBy(e -> e, Collectors.summingInt(s -> 1)));
 
-        System.out.println("counts: " + countsIncomingNodesToAdd);
 
         for (int i = 0; i < wrappedBN.getNodesNumber(); i++) {
             if (Objects.isNull(countsIncomingNodesToAdd.get(i))) {
