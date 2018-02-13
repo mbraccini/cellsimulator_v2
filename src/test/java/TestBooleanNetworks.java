@@ -39,13 +39,11 @@ public class TestBooleanNetworks {
 
         @Test
     public void TestRBN() {
-        Random pseudoRandom;
         int nodesNumber = 30;
         int k = 2;
         double bias = 0.5;
         while (iterations > 0) {
-            pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(pureRandomGenerator.nextLong());
-            BooleanNetwork<BitSet, Boolean> bn = new RBN(nodesNumber, k, bias, pseudoRandom);
+            BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, nodesNumber, k, bias, pureRandomGenerator);
             System.out.println("AVG bias: " + BooleanNetwork.computeActualAverageBias(bn));
             System.out.println("AVG k: " + BooleanNetwork.computeActualAverageIncomingNodes(bn));
             System.out.println("AVG selfloop per nodo: " + BooleanNetwork.computeAverageNumberSelfLoopsPerNode(bn));
@@ -61,13 +59,11 @@ public class TestBooleanNetworks {
 
     @Test
     public void TestRBNWithExactBias() {
-        Random pseudoRandom;
         int nodesNumber = 30;
         int k = 3;
         double bias = 0.5;
         while (iterations > 0) {
-            pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(pureRandomGenerator.nextLong());
-            BooleanNetwork<BitSet, Boolean> bn = new RBNExactBias(nodesNumber, k, bias, pseudoRandom);
+            BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.EXACT, nodesNumber, k, bias, pureRandomGenerator);
             System.out.println("AVG bias: " + BooleanNetwork.computeActualAverageBias(bn));
             System.out.println("AVG k: " + BooleanNetwork.computeActualAverageIncomingNodes(bn));
             System.out.println("AVG selfloop per nodo: " + BooleanNetwork.computeAverageNumberSelfLoopsPerNode(bn));
@@ -84,7 +80,6 @@ public class TestBooleanNetworks {
 
     @Test
     public void TestBNmiRNA() {
-        Random pseudoRandom;
         /* wrapped BN */
         BooleanNetwork<BitSet, Boolean> bn;
         int nodesNumber = 30;
@@ -99,14 +94,13 @@ public class TestBooleanNetworks {
         int miRNA_FanOut = 3;
 
         while (iterations > 0) {
-            pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(pureRandomGenerator.nextLong());
             if (iterations % 2 == 0) {
-                bn = new RBNExactBias(nodesNumber, k, bias, pseudoRandom);
+                bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.EXACT, nodesNumber, k, bias, pureRandomGenerator);
             } else {
-                bn = new RBN(nodesNumber, k, bias, pseudoRandom);
+                bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, nodesNumber, k, bias, pureRandomGenerator);
             }
 
-            miRNAbn = BooleanNetworkFactory.miRNANetworkInstance(bn, miRNA_nodes, miRNA_K, miRNA_bias, miRNA_FanOut, pseudoRandom);
+            miRNAbn = BooleanNetworkFactory.miRNANetworkInstance(bn, miRNA_nodes, miRNA_K, miRNA_bias, miRNA_FanOut, pureRandomGenerator);
 
             // controllare che la rete wrapped sia la stessa di quella di partenza
 
@@ -120,9 +114,9 @@ public class TestBooleanNetworks {
             // possibilmente controllandolo tramite agggiornamento della rete e non dalle tabelle che dovrebbe già essere vero!
 
             final int max = miRNAbn.miRNANodes().size();
-            final int miRNAIndexInExam = miRNAbn.miRNANodes().get(pseudoRandom.nextInt(max)).getId(); // indice di un miRNA
+            final int miRNAIndexInExam = miRNAbn.miRNANodes().get(pureRandomGenerator.nextInt(max)).getId(); // indice di un miRNA
             // creo stato random
-            int[] indices = pseudoRandom.ints(0, miRNAbn.getNodesNumber()).limit(10).toArray();
+            int[] indices = pureRandomGenerator.ints(0, miRNAbn.getNodesNumber()).limit(10).toArray();
             BinaryState state = new ImmutableBinaryState(miRNAbn.getNodesNumber(), indices);
 
             if (!state.getNodeValue(miRNAIndexInExam)) {
