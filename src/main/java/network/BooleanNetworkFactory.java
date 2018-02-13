@@ -85,6 +85,10 @@ public class BooleanNetworkFactory {
         EXACT, CLASSICAL
     }
 
+    public enum SelfLoop {
+        WITH, WITHOUT
+    }
+
     /**
      * RandomBN classical and with exact bias
      *
@@ -95,20 +99,23 @@ public class BooleanNetworkFactory {
      * @param r
      * @return
      */
-    public static BooleanNetwork<BitSet, Boolean> newRBN(BiasType biasType, int nodesNumber, int k, double bias, Random r) {
+    public static BooleanNetwork<BitSet, Boolean> newRBN(BiasType biasType, SelfLoop selfLoop, int nodesNumber, int k, double bias, Random r) {
         Supplier<Table<BitSet, Boolean>> supplier;
 
         if (biasType == BiasType.EXACT) {
             List<Table<BitSet, Boolean>> list = exactBiasNodesGenerator(nodesNumber, k, bias, r);
             Iterator<Table<BitSet, Boolean>> iterator = list.iterator();
             supplier = () -> iterator.next();
-
-            return RBN.<BitSet, Boolean>newInstance(nodesNumber, k, r, supplier);
         } else {
             supplier = () -> new BiasedTable(k, bias, r);
+        }
 
+        if (selfLoop == SelfLoop.WITH) {
+            return RBNSelfLoop.<BitSet, Boolean>newInstance(nodesNumber, k, r, supplier);
+        } else {
             return RBN.<BitSet, Boolean>newInstance(nodesNumber, k, r, supplier);
         }
+
     }
 
     /**
@@ -133,7 +140,7 @@ public class BooleanNetworkFactory {
 
     public static void main(String[] args) {
         Random pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(1222);
-        System.out.println(BooleanNetworkFactory.newRBN(BiasType.CLASSICAL,10, 2, 0.5 , pseudoRandom));
+        System.out.println(BooleanNetworkFactory.newRBN(BiasType.CLASSICAL, SelfLoop.WITH,10, 2, 0.5 , pseudoRandom));
 
     }
 

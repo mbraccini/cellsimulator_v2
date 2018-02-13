@@ -40,7 +40,7 @@ public class TestBooleanNetworks {
         int k = 2;
         double bias = 0.5;
         while (iterations > 0) {
-            BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, nodesNumber, k, bias, pureRandomGenerator);
+            BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, pureRandomGenerator);
             System.out.println("AVG bias: " + BooleanNetwork.computeActualAverageBias(bn));
             System.out.println("AVG k: " + BooleanNetwork.computeActualAverageIncomingNodes(bn));
             System.out.println("AVG selfloop per nodo: " + BooleanNetwork.computeAverageNumberSelfLoopsPerNode(bn));
@@ -60,7 +60,7 @@ public class TestBooleanNetworks {
         int k = 3;
         double bias = 0.5;
         while (iterations > 0) {
-            BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.EXACT, nodesNumber, k, bias, pureRandomGenerator);
+            BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.EXACT, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, pureRandomGenerator);
             System.out.println("AVG bias: " + BooleanNetwork.computeActualAverageBias(bn));
             System.out.println("AVG k: " + BooleanNetwork.computeActualAverageIncomingNodes(bn));
             System.out.println("AVG selfloop per nodo: " + BooleanNetwork.computeAverageNumberSelfLoopsPerNode(bn));
@@ -92,9 +92,9 @@ public class TestBooleanNetworks {
 
         while (iterations > 0) {
             if (iterations % 2 == 0) {
-                bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.EXACT, nodesNumber, k, bias, pureRandomGenerator);
+                bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.EXACT, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, pureRandomGenerator);
             } else {
-                bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, nodesNumber, k, bias, pureRandomGenerator);
+                bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, pureRandomGenerator);
             }
 
             miRNAbn = BooleanNetworkFactory.miRNANetworkInstance(bn, miRNA_nodes, miRNA_K, miRNA_bias, miRNA_FanOut, pureRandomGenerator);
@@ -146,6 +146,24 @@ public class TestBooleanNetworks {
 
             }
 
+            iterations--;
+        }
+    }
+
+    @Test
+    public void TestRBNSelfLoop() {
+        int nodesNumber = 30;
+        int k = 2;
+        double bias = 0.5;
+        while (iterations > 0) {
+            BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITH, nodesNumber, k, bias, pureRandomGenerator);
+            System.out.println(bn);
+            System.out.println("AVG bias: " + BooleanNetwork.computeActualAverageBias(bn));
+            System.out.println("AVG k: " + BooleanNetwork.computeActualAverageIncomingNodes(bn));
+            System.out.println("AVG selfloop per nodo: " + BooleanNetwork.computeAverageNumberSelfLoopsPerNode(bn));
+
+            /** Tests **/
+            assertTrue("k medio diverso da " + k, BooleanNetwork.computeActualAverageIncomingNodes(bn) == k);
             iterations--;
         }
     }
