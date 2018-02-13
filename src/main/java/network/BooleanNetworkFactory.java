@@ -3,10 +3,7 @@ package network;
 import exceptions.RowNotFoundException;
 import experiments.selfLoop.BNGeneticAlgFitness;
 import generator.RandomnessFactory;
-import interfaces.network.BooleanNetwork;
-import interfaces.network.Row;
-import interfaces.network.Table;
-import interfaces.network.miRNABooleanNetwork;
+import interfaces.network.*;
 import interfaces.networkdescription.NetworkAST;
 import states.States;
 import utility.GenericUtility;
@@ -85,13 +82,68 @@ public class BooleanNetworkFactory {
 
     }
 
+
+    public enum BiasType {
+        EXACT, CLASSICAL
+    }
+
+    /**
+     * RBN classical and with exact bias
+     *
+     * @param biasType
+     * @param nodesNumber
+     * @param k
+     * @param bias
+     * @param r
+     * @return
+     */
+    public static BooleanNetwork<BitSet, Boolean> newRBN(BiasType biasType, int nodesNumber, int k, double bias, Random r) {
+        Supplier<Table<BitSet, Boolean>> supplier;
+
+        if (biasType == BiasType.EXACT) {
+            List<Table<BitSet, Boolean>> list = exactBiasNodesGenerator(nodesNumber, k, bias, r);
+            Iterator<Table<BitSet, Boolean>> iterator = list.iterator();
+            supplier = () -> iterator.next();
+
+            return TopologyClassicalRBN.<BitSet, Boolean>newInstance(nodesNumber, k, r, supplier);
+        } else {
+            supplier = () -> new BiasedTable(k, bias, r);
+
+            return TopologyClassicalRBN.<BitSet, Boolean>newInstance(nodesNumber, k, r, supplier);
+        }
+    }
+
+    /**
+     * Utility method for generating List of table with exact bias
+     * @param nodesNumber
+     * @param k
+     * @param bias
+     * @param r
+     * @return
+     */
+    private static List<Table<BitSet, Boolean>> exactBiasNodesGenerator(int nodesNumber, int k, double bias, Random r) {
+        List<Table<BitSet, Boolean>> list = new ArrayList<>();
+        int outcomesForTruthTable = Double.valueOf(Math.pow(2, k)).intValue(); //2^(variablesNumber)
+        int totalOutcomesNumber = nodesNumber * outcomesForTruthTable;
+        List<Boolean> outcomeList = BooleanNetwork.generateExactBiasOutcomes(totalOutcomesNumber, bias, r);
+        for (int id = 0; id < nodesNumber; id++) {
+            list.add(new ConfigurableTable(k, outcomeList.subList(id * outcomesForTruthTable, (id * outcomesForTruthTable) + outcomesForTruthTable)));
+        }
+        return list;
+    }
+
+
     public static void main(String[] args) {
         Random pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(1222);
-        BooleanNetwork<BitSet, Boolean> bn = new RBNExactBias(15, 2, 0.5, pseudoRandom);
+        /*BooleanNetwork<BitSet, Boolean> bn = new RBNExactBias(15, 2, 0.5, pseudoRandom);
         GenericUtility.printMatrix(BNGeneticAlgFitness.simulateBN(bn).getMatrixCopy());
 
-        miRNABooleanNetwork<BitSet, Boolean> miRNA = BooleanNetworkFactory.miRNANetworkInstance(bn,5,2,0.5,3,pseudoRandom);
+        miRNABooleanNetwork<BitSet, Boolean> miRNA = BooleanNetworkFactory.miRNANetworkInstance(bn, 5, 2, 0.5, 3, pseudoRandom);
         GenericUtility.printMatrix(BNGeneticAlgFitness.simulateBN(miRNA).getMatrixCopy());
+        */
+
+        System.out.println(BooleanNetworkFactory.newRBN(BiasType.CLASSICAL,10, 2, 0.5 , pseudoRandom));
+
     }
 
 }

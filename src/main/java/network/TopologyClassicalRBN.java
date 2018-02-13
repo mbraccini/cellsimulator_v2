@@ -4,14 +4,19 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import exceptions.InputConnectionsException;
+import interfaces.network.BooleanNetwork;
+import interfaces.network.Table;
 
-public abstract class TopologyClassicalRBN<K, V> extends AbstractBooleanNetwork<K, V> {
+public class TopologyClassicalRBN<K, V> extends AbstractBooleanNetwork<K, V> {
 
     protected final Random random;
     protected final int k;
+    protected Supplier<Table<K, V>> tableSupplier;
 
     public TopologyClassicalRBN(int nodesNumber, int k, Random random) {
         super(nodesNumber);
@@ -21,14 +26,39 @@ public abstract class TopologyClassicalRBN<K, V> extends AbstractBooleanNetwork<
         properties.setProperty("topology", "random");
     }
 
+    private TopologyClassicalRBN(int nodesNumber, int k, Random random, Supplier<Table<K, V>> tableSupplier) {
+        super(nodesNumber);
+        this.k = k;
+        this.random = random;
+        this.tableSupplier = tableSupplier;
+        checkNodesNumberInvariant();
+        configure();
+        properties.setProperty("topology", "random");
+    }
+
     private final void checkNodesNumberInvariant() {
         if (this.k > (this.nodesNumber - 1)) {
             throw new InputConnectionsException("K must be less than (#nodes - 1)!");
         }
     }
 
-    protected abstract void initNodes();
+    public static <K,V> BooleanNetwork<K,V> newInstance(int nodesNumber, int k, Random random, Supplier<Table<K, V>> tableSupplier){
+        return new TopologyClassicalRBN<K,V>(nodesNumber, k, random, tableSupplier);
+    }
 
+    private void configure() {
+        initNodes();
+        initTopology();
+    }
+
+    protected void initNodes() {
+        nodesList = IntStream.range(0, nodesNumber)
+                .mapToObj(x -> {
+                    return new NodeImpl<>("gene_" + x, x, tableSupplier.get());
+                })
+                .collect(Collectors.toList());
+
+    }
 
     protected final void initTopology() {
         List<Integer> list;
