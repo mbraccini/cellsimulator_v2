@@ -1,5 +1,6 @@
 package utility;
 
+import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.ImmutableList;
@@ -150,6 +151,50 @@ public class Files {
             i.printStackTrace();
         }
         return ret;
+    }
+
+
+    /**
+     * read csvFile
+     * @param
+     */
+    public static List<String[]> readCsv(String filename, char separator, boolean header) {
+        if (!filename.endsWith(".csv")) filename = filename + ".csv";
+        CSVReader reader = null;
+        List<String[]> s = null;
+        try {
+            if (header)
+                //Build reader instance
+                reader = new CSVReader(new FileReader(filename), separator, '"', 1);
+            else
+                reader = new CSVReader(new FileReader(filename), separator, '"', 0);
+
+            //Read all rows at once
+            s = reader.readAll();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return s;
+    }
+
+
+    /**
+     * read csvFile
+     * @param
+     */
+    public static Double[][] readCsvMatrix(String filename, char separator, boolean header) {
+        List<String[]> s = readCsv(filename, separator, header);
+        Double[][] matrix = new Double[s.size()][];
+
+        for (int i = 0; i < s.size(); i++) {
+            String[] p = s.get(i);
+            matrix[i] = new Double[p.length];
+            for (int j = 0; j < p.length; j++) {
+                matrix[i][j] = Double.valueOf(p[j]);
+            }
+        }
+
+        return matrix;
     }
 
 
