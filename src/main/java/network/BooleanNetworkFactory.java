@@ -1,12 +1,10 @@
 package network;
 
 import exceptions.RowNotFoundException;
-import experiments.selfLoop.BNGeneticAlgFitness;
 import generator.RandomnessFactory;
 import interfaces.network.*;
 import interfaces.networkdescription.NetworkAST;
 import states.States;
-import utility.GenericUtility;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -88,7 +86,7 @@ public class BooleanNetworkFactory {
     }
 
     /**
-     * RBN classical and with exact bias
+     * RandomBN classical and with exact bias
      *
      * @param biasType
      * @param nodesNumber
@@ -105,11 +103,11 @@ public class BooleanNetworkFactory {
             Iterator<Table<BitSet, Boolean>> iterator = list.iterator();
             supplier = () -> iterator.next();
 
-            return TopologyClassicalRBN.<BitSet, Boolean>newInstance(nodesNumber, k, r, supplier);
+            return RBN.<BitSet, Boolean>newInstance(nodesNumber, k, r, supplier);
         } else {
             supplier = () -> new BiasedTable(k, bias, r);
 
-            return TopologyClassicalRBN.<BitSet, Boolean>newInstance(nodesNumber, k, r, supplier);
+            return RBN.<BitSet, Boolean>newInstance(nodesNumber, k, r, supplier);
         }
     }
 
@@ -135,13 +133,6 @@ public class BooleanNetworkFactory {
 
     public static void main(String[] args) {
         Random pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(1222);
-        /*BooleanNetwork<BitSet, Boolean> bn = new RBNExactBias(15, 2, 0.5, pseudoRandom);
-        GenericUtility.printMatrix(BNGeneticAlgFitness.simulateBN(bn).getMatrixCopy());
-
-        miRNABooleanNetwork<BitSet, Boolean> miRNA = BooleanNetworkFactory.miRNANetworkInstance(bn, 5, 2, 0.5, 3, pseudoRandom);
-        GenericUtility.printMatrix(BNGeneticAlgFitness.simulateBN(miRNA).getMatrixCopy());
-        */
-
         System.out.println(BooleanNetworkFactory.newRBN(BiasType.CLASSICAL,10, 2, 0.5 , pseudoRandom));
 
     }

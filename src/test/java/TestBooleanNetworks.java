@@ -6,8 +6,6 @@ import interfaces.network.Node;
 import interfaces.network.miRNABooleanNetwork;
 import interfaces.state.BinaryState;
 import network.BooleanNetworkFactory;
-import network.RBN;
-import network.RBNExactBias;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -18,7 +16,6 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertTrue;
 
