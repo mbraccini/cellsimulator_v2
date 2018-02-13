@@ -6,7 +6,7 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
 
-public class SelfLoopBNExactBias extends TopologySelfLoop<BitSet, Boolean> {
+public class SelfLoopBNExactBias extends TopologySelfLoopAverageK<BitSet, Boolean> {
 
     private final double bias;
 

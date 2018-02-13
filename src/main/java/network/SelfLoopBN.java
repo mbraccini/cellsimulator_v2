@@ -3,7 +3,7 @@ package network;
 import java.util.BitSet;
 import java.util.Random;
 
-public class SelfLoopBN extends TopologySelfLoop<BitSet, Boolean> {
+public class SelfLoopBN extends TopologySelfLoopAverageK<BitSet, Boolean> {
 
     private final double bias;
 

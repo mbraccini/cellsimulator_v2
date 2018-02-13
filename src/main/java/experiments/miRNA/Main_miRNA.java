@@ -1,10 +1,9 @@
 package experiments.miRNA;
 
 import dynamic.SynchronousDynamicsImpl;
-import generator.CompleteGenerator;
 import generator.RandomnessFactory;
 import generator.UniformlyDistributedGenerator;
-import interfaces.attractor.Generator;
+import interfaces.sequences.Generator;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.ImmutableList;
 import interfaces.dynamic.Dynamics;
@@ -15,13 +14,9 @@ import interfaces.tes.DifferentiationTree;
 import interfaces.tes.Tes;
 import network.*;
 import noise.CompletePerturbations;
-import org.apache.commons.math3.random.BitsStreamGenerator;
 import simulator.AttractorsFinderService;
-import tes.AtmImpl;
 import tes.TesCreator;
 import utility.*;
-import visualization.AtmGraphViz;
-import visualization.BNGraphViz;
 import visualization.DifferentiationTesTreeGraphViz;
 
 import java.math.BigInteger;
@@ -40,36 +35,37 @@ public class Main_miRNA {
     public static final double NODES_BIAS = 0.5;
 
     public static final double miRNA_BIAS = 0.5;
-    public static final int miRNA_K = 2;
+    public static final int miRNA_K = 1;
 
     public static final Random pureRnd = RandomnessFactory.getPureRandomGenerator();
 
     public static void main(String[] args) {
 
+        /** pseudorandom generator **/
+        long seed = pureRnd.nextLong();
+        Random pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(seed);
+
         int iterations = 0;
-        while (iterations < 20) {
+        while (iterations < 30) {
             System.out.println(iterations);
-            oneRun(iterations);
+            oneRun(iterations, pseudoRandom);
             iterations++;
         }
 
     }
 
-    public static void oneRun(int iteration) {
+    public static void oneRun(int iteration, Random pseudoRandom) {
 
         String path = "miRNA_" + iteration + Files.FILE_SEPARATOR;
         Files.createDirectories(path);
-
-        /** pseudorandom generator **/
-        long seed = pureRnd.nextLong();
-        Random pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(seed);
 
 
         /** ORIGINAL BN **/
         String pathBN = path + "originalBN" + Files.FILE_SEPARATOR;
         Files.createDirectories(pathBN);
 
-        BooleanNetwork<BitSet, Boolean> bn = new RBNExactBias(NODES_NUMBER, NODES_K, NODES_BIAS, pseudoRandom);
+        BooleanNetwork<BitSet,Boolean> bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.EXACT, BooleanNetworkFactory.SelfLoop.WITHOUT, NODES_NUMBER, NODES_K, NODES_BIAS, pseudoRandom);
+
         simulate(bn, pseudoRandom, pathBN);
 
 
@@ -136,7 +132,7 @@ public class Main_miRNA {
         Files.writeAttractorsToReadableFile(attractors, path + "attractors");
 
         /* differentiation tree */
-        new DifferentiationTesTreeGraphViz<BinaryState>(differentiationTree, path + "diffTree").generateDotFile().generateImg("jpg");
+        new DifferentiationTesTreeGraphViz<BinaryState>(differentiationTree).saveOnDisk(path + "diffTree");
 
     }
 
