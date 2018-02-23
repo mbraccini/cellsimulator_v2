@@ -80,7 +80,7 @@ public interface BooleanNetwork<K, V> { //OK
         ).average().getAsDouble();
     }
 
-    public static <K, V> String getBNFileRepresentation(BooleanNetwork<K, Boolean> bn) {
+    public static <K, Boolean> String getBNFileRepresentation(BooleanNetwork<K, Boolean> bn) {
         List<Node<K, Boolean>> nodesList = bn.getNodes();
         List<Node<K, Boolean>> incomingNodes = null;
         List<Row<K, Boolean>> rowsTruthTable = null;

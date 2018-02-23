@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import utility.Files;
 
-public abstract class GraphViz {
+public class GraphViz {
 	
 	public static final String NEW_LINE_DOT_ESCAPE = "\\n";
 	public static final String LABEL_START = "[label = ";
@@ -19,9 +19,9 @@ public abstract class GraphViz {
 	public static final String Windows = "c:/Program Files (x86)/Graphviz 2.28/bin/dot.exe";
 	public static final String MacOSX = "/usr/local/bin/dot";
 
-	private String graph = "", dotPath, graphType, graphName, filenames;
+	private String graph = "", dotPath, graphType, graphName, path;
 
-	public GraphViz(String graphType, String graphName, String filenames) {
+	public GraphViz(String graphType, String graphName) {
 		String os = System.getProperty("os.name").replaceAll("\\s", "");
 		switch (os) {
 			case "Linux" 	: this.dotPath = Linux; break;
@@ -30,7 +30,6 @@ public abstract class GraphViz {
 		}
 		this.graphType = graphType;
 		this.graphName = graphName;
-		this.filenames = filenames;
 	}
 
 	protected String starting(){
@@ -48,12 +47,13 @@ public abstract class GraphViz {
 	}
 
 	private boolean dotFileAlreadyGenerated = false;
-	public GraphViz generateDotFile() {
+	public GraphViz generateDotFile(String path) {
+		this.path = path;
 		if (!dotFileAlreadyGenerated) {
 			StringBuilder sb = new StringBuilder();
 			graph = sb.append(starting()).append(graph).append(ending()).toString();
 		}
-		String dotFilename = filenames + ".gv";
+		String dotFilename = path + ".gv";
 		Files.writeStringToFileUTF8(dotFilename, graph);
 		dotFileAlreadyGenerated = true;
 		return this;
@@ -62,11 +62,11 @@ public abstract class GraphViz {
 	public void generateImg(String type) {
 		if (!dotFileAlreadyGenerated) return;
 
-		String imgFilename = filenames + "." + type;
+		String imgFilename = path + "." + type;
 
 		try {
 			Runtime rt = Runtime.getRuntime();
-	        String[] args = {dotPath, "-T" + type, filenames + ".gv", "-o", imgFilename};
+	        String[] args = {dotPath, "-T" + type, path + ".gv", "-o", imgFilename};
 	        Process p = rt.exec(args);
 	        p.waitFor();
 		} catch (IOException | InterruptedException e) {

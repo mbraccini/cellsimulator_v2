@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 
 public class DifferentiationTesTreeGraphViz<T extends State> extends DifferentiationTreeGraphViz<Tes<T>> {
 
-    public DifferentiationTesTreeGraphViz(DifferentiationTree<Tes<T>> tree, String filenames) {
-        super(tree, filenames);
+    public DifferentiationTesTreeGraphViz(DifferentiationTree<Tes<T>> tree) {
+        super(tree);
         dashedEdges();
     }
 
@@ -43,7 +43,7 @@ public class DifferentiationTesTreeGraphViz<T extends State> extends Differentia
                             if (father.equals(rootNode)) { //per evitare self-loop
                                 continue;
                             } else {
-                                addLine(mapLvlLabel.get(father) + GraphViz.EDGE_START + mapLvlLabel.get(rootNode)
+                                gz.addLine(mapLvlLabel.get(father) + GraphViz.EDGE_START + mapLvlLabel.get(rootNode)
                                         + "[style = \"dashed\"]");
                             }
                         }

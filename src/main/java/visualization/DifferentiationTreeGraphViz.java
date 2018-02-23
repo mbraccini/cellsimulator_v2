@@ -11,15 +11,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 
-public class DifferentiationTreeGraphViz<T> extends GraphViz {
+public class DifferentiationTreeGraphViz<T> implements Writable{
 
 
 	protected Map<DifferentiationNode<T>, String> mapLvlLabel = new HashMap<>();
 	protected List<DifferentiationNode<T>> rootLevel;
 	protected DifferentiationTree<T> tree;
-
-	public DifferentiationTreeGraphViz(DifferentiationTree<T> tree, String filenames){
-		super("graph", "diffTree", filenames);
+	protected GraphViz gz;
+	public DifferentiationTreeGraphViz(DifferentiationTree<T> tree){
+		this.gz = new GraphViz("graph", "diffTree");
 		this.tree = tree;
 		this.rootLevel = tree.getRootLevel();
 		//this.rootLevel.add(this.rootLevel.get(0)); //prova senza senso per vedere se aveva problemi con più radici, non ne ha!
@@ -34,7 +34,7 @@ public class DifferentiationTreeGraphViz<T> extends GraphViz {
 			DifferentiationNode<T> DifferentiationNode = i.next();
 			String rootId = "R_" + count;
 			mapLvlLabel.put(DifferentiationNode, rootId); //add to map
-			addLine(rootId + GraphViz.LABEL_START + nodeInfo(DifferentiationNode) + GraphViz.LABEL_END);
+			gz.addLine(rootId + GraphViz.LABEL_START + nodeInfo(DifferentiationNode) + GraphViz.LABEL_END);
 			configure(DifferentiationNode, rootId, null);
 
 			count++;
@@ -42,7 +42,7 @@ public class DifferentiationTreeGraphViz<T> extends GraphViz {
 	}
 	private void configure(DifferentiationNode<T> DifferentiationNodeFiglio, String childId, String fatherId) {
 		if (fatherId != null) {
-			addLine(fatherId + GraphViz.EDGE_START + childId + GraphViz.LABEL_START + this.tree.getThresholds().get(DifferentiationNodeFiglio.getLevel()) + GraphViz.LABEL_END);
+			gz.addLine(fatherId + GraphViz.EDGE_START + childId + GraphViz.LABEL_START + this.tree.getThresholds().get(DifferentiationNodeFiglio.getLevel()) + GraphViz.LABEL_END);
 		}
 		int count = 0;
 		for (Iterator<DifferentiationNode<T>> i = GenericUtility.safeClient(DifferentiationNodeFiglio.getChildren()).iterator(); i.hasNext();) {
@@ -51,7 +51,7 @@ public class DifferentiationTreeGraphViz<T> extends GraphViz {
 				String childIdCreation = childId + "_C_" + DifferentiationNode.getLevel() + "_" + count;
 				mapLvlLabel.put(DifferentiationNode, childIdCreation);
 			}
-			addLine(mapLvlLabel.get(DifferentiationNode) + GraphViz.LABEL_START + nodeInfo(DifferentiationNode) + GraphViz.LABEL_END);
+			gz.addLine(mapLvlLabel.get(DifferentiationNode) + GraphViz.LABEL_START + nodeInfo(DifferentiationNode) + GraphViz.LABEL_END);
 			configure(DifferentiationNode, mapLvlLabel.get(DifferentiationNode), childId);
 			count++;
 		}
@@ -70,7 +70,7 @@ public class DifferentiationTreeGraphViz<T> extends GraphViz {
 														.collect(Collectors.toList());
 
 		for (Integer lvl : levels) {
-			addLine(mapLvlLabel.entrySet().stream()
+			gz.addLine(mapLvlLabel.entrySet().stream()
 									.filter(x -> x.getKey().getLevel().intValue() == lvl)
 									.map(x -> x.getValue())
 									.collect(Collectors.joining("; ", "{ rank=same;", "}"))
@@ -88,7 +88,10 @@ public class DifferentiationTreeGraphViz<T> extends GraphViz {
 	}
 
 
-
+	@Override
+	public void saveOnDisk(String path) {
+		this.gz.generateDotFile(path).generateImg("jpg");
+	}
 	
 
 

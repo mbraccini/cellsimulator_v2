@@ -8,12 +8,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 
-public class AtmGraphViz extends GraphViz {
+public class AtmGraphViz implements Writable{
 	
 	private Map<Integer, String> mapIdAtmIndex; 
 	private Atm<?> atm;
-	public AtmGraphViz(Atm<?> atm, String filenames){
-		super("digraph", "atm", filenames);
+	private GraphViz gz;
+	public AtmGraphViz(Atm<?> atm){
+		this.gz = new GraphViz("digraph", "atm");
 		this.atm = atm;
 		init();
 		arcs();
@@ -24,7 +25,7 @@ public class AtmGraphViz extends GraphViz {
 		int index = 0;
 		for(String id : atm.getAttractors().stream().map(x -> x.getId() + "").collect(Collectors.toList())){
 			this.mapIdAtmIndex.put(index++, id);
-			addLine(id + GraphViz.LABEL_START + id + GraphViz.LABEL_END);
+			gz.addLine(id + GraphViz.LABEL_START + id + GraphViz.LABEL_END);
 		}
 	}
 
@@ -32,7 +33,7 @@ public class AtmGraphViz extends GraphViz {
 		for (int i = 0; i < this.atm.getMatrix().length; i++) {
 			for (int j = 0; j < this.atm.getMatrix().length; j++) {
 				if (this.atm.getMatrix()[i][j] > 0.0) {
-					addLine(this.mapIdAtmIndex.get(i)
+					gz.addLine(this.mapIdAtmIndex.get(i)
 								+ GraphViz.ARC_START
 								+ this.mapIdAtmIndex.get(j)
 								+ " "
@@ -44,5 +45,10 @@ public class AtmGraphViz extends GraphViz {
 		}
 
 	}
-	
+
+	@Override
+	public void saveOnDisk(String path) {
+		this.gz.generateDotFile(path).generateImg("jpg");
+	}
+
 }

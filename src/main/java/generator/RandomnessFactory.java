@@ -1,5 +1,7 @@
 package generator;
 
+import io.jenetics.prngine.LCG64ShiftRandom;
+
 import java.util.Random;
 
 public class RandomnessFactory {
@@ -10,13 +12,13 @@ public class RandomnessFactory {
 
     public static Random getPureRandomGenerator() {
         if (random == null) {
-            random = new Random();
+            random = new LCG64ShiftRandom();
         }
         return random;
     }
 
     public static Random newPseudoRandomGenerator(long seed) {
-        return new Random(seed);
+        return new LCG64ShiftRandom(seed);
     }
 
 }

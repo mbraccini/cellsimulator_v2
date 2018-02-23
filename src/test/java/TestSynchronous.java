@@ -14,12 +14,11 @@ import generator.UniformlyDistributedGenerator;
 import interfaces.attractor.Attractor;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.MutableAttractor;
-import interfaces.attractor.Generator;
+import interfaces.sequences.Generator;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
 import network.BooleanNetworkFactory;
-import network.RBN;
 import org.junit.Test;
 
 import simulator.AttractorsFinderService;
@@ -152,7 +151,7 @@ public class TestSynchronous {
     @Test
     public void ifStatesAreDifferent() {
         Random rnd = RandomnessFactory.newPseudoRandomGenerator(10);
-        BooleanNetwork<BitSet, Boolean> bn = new RBN(50, 3, 0.7, rnd);
+        BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, 50, 3, 0.7, rnd);
 
 
         /** Synchronous dynamics **/

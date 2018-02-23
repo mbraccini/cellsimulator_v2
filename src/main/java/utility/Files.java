@@ -4,6 +4,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.ImmutableList;
+import interfaces.network.BooleanNetwork;
 import interfaces.state.Immutable;
 import interfaces.state.State;
 
@@ -225,7 +226,7 @@ public class Files {
         List<String[]> s = Arrays.stream(matrix).map(x -> Arrays.stream(x).map(Object::toString).toArray(String[]::new)).collect(Collectors.toList());
         writeToCsv(s, filename);
     }
-    public static <T> void writeListsToCsv(List<List<T>> list, String filename) {
+    public static void writeListsToCsv(List<List<?>> list, String filename) {
         List<String[]> s = list.stream().map(x -> x.stream().map(Object::toString).toArray(String[]::new)).collect(Collectors.toList());
         writeToCsv(s, filename);
     }
@@ -255,5 +256,11 @@ public class Files {
 
         Files.writeStringToFileUTF8(filename, writer.toString());
     }
+
+
+    public static <K> void writeBooleanNetworkToFile(BooleanNetwork<K, Boolean> bn, String filename) {
+        writeStringToFileUTF8(filename, BooleanNetwork.getBNFileRepresentation(bn));
+    }
+
 
 }
