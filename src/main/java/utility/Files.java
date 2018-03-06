@@ -1,6 +1,8 @@
 package utility;
 
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.ImmutableList;
@@ -165,10 +167,22 @@ public class Files {
         List<String[]> s = null;
         try {
             if (header)
-                //Build reader instance
-                reader = new CSVReader(new FileReader(filename), separator, '"', 1);
+
+             reader = new CSVReaderBuilder(new FileReader(filename))
+                            .withSkipLines(1)
+                            .withCSVParser(new CSVParserBuilder()
+                                    .withSeparator(separator)
+                                    .withIgnoreQuotations(true)
+                                    .build())
+                            .build();
             else
-                reader = new CSVReader(new FileReader(filename), separator, '"', 0);
+
+                reader = new CSVReaderBuilder(new FileReader(filename))
+                        .withCSVParser(new CSVParserBuilder()
+                                .withSeparator(separator)
+                                .withIgnoreQuotations(true)
+                                .build())
+                        .build();
 
             //Read all rows at once
             s = reader.readAll();
@@ -261,6 +275,5 @@ public class Files {
     public static <K> void writeBooleanNetworkToFile(BooleanNetwork<K, Boolean> bn, String filename) {
         writeStringToFileUTF8(filename, BooleanNetwork.getBNFileRepresentation(bn));
     }
-
 
 }
