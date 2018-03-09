@@ -3,8 +3,6 @@ package interfaces.attractor;
 import interfaces.state.Immutable;
 import interfaces.state.State;
 
-import java.util.*;
-
 
 /**
  * Immutable attractor with all states of the attractor lexicograpically ordered
@@ -25,12 +23,6 @@ public interface ImmutableAttractor<T extends State> extends Attractor<T>, Immut
      * @return
      */
     T getFirstState();
-
-    /**
-     * Attractor's length.
-     * @return
-     */
-    Integer getLength();
 
 
 

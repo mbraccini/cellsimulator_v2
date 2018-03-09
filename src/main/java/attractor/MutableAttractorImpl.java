@@ -27,6 +27,11 @@ public class MutableAttractorImpl<T extends State> implements MutableAttractor<T
         return this.states;
     }
 
+    @Override
+    public Integer getLength() {
+        return this.states.size();
+    }
+
 
     @Override
     public Optional<Integer> getBasinSize() {

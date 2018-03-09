@@ -1,5 +1,7 @@
 package interfaces.state;
 
+import states.ImmutableBinaryState;
+
 import java.util.BitSet;
 
 public interface BinaryState extends State {
@@ -33,10 +35,35 @@ public interface BinaryState extends State {
 
 
 	/**
-	 * Returns a new BinaryState with the specified nodes with value 1.
-	 * @param indices
+	 * From binary string to BinaryState
+	 *
+	 * @param binary
 	 * @return
 	 */
+	static BinaryState valueOf(String binary) {
+		BitSet bitset = new BitSet(binary.length());
+		for (int i = 0; i < binary.length(); i++) {
+			if (binary.charAt(i) == '1') {
+				bitset.set(i);
+			}
+		}
+		return new ImmutableBinaryState(bitset.length(), bitset);
+	}
+
+
+	static BinaryState valueOf(int length, int... indicesToOne) {
+		return new ImmutableBinaryState(length, indicesToOne);
+	}
+
+
+
+
+
+		/**
+         * Returns a new BinaryState with the specified nodes with value 1.
+         * @param indices
+         * @return
+         */
 	//BinaryState setNodesValues(Integer... indices);
 
 

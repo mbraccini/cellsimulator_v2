@@ -1,5 +1,7 @@
 package interfaces.dynamic;
 
-public interface SynchronousDynamics<TState> extends Dynamics<TState> {
+import interfaces.state.State;
+
+public interface SynchronousDynamics<T extends State> extends Dynamics<T> {
 
 }
