@@ -36,17 +36,21 @@ public class MainCell {
 
         System.out.println();
 
-       //cell.getCustom(cell.compose(StateFunction.withNoise(4,r)), new ImmutableBinaryState(5))
+  /*     cell.getCustom(cell.compose(StateFunction.withNoise(4,r))::apply,
+                        BinaryState.valueOf("01011"))
+                        .stream()
+                        .limit(10)
+                        .forEach(System.out::println);
 
 
+*/
 
 
-
-        /*cell.getDefault(BinaryState.valueOf("10101"))
+        cell.getDefault(BinaryState.valueOf("00101"))
                 .stream()
                 .limit(10)
                 .forEach(System.out::println);
-*/
+
 
     }
 }

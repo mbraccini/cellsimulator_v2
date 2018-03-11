@@ -3,6 +3,7 @@ package cell;
 import interfaces.cell.Cell;
 import interfaces.cell.LiveCell;
 import interfaces.cell.LiveCellImpl;
+import interfaces.cell.StateFunction;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.sequences.UnboundedSequence;
@@ -54,7 +55,7 @@ public class CellImpl<K,V,T extends State> implements Cell<K,V,T>{
     }
 
     @Override
-    public LiveCell<K, V, T> getCustom(Function<T, T> fun, T initialState) {
+    public LiveCell<K, V, T> getCustom(StateFunction<T> fun, T initialState) {
         return new LiveCellImpl<>(fun, initialState);
     }
 

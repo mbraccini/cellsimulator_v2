@@ -5,7 +5,7 @@ import interfaces.state.State;
 import java.util.List;
 import java.util.Optional;
 
-public interface Attractor<T extends State> {
+public interface Attractor<T extends State> extends BasicAttractor{
 
     List<T> getStates();
 

@@ -6,7 +6,7 @@ import interfaces.state.State;
 
 import java.util.function.Function;
 
-public interface Cell<K,V, T extends State> extends Function<T,T>{
+public interface Cell<K,V, T extends State> extends StateFunction<T>{
 
     BooleanNetwork<K,V> getBooleanNetwork();
 
@@ -21,7 +21,7 @@ public interface Cell<K,V, T extends State> extends Function<T,T>{
 
     LiveCell<K, V, T> getDefault(T initialState);
 
-    LiveCell<K, V, T> getCustom(Function<T,T> fun, T initialState);
+    LiveCell<K, V, T> getCustom(StateFunction<T> fun, T initialState);
 
 
 }

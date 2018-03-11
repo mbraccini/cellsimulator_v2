@@ -13,4 +13,5 @@ public interface StateFunction<T extends State> extends Function<T,T>{
         return v -> (V) v.flipNodesValues(r.ints(numOfperturbationsAtOnce, 0, v.getLength()).boxed().toArray(Integer[]::new));
     }
 
+
 }
