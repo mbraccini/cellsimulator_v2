@@ -15,6 +15,7 @@ import utility.Files;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,10 +26,12 @@ public class MainMultiObjectiveJenetics {
     /**
      * PARAMETERS
      */
+
+
     static final long MAX_GENERATIONS = 10000;
     static final double ELITISM_FRACTION = 0.1;
     static final int POPULATION_SIZE = 20;
-    static final int STEADY_FITNESS_LIMIT = 50; //idle iterations
+    static final int STEADY_FITNESS_LIMIT = 1000; //idle iterations
     public static final int NODES_NUMBER = 15;
     public static final int K = 2;
 
@@ -52,7 +55,7 @@ public class MainMultiObjectiveJenetics {
         }
 
         Factory<Genotype<IntegerGene>> gtf =
-                Genotype.of(TopologyFixedKBNChromosome.of(IntRange.of(0, NODES_NUMBER - 1), K * NODES_NUMBER, K, true),
+                Genotype.of(TopologyFixedKBNChromosome.of(IntRange.of(0, NODES_NUMBER - 1), K * NODES_NUMBER, K, false),
                         IntegerChromosome.of(IntRange.of(0, Boolean_Function_Max_Value), NODES_NUMBER)); //rappresenta 1 individuo
 
 
@@ -82,13 +85,16 @@ public class MainMultiObjectiveJenetics {
 
         String paretoSet = result.stream().map(x -> x.v1() + "; " + x.v2()).collect(StringBuilder::new, (x, y) -> x.append(y + "\n"), StringBuilder::append).toString();
 
-        Tuple2<Vec<double[]>, Genotype<IntegerGene>> best = result.stream().max((x, y) -> Optimize.MAXIMUM.<Vec<double[]>>compare(x.v1(), y.v1())).get();
+        //Tuple2<Vec<double[]>, Genotype<IntegerGene>> best = result.stream().max((x, y) -> Optimize.MAXIMUM.<Vec<double[]>>compare(x.v1(), y.v1())).get();
 
         Files.createDirectories("GeneticAlg");
+        Files.createDirectories("GeneticAlg/paretoObj");
+
+        result.forEach(x -> Files.serializeObject(x.v2(), "GeneticAlg/paretoObj/" + x.v1().toString().replaceAll(", |\\[|\\]","_") ));
+
         Files.writeStringToFileUTF8("GeneticAlg/generationsStats.txt", generationsStats.toString());
         Files.writeStringToFileUTF8("GeneticAlg/stats.txt", statistics.toString());
         Files.writeStringToFileUTF8("GeneticAlg/pareto.txt", paretoSet);
-        Files.serializeObject(best.v2(), "GeneticAlg/BestGenotype");
         Files.writeListsToCsv(
                 List.of(
                         List.of("NODES_NUMBER: " + NODES_NUMBER),
@@ -99,15 +105,17 @@ public class MainMultiObjectiveJenetics {
                         List.of("STEADY_FITNESS_LIMIT: " + STEADY_FITNESS_LIMIT)
                 ), "GeneticAlg/parameters.csv");
 
+/*
+       Vec<double[]> a = Vec.of(0,1.0,2);
+       Vec<double[]> b = Vec.of(1.0,0,0);
 
-       /*Vec<int[]> a = Vec.of(10,2);
-       Vec<int[]> b = Vec.of(2,10);
-        Vec<int[]> c = Vec.of(1,1);
-
-        List<Vec<int[]>> l =  new ArrayList<>(List.of(c, a,b));
-       Optimize o = Optimize.MINIMUM;
-       l.sort(o.<Vec<int[]>>ascending());
-        System.out.println(l);
+        Vec<double[]> c = Vec.of(3.0,4.0,4);
+        System.out.println(c.toString().replaceAll(", |\\[|\\]","_"));
+        List<Vec<double[]>> l =  new ArrayList<>(List.of(b,c,a));
+       //Optimize o = Optimize.MINIMUM;
+       //l.sort(o.<Vec<double[]>>ascending());
+        //List<double[]> l1 = l.stream().map(x->x.data()).sorted(c.dominance()).collect(Collectors.toList());
+       // l1.forEach(x-> Arrays.stream(x).forEach(y->System.out.print(y)));
 */
 
     }

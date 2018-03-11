@@ -17,10 +17,10 @@ public class MainJenetics {
     /**
      * PARAMETERS
      */
-    static final long MAX_GENERATIONS = 10000;
+    static final long MAX_GENERATIONS = 5000;
     static final double ELITISM_FRACTION = 0.1;
-    static final int POPULATION_SIZE = 50;
-    static final int STEADY_FITNESS_LIMIT = 100; //idle iterations
+    static final int POPULATION_SIZE = 20;
+    static final int STEADY_FITNESS_LIMIT = 50; //idle iterations
     public static final int NODES_NUMBER = 15;
     public static final int K = 2;
 
@@ -37,7 +37,7 @@ public class MainJenetics {
         System.out.println("POPULATION_SIZE: " + POPULATION_SIZE);
         System.out.println("STEADY_FITNESS_LIMIT: " + STEADY_FITNESS_LIMIT);
 
-        System.out.println("versione 5.0");
+        System.out.println("versione 11.0");
 
         if (K > NODES_NUMBER) {
             throw new InputConnectionsException("K must be <= #nodes!");
@@ -52,8 +52,8 @@ public class MainJenetics {
 
 
         // 3.) Create the execution environment.
-        Engine<IntegerGene, Double> engine = Engine
-                .builder(BNGeneticAlgFitness::eval, gtf)
+        Engine<IntegerGene, GeneticAlgFitness.Tuple3Extended> engine = Engine
+                .builder(GeneticAlgFitness::eval, gtf)
                 .populationSize(POPULATION_SIZE)
                 .offspringFraction(1 - ELITISM_FRACTION)
                 .survivorsSelector(new TruncationSelector<>())
@@ -63,8 +63,10 @@ public class MainJenetics {
                         new SinglePointCrossover<>(0.5))
                 .build();
 
-        final EvolutionStatistics<Double, ?>
+        final EvolutionStatistics<GeneticAlgFitness.Tuple3Extended, ?>
                 statistics = EvolutionStatistics.ofNumber();
+
+        StringBuilder sb = new StringBuilder();
 
         // 4.) Start the execution (evolution) and
         //     collect the result.
@@ -72,11 +74,12 @@ public class MainJenetics {
                 .limit(bySteadyFitness(STEADY_FITNESS_LIMIT))
                 .limit(MAX_GENERATIONS)
                 .peek(statistics)
-                .peek(r -> System.out.print("."))
+                .peek(r -> r.getPopulation().stream().forEach(x -> sb.append("("+ r.getGeneration() + "," + x.getGeneration() + ")" + x.getFitness()+"\n")))
                 .collect(EvolutionResult.toBestGenotype());
 
 
         Files.createDirectories("GeneticAlg");
+        Files.writeStringToFileUTF8("GeneticAlg/generationsStats", sb.toString());
         Files.writeStringToFileUTF8("GeneticAlg/results.txt", "genotipo\n" + result.toString() + "\nstats\n" + statistics);
         Files.serializeObject(result, "GeneticAlg/BestGenotype");
 

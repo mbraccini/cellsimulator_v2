@@ -1,6 +1,7 @@
 package utility;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -87,5 +88,38 @@ public class GenericUtility {
     public static <T> List<T> safeClient(List<T> other) {
         return other == null ? Collections.emptyList() : other;
     }
+
+
+    /**
+     * From String to the an object of the specified class
+     * @param clazz
+     * @param value
+     * @return
+     */
+    public static Object toObject( Class clazz, String value ) {
+        if( Boolean.class == clazz ) return Boolean.parseBoolean( value );
+        if( Byte.class == clazz ) return Byte.parseByte( value );
+        if( Short.class == clazz ) return Short.parseShort( value );
+        if( Integer.class == clazz ) return Integer.parseInt( value );
+        if( Long.class == clazz ) return Long.parseLong( value );
+        if( Float.class == clazz ) return Float.parseFloat( value );
+        if( Double.class == clazz ) return Double.parseDouble( value );
+        return value;
+    }
+
+    /**
+     * From console arguments to an array of objects of the appropriate type
+     * @param args
+     * @param types
+     * @return
+     */
+    public static Object[] fromArgsStringToObjects(String[] args, List<Class> types){
+        Object[] a = new Object[args.length];
+        for (int i = 0; i < args.length; i++) {
+            a[i] = toObject(types.get(i), args[i]);
+        }
+        return a;
+    }
+
 
 }

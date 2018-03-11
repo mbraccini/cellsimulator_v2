@@ -9,6 +9,7 @@ import network.ConfigurableTable;
 import network.RBNSelfLoop;
 import org.jooq.lambda.tuple.Tuple3;
 import utility.Files;
+import utility.GenericUtility;
 import utility.MatrixUtility;
 
 import java.util.*;
@@ -56,13 +57,42 @@ public class MultiObjectiveRandomSampling {
         }
     }
 
-
     public static void main(String[] args) {
-        int k = 2;
-        int nodesNumber = 20;
+
+        if (args.length < 6) System.exit(-1);
+
+        Object[] o = GenericUtility.fromArgsStringToObjects(args,
+                                                            List.of(Integer.class,
+                                                            Integer.class,
+                                                            Double.class,
+                                                            Integer.class,
+                                                            Long.class,
+                                                            Boolean.class));
+
+        int k = (Integer) o[0];
+        int nodesNumber = (Integer) o[1];
+        double bias = (Double) o[2];
+        int samples = (Integer) o[3];
+        long seed = (Long) o[4];
+        Boolean selfLoop = (Boolean) o[5];
+
+
+        System.out.println("NODES_NUMBER: " + nodesNumber);
+        System.out.println("K: " + k);
+        System.out.println("BIAS: " + bias);
+        System.out.println("SAMPLES: " + samples);
+        System.out.println("SEED: " + seed);
+        System.out.println("SELF_LOOP: " + selfLoop);
+
+
+
+        /*int k = 2;
+        int nodesNumber = 15;/////fare con 15!!
         double bias = 0.5;
-        int samples = 1000;
-        long seed = 153; //used: 100 con selfloop e 153 senza
+        int samples = 10000;
+        long seed = 222;*/
+        //seed used: 100 con selfloop e 153 senza
+        //seed used: 737 con selfloop e 222 senza
 
         Random r = RandomnessFactory.newPseudoRandomGenerator(seed);
 
@@ -79,8 +109,8 @@ public class MultiObjectiveRandomSampling {
         System.out.println("senza self loop");
 
         while (counter < samples) {
-            //current_bn = RBNSelfLoop.newInstance(nodesNumber, k, r, supplier);
-            current_bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
+            if (selfLoop) current_bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITH, nodesNumber, k, bias, r);
+            else current_bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
             current_tuple = new Tuple3<>(counter, current_bn, evaluate(current_bn));
             checkIfDominated(paretoFront, current_tuple);
             System.out.println("" + counter);

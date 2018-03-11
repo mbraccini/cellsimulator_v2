@@ -277,6 +277,7 @@ public class GeneticAlgFitness {
 
     };
 
+    @SuppressWarnings("unchecked")
     public static void main (String [] args) {
 
         String path = "/Users/michelebraccini/Documents/workspaces/R_workspace/self_loop_genetici/run_3/";
