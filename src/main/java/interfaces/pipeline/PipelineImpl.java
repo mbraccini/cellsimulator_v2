@@ -5,9 +5,9 @@ import java.util.List;
 
 public class PipelineImpl<IN,OUT> implements Pipeline<IN,OUT>{
 
-    private List<Pipe<?,?>> pipes;
+    protected List<Pipe<?,?>> pipes;
 
-    private PipelineImpl() { }
+    protected PipelineImpl() { }
 
     public static <M, N> Pipeline<M, N> start(Pipe<M, N> pipe) {
         PipelineImpl<M,N> t = new PipelineImpl<M,N>();
