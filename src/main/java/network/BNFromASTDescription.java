@@ -124,9 +124,9 @@ public class BNFromASTDescription extends AbstractBooleanNetwork<BitSet, Boolean
             for (String product : sumOfProducts) {
 
                 String productCleaned = product.replaceAll("!", ""); //rimuove i punti esclamativi
-                String[] terms = productCleaned.split("\\*");
+                String[] nodes = productCleaned.split("\\*");
 
-                Set<Integer> incomingNodesDeducedFromTerms = Arrays.asList(terms).stream().map(x -> Integer.valueOf(x)).collect(Collectors.toSet());
+                Set<Integer> incomingNodesDeducedFromTerms = Arrays.asList(nodes).stream().map(x -> Integer.valueOf(x)).collect(Collectors.toSet());
                 System.out.println("incomingNodesDeducedFromTerms "+ incomingNodesDeducedFromTerms);
                 System.out.println("product  "+ product);System.out.println("numberOfIncomingNodes  "+ numberOfIncomingNodes);
 
@@ -137,6 +137,7 @@ public class BNFromASTDescription extends AbstractBooleanNetwork<BitSet, Boolean
                 BitSet binaryEntry = new BitSet(numberOfIncomingNodes);
                 int input;
                 boolean negate = false;
+                String inputString = "";
                 for (int i = 0; i < product.length(); i++) {
                     if (product.charAt(i) == '!') {
                         negate = true;
@@ -147,9 +148,15 @@ public class BNFromASTDescription extends AbstractBooleanNetwork<BitSet, Boolean
                             continue;
                         }
                     } else {
-                        input = Character.getNumericValue(product.charAt(i));
+                        while (i < product.length() && Character.toString(product.charAt(i)).matches("\\d")) {
+                            /** we create a string with the digits of the number representing the index of the node **/
+                            inputString += product.charAt(i);
+                            i++;
+                        }
+                        input = Integer.valueOf(inputString);
+                        inputString = "";
 
-					/* Checks if the nodes specified in the sum of products expression reflects the incoming nodes in the topology */
+                        /* Checks if the nodes specified in the sum of products expression reflects the incoming nodes in the topology */
                         if (!incomingNodesIndices.contains(input)) {
                             throw new SemanticException("Boolean expression " + product + " does not respect the incoming nodes specified in the topology section!");
                         }

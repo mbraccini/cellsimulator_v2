@@ -129,7 +129,7 @@ public class NaiveBNParser {
 
     private TopologyExpr topology(String line) {
         TopologyExpr topExpr = null;
-        if (line.matches("\\d(\\s+)?:(\\s+)?(\\d(\\s+)?((\\s+)?,(\\s+)?\\d)*(\\s+)?)?")) {
+        if (line.matches("\\d+(\\s+)?:(\\s+)?(\\d+(\\s+)?((\\s+)?,(\\s+)?\\d+)*(\\s+)?)?")) {
             String readWithoutSpaces = line.replaceAll(" +", ""); //rimuove gli spazi
             String[] splitted = readWithoutSpaces.split("\\:");
             String[] incomingNodes = splitted[1].split("\\,");
@@ -140,7 +140,7 @@ public class NaiveBNParser {
 
     private ExplicitFunExpr explicitFun(String line) {
         ExplicitFunExpr explicitExpr = null;
-        if (line.matches("\\d(\\s+)?:(\\s+)?\\d+(\\s+)?")) {
+        if (line.matches("\\d+(\\s+)?:(\\s+)?\\d+(\\s+)?")) {
             String readWithoutSpaces = line.replaceAll(" +", ""); //rimuove gli spazi
             String[] splitted = readWithoutSpaces.split("\\:");
             explicitExpr = new ExplicitFunExprImpl(splitted[0], splitted[1]);
@@ -151,7 +151,7 @@ public class NaiveBNParser {
     private ImplicitFunExpr implicitFun(String line) {
         ImplicitFunExpr implicitExpr = null;
 
-        if (line.matches("\\d(\\s+)?:(\\s+)?(((((!)?\\d(\\*(!)?\\d)*)((\\s+)?\\+(\\s+)?((!)?\\d(\\*(!)?\\d)*))*)|(or)|(and))(\\s+)?)?")) {
+        if (line.matches("\\d+(\\s+)?:(\\s+)?(((((!)?\\d+(\\*(!)?\\d+)*)((\\s+)?\\+(\\s+)?((!)?\\d+(\\*(!)?\\d+)*))*)|(or)|(and))(\\s+)?)?")) {
             String readWithoutSpaces = line.replaceAll(" +", ""); //rimuove gli spazi
             String[] splitted = readWithoutSpaces.split("\\:");
             if (splitted.length > 1) { // vuol dire che c'è almeno un prodotto e quindi un 1 nella truth table
@@ -174,7 +174,7 @@ public class NaiveBNParser {
     private NameExpr name(String line) {
         NameExpr name = null;
 
-        if (line.matches("\\d(\\s+)?:(\\s+)?(\\w)*(\\s+)?")) {
+        if (line.matches("\\d+(\\s+)?:(\\s+)?(\\w)*(\\s+)?")) {
             String readWithoutSpaces = line.replaceAll(" +", ""); //rimuove gli spazi
             String[] splitted = readWithoutSpaces.split("\\:");
             name = new NameExprImpl(splitted[0], splitted[1]);
