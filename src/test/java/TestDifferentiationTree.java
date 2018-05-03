@@ -25,6 +25,7 @@ import simulator.AttractorsFinderService;
 import tes.TesCreator;
 import utility.Constant;
 import visualization.DifferentiationTesTreeGraphViz;
+import visualization.DifferentiationTreeGraphViz;
 
 public class TestDifferentiationTree {
 
@@ -59,7 +60,7 @@ public class TestDifferentiationTree {
 		assertTrue("L'albero dei TES deve avere 3 livelli", tesTree.getLevelsNumber() == 3);
 		
 		assertTrue("L'albero dei TES deve avere queste soglie 0.0, 0.2 e 0.45", thresCheck.equals(tesTree.getThresholds()));
+		
 
-		new DifferentiationTesTreeGraphViz<>(tesTree).saveOnDisk("plutooo");
 	}
 }

@@ -27,11 +27,11 @@ public class DifferentiationTesTreeGraphViz<T extends State> extends Differentia
             }
 
             int levelDecrease = 1;
-            while (rootNode.getLevel().intValue() - levelDecrease >= 0) {
-                int levelInExam  = rootNode.getLevel().intValue() - levelDecrease;
+            while (rootNode.getLevel() - levelDecrease >= 0) {
+                int levelInExam  = rootNode.getLevel() - levelDecrease;
                 List<DifferentiationNode<Tes<T>>> previousLevel = mapLvlLabel.entrySet().stream()
                         .map(x -> x.getKey())
-                        .filter(x -> x.getLevel().intValue() == levelInExam)
+                        .filter(x -> x.getLevel() == levelInExam)
                         .collect(Collectors.toList());
                 //////////////////////////////////////////////////////////////////
                 for (ImmutableAttractor<T> attractor : rootNode.getWrappedElement().getTesAttractors()) {
@@ -41,9 +41,7 @@ public class DifferentiationTesTreeGraphViz<T extends State> extends Differentia
                             .collect(Collectors.toList());
                     if (nodesFound.size() != 0) {
                         for (DifferentiationNode<Tes<T>> father : nodesFound) {
-                            if (father.equals(rootNode)) { //per evitare self-loop
-                                continue;
-                            } else {
+                            if (!father.equals(rootNode)) { //per evitare self-loop
                                 gz.addLine(mapLvlLabel.get(father) + GraphViz.EDGE_START + mapLvlLabel.get(rootNode)
                                         + "[style = \"dashed\"]");
                             }
