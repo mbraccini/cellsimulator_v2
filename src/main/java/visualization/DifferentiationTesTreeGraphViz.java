@@ -4,6 +4,7 @@ import interfaces.attractor.ImmutableAttractor;
 import interfaces.state.State;
 import interfaces.tes.DifferentiationNode;
 import interfaces.tes.DifferentiationTree;
+import interfaces.tes.TESDifferentiationTree;
 import interfaces.tes.Tes;
 import utility.GenericUtility;
 
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class DifferentiationTesTreeGraphViz<T extends State> extends DifferentiationTreeGraphViz<Tes<T>> {
 
-    public DifferentiationTesTreeGraphViz(DifferentiationTree<Tes<T>> tree) {
+    public DifferentiationTesTreeGraphViz(TESDifferentiationTree<T, Tes<T>> tree) {
         super(tree);
         dashedEdges();
     }

@@ -1,6 +1,9 @@
+import experiments.selfLoop.GeneticAlgFitness;
 import org.junit.Test;
 import utility.GenericUtility;
 import utility.MatrixUtility;
+
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
@@ -43,6 +46,17 @@ public class TestMatrixUtility {
         assertTrue("elm [2][1] non corretto", m[2][1].doubleValue() == 0.0);
         assertTrue("elm [2][2] non corretto", m[2][2].doubleValue() == 0.7);
 
+
+
+        double[][] M = MatrixUtility.fromNumberToDoubleMatrix(m);
+
+        List.of(GeneticAlgFitness.f1_robustness_min(M),GeneticAlgFitness.f2_equallyDistributed(M),GeneticAlgFitness.f3_triangleDifference(M),GeneticAlgFitness.f4_robustness_max(M)).forEach(System.out::println);
+
+        assertTrue("Diagonal Min Not Correct, " , GeneticAlgFitness.f1_robustness_min(M) == 0.1);
+        assertTrue("Equally Distributed Not Correct, " , GeneticAlgFitness.f2_equallyDistributed(M) == 0.6);
+        assertTrue("Triangle Difference Not Correct, " , GeneticAlgFitness.f3_triangleDifference(M) == 0.2);
+        assertTrue("Diagonal Max Not Correct, " , GeneticAlgFitness.f4_robustness_max(M) == 0.7);
+
     }
 
 
@@ -83,6 +97,17 @@ public class TestMatrixUtility {
         assertTrue("elm [2][0] non corretto", m[2][0].doubleValue() == 0.1);
         assertTrue("elm [2][1] non corretto", m[2][1].doubleValue() == 0.2);
         assertTrue("elm [2][2] non corretto", m[2][2].doubleValue() == 0.5);
+
+
+        double[][] M = MatrixUtility.fromNumberToDoubleMatrix(m);
+
+        List.of(GeneticAlgFitness.f1_robustness_min(M),GeneticAlgFitness.f2_equallyDistributed(M),GeneticAlgFitness.f3_triangleDifference(M),GeneticAlgFitness.f4_robustness_max(M)).forEach(System.out::println);
+
+        assertTrue("Diagonal Min Not Correct, " , GeneticAlgFitness.f1_robustness_min(M) == 0.1);
+        assertTrue("Equally Distributed Not Correct, " , GeneticAlgFitness.f2_equallyDistributed(M) == 0.4);
+        assertTrue("Triangle Difference Not Correct, " , GeneticAlgFitness.f3_triangleDifference(M) == 0.8);
+        assertTrue("Diagonal Max Not Correct, " , GeneticAlgFitness.f4_robustness_max(M) == 0.5);
+
 
     }
 

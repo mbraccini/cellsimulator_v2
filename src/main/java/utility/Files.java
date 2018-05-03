@@ -5,9 +5,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
 import interfaces.attractor.ImmutableAttractor;
-import interfaces.attractor.ImmutableList;
 import interfaces.network.BooleanNetwork;
-import interfaces.state.Immutable;
 import interfaces.state.State;
 
 import java.io.*;
@@ -17,7 +15,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Files {
     /**
@@ -251,7 +248,7 @@ public class Files {
      * @param attractors
      * @param filename
      */
-    public static <T extends State> void writeAttractorsToReadableFile(final ImmutableList<ImmutableAttractor<T>> attractors, final String filename) {
+    public static <T extends State> void writeAttractorsToReadableFile(final List<ImmutableAttractor<T>> attractors, final String filename) {
         StringWriter writer = new StringWriter();
         List<T> statesInAttractor;
         for (ImmutableAttractor<T> attractor : attractors) {
@@ -274,6 +271,23 @@ public class Files {
 
     public static <K> void writeBooleanNetworkToFile(BooleanNetwork<K, Boolean> bn, String filename) {
         writeStringToFileUTF8(filename, BooleanNetwork.getBNFileRepresentation(bn));
+    }
+
+
+    /**
+     * Function to zip a folder
+     * @param source
+     * @param output
+     * @param deleteSourceFolder
+     */
+    public static void zip(String source, String output, boolean deleteSourceFolder) {
+        if (source.endsWith(Files.FILE_SEPARATOR)) {
+            source = source.substring(0, source.length() - 1);
+        }
+        if (output.endsWith(Files.FILE_SEPARATOR)) {
+            output = output.substring(0, output.length() - 1);
+        }
+        new Zip(source, output + ".zip", deleteSourceFolder).zip();
     }
 
 }

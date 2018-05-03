@@ -2,6 +2,7 @@ package visualization;
 
 import interfaces.tes.DifferentiationNode;
 import interfaces.tes.DifferentiationTree;
+import interfaces.tes.TESDifferentiationTree;
 import utility.GenericUtility;
 
 import java.util.HashMap;
@@ -42,7 +43,15 @@ public class DifferentiationTreeGraphViz<T> implements Writable{
 	}
 	private void configure(DifferentiationNode<T> DifferentiationNodeFiglio, String childId, String fatherId) {
 		if (fatherId != null) {
-			gz.addLine(fatherId + GraphViz.EDGE_START + childId + GraphViz.LABEL_START + this.tree.getThresholds().get(DifferentiationNodeFiglio.getLevel()) + GraphViz.LABEL_END);
+			//gz.addLine(fatherId + GraphViz.EDGE_START + childId + GraphViz.LABEL_START + this.tree.getThresholds().get(DifferentiationNodeFiglio.getLevel()) + GraphViz.LABEL_END);
+			//
+			if (tree instanceof TESDifferentiationTree){
+				TESDifferentiationTree tree2 = (TESDifferentiationTree) this.tree;
+				gz.addLine(fatherId + GraphViz.EDGE_START + childId + GraphViz.LABEL_START + tree2.getThresholds().get(DifferentiationNodeFiglio.getLevel()) + GraphViz.LABEL_END);
+			} else {
+				gz.addLine(fatherId + GraphViz.EDGE_START + childId);
+			}
+			//
 		}
 		int count = 0;
 		for (Iterator<DifferentiationNode<T>> i = GenericUtility.safeClient(DifferentiationNodeFiglio.getChildren()).iterator(); i.hasNext();) {

@@ -1,7 +1,8 @@
 package tes;
 
 import exceptions.AtmException;
-import interfaces.attractor.ImmutableList;
+import interfaces.attractor.Attractor;
+import interfaces.attractor.Attractors;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.state.State;
 import interfaces.tes.Atm;
@@ -10,6 +11,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -22,7 +24,7 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 	
 	protected int[][] intMatrix;
 	protected Integer[][] occurrencesIntegerMatrix;
-	protected ImmutableList<ImmutableAttractor<T>> attractorsList;
+	protected Attractors<T> attractors;
 	protected BigDecimal[][] atm;
 	protected Double[][] doubleAtm;
 	protected int[] perturbationsNumberPerAttractor;
@@ -30,22 +32,22 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 	/**
 	 * It is assumed that the occurrences structure follows the ordering of the attractorsList passed.
 	 * @param occurrenciesIntMatrix
-	 * @param attractorsList
+	 * @param attractors
 	 */
-	public AtmImpl(int[][] occurrenciesIntMatrix, ImmutableList<ImmutableAttractor<T>> attractorsList) {
+	public AtmImpl(int[][] occurrenciesIntMatrix, Attractors<T> attractors) {
+		this.attractors = attractors;
 		this.intMatrix = occurrenciesIntMatrix;
-		this.attractorsList = attractorsList;
 		initPerturbationsPerAttractor();
 	}
 
-	private AtmImpl(ImmutableList<ImmutableAttractor<T>> attractorsList, Double[][] atm) {
-		this.attractorsList = attractorsList;
+	private AtmImpl(Attractors<T> attractors, Double[][] atm) {
+		this.attractors = attractors;
 		this.doubleAtm = atm;
 	}
 
 
-	public static <T extends State> Atm<T> newInstance(ImmutableList<ImmutableAttractor<T>> attractorsList, Double[][] atm) {
-		return new AtmImpl<>(attractorsList, atm);
+	public static <T extends State> Atm<T> newInstance(Attractors<T> attractors, Double[][] atm) {
+		return new AtmImpl<>(attractors, atm);
 	}
 
 	/**
@@ -64,8 +66,8 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 	 * la giusta corrispondenza tra attrattori e matrice ATM!
 	 */
 	@Override
-	public ImmutableList<ImmutableAttractor<T>> getAttractors() {
-		return this.attractorsList;
+	public Attractors<T> getAttractors() {
+		return this.attractors;
 	}
 
 	@Override

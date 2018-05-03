@@ -1,9 +1,8 @@
 package interfaces.network;
 
+import exceptions.SimulatorExceptions;
 import utility.Files;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
@@ -24,7 +23,8 @@ public interface BooleanNetwork<K, V> { //OK
                                                      infatti valuterei la possibilità di mettere come parametri (Node<?,?> a,
 	 												Node<?,?> b)*/
 
-    Boolean reconfigureIncomingEdge(Node<K, V> targetNode, Node<K, V> oldInputNode, Node<K, V> newInputNode); //tolgo un arco e metto un altro arco proveniente da un altro nodo
+    //Boolean reconfigureIncomingEdge(Node<K, V> targetNode, Node<K, V> oldInputNode, Node<K, V> newInputNode); //tolgo un arco e metto un altro arco proveniente da un altro nodo
+    void reconfigureIncomingEdge(Integer targetNodeId, Integer newInputNodeId, Integer incomingNodeIndex) throws SimulatorExceptions.NetworkNodeException;
     // tolgo oldInput e allo stesso posto inserisco newInput nella map
 
     List<Node<K, V>> getIncomingNodes(Node<K, V> node);
@@ -37,6 +37,13 @@ public interface BooleanNetwork<K, V> { //OK
 
     Properties getNetworkProperties();
 
+    /**
+     * Return the number of nodes with selfloop
+     * @return
+     */
+    default Integer numberOfNodeWithSelfloops() {
+        return (int) getNodes().stream().filter(x -> this.getIncomingNodes(x).contains(x)).count();
+    }
 
     /* Static methods */
 

@@ -8,14 +8,15 @@ import java.util.List;
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import generator.RandomnessFactory;
-import interfaces.attractor.Generator;
-import interfaces.attractor.ImmutableList;
+import interfaces.attractor.Attractors;
+import interfaces.sequences.Generator;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
 import interfaces.tes.DifferentiationTree;
+import interfaces.tes.TESDifferentiationTree;
 import interfaces.tes.Tes;
 import network.BooleanNetworkFactory;
 import noise.CompletePerturbations;
@@ -23,6 +24,7 @@ import org.junit.Test;
 import simulator.AttractorsFinderService;
 import tes.TesCreator;
 import utility.Constant;
+import visualization.DifferentiationTesTreeGraphViz;
 
 public class TestDifferentiationTree {
 
@@ -39,15 +41,14 @@ public class TestDifferentiationTree {
 		Generator<BinaryState> generator = new CompleteGenerator(read_bn.getNodesNumber());
 
 		/** Sync Attractors Finder **/
-		ImmutableList<ImmutableAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+		Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics);
 
-		assertTrue("Dovrebbe trovare 4 attrattori", attractors.size() == 4);
+		assertTrue("Dovrebbe trovare 4 attrattori", attractors.numberOfAttractors() == 4);
 
-		
-		CompletePerturbations cp = new CompletePerturbations(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
-		Atm<BinaryState> atm = cp.call();
-		
-		DifferentiationTree<Tes<BinaryState>> tesTree = new TesCreator<BinaryState>(atm, RandomnessFactory.getPureRandomGenerator()).call();
+
+		Atm<BinaryState> atm = new CompletePerturbations().apply(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
+
+		TESDifferentiationTree<BinaryState, Tes<BinaryState>> tesTree = new TesCreator<BinaryState>(atm, RandomnessFactory.getPureRandomGenerator()).call();
 		
 		List<Double> thresCheck = new ArrayList<>(Arrays.asList(0.0, 0.2, 0.45));
 		
@@ -59,6 +60,6 @@ public class TestDifferentiationTree {
 		
 		assertTrue("L'albero dei TES deve avere queste soglie 0.0, 0.2 e 0.45", thresCheck.equals(tesTree.getThresholds()));
 
-
+		new DifferentiationTesTreeGraphViz<>(tesTree).saveOnDisk("plutooo");
 	}
 }

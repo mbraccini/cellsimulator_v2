@@ -12,11 +12,6 @@ public interface DifferentiationTree<E> {
 	 */
 	List<DifferentiationNode<E>> getRootLevel();
 
-	/**
-	 * Ordered thresholds used to construct the differentiation tree.
-	 * @return thresholds
-	 */
-	List<Double> getThresholds();
 
 	/**
 	 * If present, it returns the name of the Differentiation Tree (eg. Hematopoietic Tree)
@@ -48,6 +43,6 @@ public interface DifferentiationTree<E> {
 	 * Gets a tree like String representation;
 	 * @return
 	 */
-	public String getTreeRepresentation();
+	String getTreeRepresentation();
 
 }

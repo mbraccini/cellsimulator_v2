@@ -1,5 +1,6 @@
 package experiments.selfLoop;
 
+import exceptions.SimulatorExceptions;
 import generator.RandomnessFactory;
 import interfaces.network.BooleanNetwork;
 import interfaces.network.Table;
@@ -21,8 +22,11 @@ public class MultiObjectiveRandomSampling {
     public static Tuple3<Double, Double, Double> evaluate(BooleanNetwork<BitSet, Boolean> bn) {
         Double[][] atm = GeneticAlgFitness.simulateBN(bn).getMatrixCopy();
         Number[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
-        double[][] doubleSorted = GeneticAlgFitness.fromNumberToDoubleMatrix(sorted);
-        return new Tuple3<>(GeneticAlgFitness.f1_robustness(doubleSorted),
+        if (sorted.length < 2) {
+            return new Tuple3<>(Double.NaN, Double.NaN, Double.NaN);
+        }
+        double[][] doubleSorted = MatrixUtility.fromNumberToDoubleMatrix(sorted);
+        return new Tuple3<>(GeneticAlgFitness.f1_robustness_min(doubleSorted),
                 GeneticAlgFitness.f2_equallyDistributed(doubleSorted),
                 GeneticAlgFitness.f3_triangleDifference(doubleSorted));
     }
@@ -59,7 +63,9 @@ public class MultiObjectiveRandomSampling {
 
     public static void main(String[] args) {
 
-        if (args.length < 6) System.exit(-1);
+        if (args.length < 6) {
+            System.exit(-1);
+        }
 
         Object[] o = GenericUtility.fromArgsStringToObjects(args,
                                                             List.of(Integer.class,
@@ -67,15 +73,26 @@ public class MultiObjectiveRandomSampling {
                                                             Double.class,
                                                             Integer.class,
                                                             Long.class,
-                                                            Boolean.class));
+                                                            Integer.class));
 
         int k = (Integer) o[0];
         int nodesNumber = (Integer) o[1];
         double bias = (Double) o[2];
         int samples = (Integer) o[3];
         long seed = (Long) o[4];
-        Boolean selfLoop = (Boolean) o[5];
+        Integer selfLoop = (Integer) o[5];
 
+        /*int k = 2;
+        int nodesNumber = 5;
+        double bias = 0.5;
+        int samples = 10;
+        long seed = 2;
+        Integer selfLoop = 5;*/
+
+
+        if (selfLoop > nodesNumber) {
+            System.exit(-1);
+        }
 
         System.out.println("NODES_NUMBER: " + nodesNumber);
         System.out.println("K: " + k);
@@ -106,16 +123,34 @@ public class MultiObjectiveRandomSampling {
         Tuple3<Integer, BooleanNetwork<BitSet, Boolean>, Tuple3<Double, Double, Double>> current_tuple;
         int counter = 0;
 
-        System.out.println("senza self loop");
 
         while (counter < samples) {
-            if (selfLoop) current_bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITH, nodesNumber, k, bias, r);
-            else current_bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
-            current_tuple = new Tuple3<>(counter, current_bn, evaluate(current_bn));
-            checkIfDominated(paretoFront, current_tuple);
-            System.out.println("" + counter);
+            if (selfLoop == 0) {
+                current_bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
+            } else if (selfLoop == -1) {
+                System.out.println("numero casuale di selfloop");
+                current_bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITH, nodesNumber, k, bias, r);
+            } else {
+                current_bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
 
+                int selfloopsToAdd = 0;
+                while (selfloopsToAdd < selfLoop) {
+                    current_bn.reconfigureIncomingEdge(selfloopsToAdd, selfloopsToAdd, 0);
+                    selfloopsToAdd++;
+                }
+
+                System.out.println("numSelfLoop " + current_bn.numberOfNodeWithSelfloops());
+            }
+            current_tuple = new Tuple3<>(counter, current_bn, evaluate(current_bn));
+            if (!Double.isNaN(current_tuple.v3().v1()) || !Double.isNaN(current_tuple.v3().v2()) || !Double.isNaN(current_tuple.v3().v3())) {
+                // se anche solo uno è NaN scartiamo la rete e non la valutiamo!
+                checkIfDominated(paretoFront, current_tuple);
+                System.out.println("" + counter);
+            } else {
+                System.out.println("discarded");
+            }
             counter++;
+
         }
 
 

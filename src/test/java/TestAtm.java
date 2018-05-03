@@ -1,9 +1,9 @@
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import generator.RandomnessFactory;
-import interfaces.attractor.Generator;
+import interfaces.attractor.Attractors;
+import interfaces.sequences.Generator;
 import interfaces.attractor.ImmutableAttractor;
-import interfaces.attractor.ImmutableList;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
@@ -16,9 +16,7 @@ import tes.AtmImpl;
 import utility.Constant;
 import utility.Files;
 import utility.GenericUtility;
-import utility.Randomness;
 
-import java.math.BigDecimal;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
@@ -69,10 +67,9 @@ public class TestAtm {
         BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newNetworkFromFile(bnFilename);
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
-        ImmutableList<ImmutableAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+        Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics);
         System.out.println(attractors);
-        CompletePerturbations cp = new CompletePerturbations(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
-        Atm<BinaryState> atm = cp.call();
+        Atm<BinaryState> atm = new CompletePerturbations().apply(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
         GenericUtility.printMatrix(atm.getMatrix());
 
         Integer[][] occurrencesAtm = atm.getOccurrencesMatrix().get();

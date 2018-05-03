@@ -1,6 +1,5 @@
 package interfaces.attractor;
 
-import interfaces.state.Immutable;
 import interfaces.state.State;
 
 
@@ -8,7 +7,7 @@ import interfaces.state.State;
  * Immutable attractor with all states of the attractor lexicograpically ordered
  * @param <T>
  */
-public interface ImmutableAttractor<T extends State> extends Attractor<T>, Immutable{
+public interface ImmutableAttractor<T extends State> extends Attractor<T>{
 
     /**
      * Gets the attractor's ID.

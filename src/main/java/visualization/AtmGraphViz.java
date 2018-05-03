@@ -23,7 +23,7 @@ public class AtmGraphViz implements Writable{
 	private void init() {
 		this.mapIdAtmIndex = new HashMap<>();
 		int index = 0;
-		for(String id : atm.getAttractors().stream().map(x -> x.getId() + "").collect(Collectors.toList())){
+		for(String id : atm.getAttractors().getAttractors().stream().map(x -> x.getId() + "").collect(Collectors.toList())){
 			this.mapIdAtmIndex.put(index++, id);
 			gz.addLine(id + GraphViz.LABEL_START + id + GraphViz.LABEL_END);
 		}

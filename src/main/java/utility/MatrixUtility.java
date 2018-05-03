@@ -50,4 +50,15 @@ public class MatrixUtility {
         return indices;
     }
 
+
+    public static double[][] fromNumberToDoubleMatrix(Number[][] m){
+        double[][] newM = new double[m.length][];
+        for (int i = 0; i < m.length; i++) {
+            newM[i] = new double[m[i].length];
+            for (int j = 0; j < m[i].length; j++) {
+                newM[i][j] = m[i][j].doubleValue();
+            }
+        }
+        return newM;
+    }
 }

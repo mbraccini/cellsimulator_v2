@@ -34,7 +34,7 @@ public class TestBooleanNetworks {
         iterations = 10;
     }
 
-        @Test
+    @Test
     public void TestRBN() {
         int nodesNumber = 30;
         int k = 2;
@@ -138,7 +138,7 @@ public class TestBooleanNetworks {
                 int previousLength = previousIndices.size();
                 List<Integer> newIndices = miRNAbn.getIncomingNodes(n).stream().map(Node::getId).collect(Collectors.toList());
 
-                assertTrue("miRNA are not appended to the list of previous incoming nodes", previousIndices.equals(newIndices.subList(0,previousLength)));
+                assertTrue("miRNA are not appended to the list of previous incoming nodes", previousIndices.equals(newIndices.subList(0, previousLength)));
 
                 if (miRNAbn.getIncomingNodes(n).stream().map(Node::getId).anyMatch(x -> x == miRNAIndexInExam)) {
                     assertTrue("The node " + n + " must be false since the miRNA that affects it was previously active", nextState.getNodeValue(n.getId()) == false);
@@ -168,4 +168,25 @@ public class TestBooleanNetworks {
         }
     }
 
+
+    @Test
+    public void TestManualTopologyReconfiguration() {
+        /*int nodesNumber = 10;
+        int k = 2;
+        double bias = 0.5;
+        //while (iterations > 0) {
+            BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, pureRandomGenerator);
+            System.out.println(bn);
+            bn.reconfigureIncomingEdge(9, 9, 0);
+        bn.reconfigureIncomingEdge(6, 2, 1);
+        bn.reconfigureIncomingEdge(6, 6, 0);
+
+
+        System.out.println(bn);
+        System.out.println(bn.numberOfNodeWithSelfloops());
+
+*/
+        //}
+
+    }
 }

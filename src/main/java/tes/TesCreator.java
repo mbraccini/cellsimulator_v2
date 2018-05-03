@@ -1,19 +1,15 @@
 package tes;
 
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.state.State;
-import interfaces.tes.Atm;
-import interfaces.tes.DifferentiationNode;
-import interfaces.tes.DifferentiationTree;
-import interfaces.tes.Tes;
+import interfaces.tes.*;
 
-public class TesCreator<T extends State> implements Callable<DifferentiationTree<Tes<T>>>{
+public class TesCreator<T extends State> {
 
 	protected final int NAME_LENGTH = 1;
 	protected Atm<T> atm;
@@ -36,13 +32,13 @@ public class TesCreator<T extends State> implements Callable<DifferentiationTree
 
 	public TesCreator(Atm<T> atm, Random random) {
 		this.atm = atm;
-		this.attractorsList = this.atm.getAttractors();
+		this.attractorsList = this.atm.getAttractors().getAttractors();
 		this.nameGenerator = new UniqueNameGenerator(random);
 	}
 
 	private UniqueNameGenerator nameGenerator;
 
-	public DifferentiationTree<Tes<T>> call() {
+	public TESDifferentiationTree<T, Tes<T>> call() {
 		if (this.thresholds == null) {
 			searchCorrectThresholds();
 		}
@@ -118,7 +114,7 @@ public class TesCreator<T extends State> implements Callable<DifferentiationTree
 			level++;
 		}
 
-		return new DifferentiationTreeImpl<>(rootNodesLevel, thresholds);
+		return new TESDifferentiationTreeImpl<>(rootNodesLevel, thresholds);
 
 	}
 

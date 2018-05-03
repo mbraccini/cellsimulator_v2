@@ -2,9 +2,9 @@ package experiments.selfLoop;
 
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
+import interfaces.attractor.Attractors;
 import interfaces.sequences.Generator;
 import interfaces.attractor.ImmutableAttractor;
-import interfaces.attractor.ImmutableList;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.networkdescription.ExplicitFunExpr;
@@ -113,9 +113,9 @@ public class GeneticAlgFitness {
     public static Tuple3Extended eval(BooleanNetwork<BitSet, Boolean> bn) {
         Double[][] atm = simulateBN(bn).getMatrixCopy();
         Number[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
-        double[][] doubleSorted = fromNumberToDoubleMatrix(sorted);
+        double[][] doubleSorted = MatrixUtility.fromNumberToDoubleMatrix(sorted);
         //return f1_robustness(doubleSorted) + f2_equallyDistributed(doubleSorted) + f3_triangleDifference(doubleSorted);
-        return new Tuple3Extended(  f1_robustness(doubleSorted),
+        return new Tuple3Extended(  f1_robustness_min(doubleSorted),
                 f2_equallyDistributed(doubleSorted),
                 f3_triangleDifference(doubleSorted));
     }
@@ -127,33 +127,29 @@ public class GeneticAlgFitness {
     public static Vec<double[]> evalMultiObjective(BooleanNetwork<BitSet, Boolean> bn) {
         Double[][] atm = simulateBN(bn).getMatrixCopy();
         Number[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
-        double[][] doubleSorted = fromNumberToDoubleMatrix(sorted);
+        double[][] doubleSorted = MatrixUtility.fromNumberToDoubleMatrix(sorted);
         //return f1_robustness(doubleSorted) + f2_equallyDistributed(doubleSorted) + f3_triangleDifference(doubleSorted);
-        return Vec.of(f1_robustness(doubleSorted),
+        return Vec.of(f1_robustness_min(doubleSorted),
                 f2_equallyDistributed(doubleSorted),
                 f3_triangleDifference(doubleSorted));
     }
 
-    public static double[][] fromNumberToDoubleMatrix(Number[][] m){
-        double[][] newM = new double[m.length][m.length];
-        for (int i = 0; i < m.length; i++) {
-            for (int j = 0; j < m.length; j++) {
-                newM[i][j] = m[i][j].doubleValue();
-            }
-        }
-        return newM;
-    }
 
-    public static double f1_robustness(double[][] m) {
-        double sum = 0.0;
+    public static double f1_robustness_min(double[][] m) {
+        /*double sum = 0.0;
         if(m.length > 0) {
             sum = m[0][0];
             for (int j = 1; j < m[0].length; j++) {
                 sum -= m[0][j];
             }
-        }
-        return Math.round(sum * 100.0) / 100.0;
+        }*/
+        return Math.round(m[0][0] * 100.0) / 100.0;
     }
+
+    public static double f4_robustness_max(double[][] m) {
+        return Math.round(m[m.length - 1][m.length - 1] * 100.0) / 100.0;
+    }
+
 
     public static double f2_equallyDistributed(double[][] m) {
         //int attractorsNumber = m.length;
@@ -225,15 +221,8 @@ public class GeneticAlgFitness {
     public static Atm<BinaryState> simulateBN(BooleanNetwork<BitSet, Boolean> bn) {
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
-        ImmutableList<ImmutableAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
-        Callable<Atm<BinaryState>> cp = new CompletePerturbations(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
-        Atm<BinaryState> atm = null;
-        try {
-            atm = cp.call();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return atm;
+        Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics);
+        return new CompletePerturbations().apply(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
     }
 
 

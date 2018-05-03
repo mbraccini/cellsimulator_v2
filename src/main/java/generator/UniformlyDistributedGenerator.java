@@ -1,9 +1,8 @@
 package generator;
 
-import interfaces.attractor.Generator;
+import interfaces.sequences.Generator;
 import interfaces.state.BinaryState;
 import states.ImmutableBinaryState;
-import states.States;
 import utility.Randomness;
 
 import java.math.BigInteger;

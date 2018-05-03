@@ -1,22 +1,26 @@
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import generator.RandomnessFactory;
-import interfaces.attractor.Generator;
-import interfaces.attractor.ImmutableList;
+import interfaces.attractor.Attractors;
+import interfaces.sequences.Generator;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
 import interfaces.tes.DifferentiationTree;
+import interfaces.tes.TESDifferentiationTree;
 import interfaces.tes.Tes;
-import network.RBNExactBias;
+import network.BooleanNetworkFactory;
 import noise.IncompletePerturbations;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import simulator.AttractorsFinderService;
 import tes.TesCreator;
-import utility.GenericUtility;
+import utility.Constant;
+import utility.Files;
+import visualization.AtmGraphViz;
+import visualization.BNGraphViz;
 import visualization.DifferentiationTesTreeGraphViz;
 import visualization.DifferentiationTreeGraphViz;
 
@@ -28,21 +32,18 @@ import java.util.concurrent.Callable;
 
 public class Main {
     public static void main (String [] args) {
-
-
-
         Random pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(120);
         BooleanNetwork<BitSet, Boolean> bn;
-        // bn = new RBN(20,2, 0.6, pseudoRandom);
         // bn = new BNForTest();
-        //bn = new RBNExactBias(10, 2 , 0.6, pseudoRandom);
-        bn = new RBNExactBias(15, 2 , 0.5, pseudoRandom);
+        bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.EXACT, BooleanNetworkFactory.SelfLoop.WITHOUT, 5, 2 , 0.5, pseudoRandom);
+
 
         //bn2 = new SelfLoopBNExactBias(100, 3 , 0.7, pseudoRandom);
         System.out.println("AVG bias: " + BooleanNetwork.computeActualAverageBias(bn));
 
         System.out.println(bn);
         System.out.println(bn.getNetworkProperties());
+        //Generator<BinaryState> generator = new UniformlyDistributedGenerator(BigInteger.valueOf(10000),bn.getNodesNumber(), pseudoRandom);
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
 
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
@@ -57,55 +58,42 @@ public class Main {
         System.out.println(state);*/
 
         DateTime startDate = new DateTime();
-        ImmutableList<ImmutableAttractor<BinaryState>> attractors = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+        Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics);
+        Files.writeAttractorsToReadableFile(attractors.getAttractors(), "pkut");
         System.out.println("DOPO:" + attractors);
 
         DateTime endDate = new DateTime();
         Interval interval = new Interval(startDate, endDate);
         System.out.println("Duration in seconds: " + interval.toDuration().getStandardSeconds());
 
-        //Callable<Atm<BinaryState>> cp = new CompletePerturbations(attractors, dynamics, 50000);
-        Callable<Atm<BinaryState>> cp = new IncompletePerturbations(attractors, dynamics, 100, 80, 50000, pseudoRandom);
-        Atm<BinaryState> atm = null;
-        try {
-            atm = cp.call();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        GenericUtility.printMatrix(atm.getMatrix());
+        //Callable<Atm<BinaryState>> cp = new CompletePerturbations(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
+        Atm<BinaryState> atm = new IncompletePerturbations().apply(attractors, dynamics, 100, 80, Constant.PERTURBATIONS_CUTOFF, pseudoRandom);
 
-        Callable<DifferentiationTree<Tes<BinaryState>>> tesCreator = new TesCreator<BinaryState>(atm, pseudoRandom);
-        DifferentiationTree<Tes<BinaryState>> differentiationTree = null;
-        try {
-            differentiationTree = tesCreator.call();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+
+
+
+
+        TESDifferentiationTree<BinaryState, Tes<BinaryState>> differentiationTree = new TesCreator<>(atm, pseudoRandom).call();
+
+
         //System.out.println(differentiationTree.getRootLevel().get(0).getTreeLikeRepresentation("",true));
         System.out.println(differentiationTree.getTreeRepresentation());
 
 
+        TESDifferentiationTree<BinaryState, Tes<BinaryState>> differentiationTree2 = new TesCreator<>(atm, Arrays.asList(0.29) ,pseudoRandom).call();
 
-        Callable<DifferentiationTree<Tes<BinaryState>>> tesCreator2 = new TesCreator<BinaryState>(atm, Arrays.asList(0.29), pseudoRandom);
-        DifferentiationTree<Tes<BinaryState>> differentiationTree2 = null;
-        try {
-            differentiationTree2 = tesCreator2.call();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         System.out.println("Con soglia");
         System.out.println(differentiationTree2.getTreeRepresentation());
 
         //System.out.println(Files.readFile("/Users/michelebraccini/Desktop/sshd_config"));
 
-        //new AtmGraphViz(atm,"atm").generateDotFile().generateImg("jpg");
-        //new BNGraphViz<>(bn, "bn").generateDotFile().generateImg("jpg");
-        new DifferentiationTreeGraphViz<>(differentiationTree, "diffTree2").generateDotFile().generateImg("jpg");
-        new DifferentiationTesTreeGraphViz<BinaryState>(differentiationTree, "diffTree4").generateDotFile().generateImg("jpg");
+        new AtmGraphViz(atm).saveOnDisk("ATM");
+        new BNGraphViz<>(bn).saveOnDisk("BN");
+        new DifferentiationTreeGraphViz<>(differentiationTree).saveOnDisk("DIFFTREE");
+        new DifferentiationTesTreeGraphViz<BinaryState>(differentiationTree).saveOnDisk("DIFFTREE2");
 
         List.of();
-
-
     }
 
 }

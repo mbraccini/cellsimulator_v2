@@ -19,12 +19,10 @@ public class DifferentiationTreeImpl<E> implements DifferentiationTree<E> {
 
 	protected String name;
 	protected List<DifferentiationNode<E>> rootLevel;
-	protected List<Double> thresholds;
 	protected int levelsNumber;
 
-	public DifferentiationTreeImpl(List<DifferentiationNode<E>> rootLevel, List<Double> thresholds){
+	public DifferentiationTreeImpl(List<DifferentiationNode<E>> rootLevel){
 		this.rootLevel = rootLevel;
-		this.thresholds = thresholds;
 	}
 
 	@Override
@@ -47,10 +45,7 @@ public class DifferentiationTreeImpl<E> implements DifferentiationTree<E> {
 		return "DifferentiationTreeImpl [" + (name != null ? "name=" + name : "") + ", root=" + rootLevel + "]";
 	}
 
-	@Override
-	public List<Double> getThresholds() {
-		return this.thresholds;
-	}
+
 
 	@Override
 	public Optional<Set<DifferentiationNode<E>>> getLevel(Integer level) {

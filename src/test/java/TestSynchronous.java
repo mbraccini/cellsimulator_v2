@@ -3,7 +3,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.Callable;
 
+import attractor.AttractorsImpl;
 import attractor.ImmutableAttractorImpl;
 import attractor.MutableAttractorImpl;
 import attractor.AttractorsUtility;
@@ -11,19 +13,21 @@ import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import generator.RandomnessFactory;
 import generator.UniformlyDistributedGenerator;
-import interfaces.attractor.Attractor;
-import interfaces.attractor.ImmutableAttractor;
-import interfaces.attractor.MutableAttractor;
+import interfaces.attractor.*;
 import interfaces.sequences.Generator;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
+import interfaces.tes.Atm;
 import network.BooleanNetworkFactory;
+import noise.CompletePerturbations;
 import org.junit.Test;
 
 import simulator.AttractorsFinderService;
 import states.ImmutableBinaryState;
+import utility.Constant;
 import utility.Files;
+import utility.GenericUtility;
 
 public class TestSynchronous {
 
@@ -84,7 +88,7 @@ public class TestSynchronous {
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
 
         /** Sync AttractorsUtility Finder **/
-        List<ImmutableAttractor<BinaryState>> attractorsFound = new AttractorsFinderService<BinaryState>(generator, dynamics).call();
+        Attractors<BinaryState> attractorsFound = new AttractorsFinderService<BinaryState>().apply(generator, dynamics);
 
         System.out.println(attractorsFound);
 
@@ -112,12 +116,12 @@ public class TestSynchronous {
                                                                         new MutableAttractorImpl<>(fixed_point_1),
                                                                         new MutableAttractorImpl<>(cyclic_attractor)
                                                                 ));
-        List<ImmutableAttractor<BinaryState>> manuallyDefinedAttractors = AttractorsUtility.fromInfoToAttractors(attInfo);
+        Attractors<BinaryState> manuallyDefinedAttractors = new AttractorsImpl<>(attInfo);
         
 
         /** Test 1 **/
 		/* we check if there are 3 attractors */
-        assertTrue(attractorsFound.size() == 3);
+        assertTrue(attractorsFound.numberOfAttractors() == 3);
 
         /** Test 2 **/
         /* we check if the attractors found contain 0000 */
@@ -129,7 +133,7 @@ public class TestSynchronous {
 
         /********************* Basins of Attraction *********************/
 
-        for (Attractor<BinaryState> att : attractorsFound) {
+        for (Attractor<BinaryState> att : attractorsFound.getAttractors()) {
             if (att.getBasin().isPresent()) {
                 System.out.println("Dimensione bacini -> " + att.getBasin().get().getDimension());
                 if (att.equals(new ImmutableAttractorImpl<>(new MutableAttractorImpl<>(fixed_point_0), 1))) {
@@ -171,6 +175,45 @@ public class TestSynchronous {
             assertTrue("object references must be different!!!", state != sample);
         }
 
+    }
+
+    /**
+     * Network from: "Shape-Dependent Control of Cell Growth, Differentiation, and Apoptosis: Switching between Attractors in Cell Regulatory Networks"
+     */
+    @Test
+    public void bn_Huang_article() {
+
+        /** BN from file "sync_bn" **/
+        String bnFilename = rootDirectory
+                + Files.FILE_SEPARATOR
+                + "bn_shape_dependent_control_huang";
+        BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newNetworkFromFile(bnFilename);
+
+        System.out.println(bn);
+
+        /** Synchronous dynamics **/
+        Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
+
+        /** Complete Enumeration **/
+        Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
+
+        /** Sync AttractorsUtility Finder **/
+        Attractors<BinaryState> attractorsFound = new AttractorsFinderService<BinaryState>().apply(generator, dynamics);
+
+
+        attractorsFound.getAttractors().forEach(System.out::println);
+        System.out.println(attractorsFound.numberOfAttractors());
+
+
+        for (Attractor<BinaryState> att : attractorsFound.getAttractors()) {
+            if (att.getBasin().isPresent()) {
+                System.out.println(att.getBasin().get().getDimension());
+            }
+        }
+
+        Atm<BinaryState> atm = new CompletePerturbations().apply(attractorsFound, dynamics, Constant.PERTURBATIONS_CUTOFF);
+
+        GenericUtility.printMatrix(atm.getMatrix());
     }
 
 }

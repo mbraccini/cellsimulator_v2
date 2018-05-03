@@ -1,5 +1,6 @@
 package dynamic;
 
+import interfaces.cell.StateFunction;
 import interfaces.dynamic.SynchronousDynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
@@ -7,7 +8,7 @@ import states.ImmutableBinaryState;
 
 import java.util.BitSet;
 
-public class SynchronousDynamicsImpl extends AbstractDynamics<BitSet, Boolean> implements SynchronousDynamics<BinaryState> {
+public class SynchronousDynamicsImpl extends AbstractDynamics<BitSet, Boolean> implements SynchronousDynamics<BinaryState>, StateFunction<BinaryState> {
 
     public SynchronousDynamicsImpl(BooleanNetwork<BitSet, Boolean> bn) {
         super(bn);

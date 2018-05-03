@@ -3,14 +3,15 @@ package experiments.miRNA;
 import dynamic.SynchronousDynamicsImpl;
 import generator.RandomnessFactory;
 import generator.UniformlyDistributedGenerator;
+import interfaces.attractor.Attractors;
 import interfaces.sequences.Generator;
 import interfaces.attractor.ImmutableAttractor;
-import interfaces.attractor.ImmutableList;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
 import interfaces.tes.DifferentiationTree;
+import interfaces.tes.TESDifferentiationTree;
 import interfaces.tes.Tes;
 import network.*;
 import noise.CompletePerturbations;
@@ -102,17 +103,11 @@ public class Main_miRNA {
     private static void simulate(BooleanNetwork<BitSet, Boolean> bn, Random pseudoRandom, String path) {
         Generator<BinaryState> generator = new UniformlyDistributedGenerator(new BigInteger(SAMPLES), bn.getNodesNumber(), pseudoRandom);
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
-        ImmutableList<ImmutableAttractor<BinaryState>> attractors = new AttractorsFinderService<>(generator, dynamics).call();
-        CompletePerturbations cp = new CompletePerturbations(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
-        Atm<BinaryState> atm = cp.call();
-        Callable<DifferentiationTree<Tes<BinaryState>>> tesCreator = new TesCreator<>(atm, pseudoRandom);
-        DifferentiationTree<Tes<BinaryState>> differentiationTree = null;
-        try {
-            differentiationTree = tesCreator.call();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        writeResultsOnDisk(path, bn, atm,attractors, differentiationTree);
+        Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics);
+        Atm<BinaryState> atm = new CompletePerturbations().apply(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
+        TESDifferentiationTree<BinaryState, Tes<BinaryState>> differentiationTree = new TesCreator<>(atm, pseudoRandom).call();
+
+        writeResultsOnDisk(path, bn, atm, attractors, differentiationTree);
     }
 
 
@@ -120,8 +115,8 @@ public class Main_miRNA {
     private static void writeResultsOnDisk(String path,
                                     BooleanNetwork<BitSet, Boolean> bn,
                                     Atm<BinaryState> atm,
-                                    ImmutableList<ImmutableAttractor<BinaryState>> attractors,
-                                    DifferentiationTree<Tes<BinaryState>> differentiationTree) {
+                                    Attractors<BinaryState> attractors,
+                                    TESDifferentiationTree<BinaryState, Tes<BinaryState>> differentiationTree) {
         /* bn */
         Files.writeStringToFileUTF8(path + "bn", BooleanNetwork.getBNFileRepresentation(bn));
 
@@ -129,7 +124,7 @@ public class Main_miRNA {
         Files.writeMatrixToCsv(atm.getMatrixCopy(), path + "atm");
 
         /* attractors */
-        Files.writeAttractorsToReadableFile(attractors, path + "attractors");
+        Files.writeAttractorsToReadableFile(attractors.getAttractors(), path + "attractors");
 
         /* differentiation tree */
         new DifferentiationTesTreeGraphViz<BinaryState>(differentiationTree).saveOnDisk(path + "diffTree");

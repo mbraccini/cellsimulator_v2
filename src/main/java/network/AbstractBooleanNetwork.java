@@ -3,6 +3,7 @@ package network;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import exceptions.SimulatorExceptions;
 import interfaces.network.BooleanNetwork;
 import interfaces.network.Node;
 
@@ -52,20 +53,26 @@ public abstract class AbstractBooleanNetwork<K,V> implements BooleanNetwork<K,V>
 	}
 
 	@Override
-	public Boolean reconfigureIncomingEdge(Node<K,V> targetNode, Node<K,V> oldInputNode, Node<K,V> newInputNode) {
-		if(this.nodesMap.get(targetNode).stream().anyMatch(e->e.equals(newInputNode)) 
-				||
-				newInputNode.equals(targetNode)){
-			return false;
-		}
-		int index = this.nodesMap.get(targetNode).indexOf(oldInputNode);
-		if (index != -1){			
-			this.nodesMap.get(targetNode).add(index, newInputNode);
-			this.nodesMap.get(targetNode).remove(index + 1);
+	public void reconfigureIncomingEdge(Integer targetNodeId, Integer newInputNodeId, Integer incomingNodeIndex) {
 
-			return true;
+		Node<K, V> targetNode = getNodeById(targetNodeId).orElseThrow(() -> {
+			throw new SimulatorExceptions.NetworkNodeException.NodeNotPresentException();
+		});
+		Node<K, V> newInputNode = getNodeById(newInputNodeId).orElseThrow(() -> {
+			throw new SimulatorExceptions.NetworkNodeException.NodeNotPresentException();
+		});
+
+		if(nodesMap.get(targetNode).stream().anyMatch(e->e.equals(newInputNode))){
+			throw new SimulatorExceptions.NetworkNodeException.NodeAlreadyPresentException();
 		}
-		return false;
+
+		if (incomingNodeIndex >= getIncomingNodes(targetNode).size()) {
+			throw new SimulatorExceptions.NetworkNodeException.NodeNotPresentException();
+		}
+
+		nodesMap.get(targetNode).add(incomingNodeIndex, newInputNode);
+		nodesMap.get(targetNode).remove(incomingNodeIndex + 1);
+
 	}
 
 	@Override
