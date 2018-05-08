@@ -25,16 +25,6 @@ public class RowImpl<K,V> implements Row<K,V> {
 	}
 
 	@Override
-	public void setInput(K value){
-		this.input = value;
-	}
-	
-	@Override
-	public void setOutput(V value){
-		this.output = value;
-	}
-
-	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;

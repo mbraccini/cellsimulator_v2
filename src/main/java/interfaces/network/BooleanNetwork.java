@@ -6,15 +6,15 @@ import utility.Files;
 import java.io.StringWriter;
 import java.util.*;
 
-public interface BooleanNetwork<K, V> { //OK
-
+//public interface BooleanNetwork<K, V, N extends Node<K,V>> { //OK
+    public interface BooleanNetwork<K, V> { //OK
     /* Immutable */
 
     Integer getNodesNumber();
 
-    List<Node<K, V>> getNodes();
+    List<Node<K,V>> getNodes();
 
-    Optional<Node<K, V>> getNodeByName(String name);
+    Optional<Node<K,V>> getNodeByName(String name);
 
     Optional<Node<K, V>> getNodeById(Integer id);
 

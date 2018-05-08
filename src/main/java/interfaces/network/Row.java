@@ -13,10 +13,5 @@ public interface Row<K,V> { //OK
 		
 	V getOutput();
 		
-	/* Mutable */
-	
-	void setInput(K value); // e.g. from "001" to "100"
-	
-	void setOutput(V value);
-		
+
 }
