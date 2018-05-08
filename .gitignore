@@ -214,3 +214,14 @@ cmake-build-debug/
 .idea/sonarlint
 
 # End of https://www.gitignore.io/api/android,intellij,androidstudio
+
+
+
+#CUSTOM
+*.gv
+*.jpg
+*.sh
+*.csv
+*.png
+*.txt
+*.ser
