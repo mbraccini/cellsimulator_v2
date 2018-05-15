@@ -1,6 +1,6 @@
 package interfaces.network;
 
-public interface BNClassic<K, V, N extends NodeDeterministic<K,V>, B extends BNClassic<K,V,N,B>> extends BooleanNetwork<N,B>{
+public interface BNClassic<K, V, N extends NodeDeterministic<K,V>> extends BooleanNetwork<N>{
 
     Context<K,V> context();
 

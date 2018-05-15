@@ -1,7 +1,7 @@
 package interfaces.network;
 
 import exceptions.SimulatorExceptions;
-import network.BNBuilderImpl;
+//import network.BNBuilderImpl;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -10,7 +10,7 @@ import utility.Files;
 import java.io.StringWriter;
 import java.util.*;
 
-public interface BooleanNetwork<N extends Node, B extends BooleanNetwork<N,B>> {
+public interface BooleanNetwork<N extends Node> {
 
     Integer getNodesNumber();
 
@@ -31,13 +31,13 @@ public interface BooleanNetwork<N extends Node, B extends BooleanNetwork<N,B>> {
 
     Graph<N, DefaultEdge> asGraph();
 
-    B newInstance(Graph<N, DefaultEdge> graph);
+    /*B newInstance(Graph<N, DefaultEdge> graph);
 
     B getThis();
 
     default BNBuilderImpl<N,B> modifyFromThis(){
         return new BNBuilderImpl<>(getThis());
-    }
+    }*/
 
     List<N> getIncomingNodes(N node);
 
@@ -70,7 +70,7 @@ public interface BooleanNetwork<N extends Node, B extends BooleanNetwork<N,B>> {
         return outcomeList;
     }
 
-    public static <K, Boolean, N extends NodeDeterministic<K,Boolean>> double computeActualAverageBias(BNClassic<?, Boolean, N,?> bn) {
+    public static <K, Boolean, N extends NodeDeterministic<K,Boolean>> double computeActualAverageBias(BNClassic<?, Boolean, N> bn) {
         Double average = bn.getNodes().stream().mapToDouble(x -> x.getFunction().getRows().stream()
                 .mapToDouble(
                         y -> {
@@ -81,12 +81,12 @@ public interface BooleanNetwork<N extends Node, B extends BooleanNetwork<N,B>> {
         return average;
     }
 
-    public static <N extends Node> double computeActualAverageIncomingNodes(BooleanNetwork<N,?> bn) {
+    public static <N extends Node> double computeActualAverageIncomingNodes(BooleanNetwork<N> bn) {
         Double average = bn.getNodes().stream().mapToInt(x -> bn.getIncomingNodes(x).size()).average().getAsDouble();
         return average;
     }
 
-    public static <N extends Node> double computeAverageNumberSelfLoopsPerNode(BooleanNetwork<N,?> bn) {
+    public static <N extends Node> double computeAverageNumberSelfLoopsPerNode(BooleanNetwork<N> bn) {
         return bn.getNodes().stream().mapToInt(node -> {
                     if (bn.getIncomingNodes(node).stream().anyMatch(x -> x.equals(node))) {
                         return 1;
@@ -97,7 +97,7 @@ public interface BooleanNetwork<N extends Node, B extends BooleanNetwork<N,B>> {
         ).average().getAsDouble();
     }
 
-    public static <K, Boolean, N extends NodeDeterministic<K,Boolean>> String getBNFileRepresentation(BNClassic<K,Boolean,N,?> bn) {
+    public static <K, Boolean, N extends NodeDeterministic<K,Boolean>> String getBNFileRepresentation(BNClassic<K,Boolean,N> bn) {
         List<N> nodesList = bn.getNodes();
         List<N> incomingNodes = null;
         List<Row<K, Boolean>> rowsTruthTable = null;

@@ -5,19 +5,20 @@ import java.util.stream.Collectors;
 
 import exceptions.SimulatorExceptions;
 import interfaces.network.BooleanNetwork;
-import interfaces.network.BooleanNetworkBuilder;
+//import interfaces.network.BooleanNetworkBuilder;
 import interfaces.network.Node;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.AsUnmodifiableGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.builder.GraphBuilder;
+import utility.GenericUtility;
 
-public abstract class AbstractBooleanNetwork<N extends Node, B extends BooleanNetwork<N,B>> implements BooleanNetwork<N,B> {
+public abstract class AbstractBooleanNetwork<N extends Node> implements BooleanNetwork<N> {
 
 	protected int nodesNumber;
 
-	private Graph<N, DefaultEdge> graph;
+	protected Graph<N, DefaultEdge> graph;
 
 	public AbstractBooleanNetwork(Graph<N, DefaultEdge> graph){
 		this.graph = new AsUnmodifiableGraph<>(graph);
@@ -128,7 +129,7 @@ public abstract class AbstractBooleanNetwork<N extends Node, B extends BooleanNe
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		AbstractBooleanNetwork<?,?> that = (AbstractBooleanNetwork<?,?>) o;
+		AbstractBooleanNetwork<?> that = (AbstractBooleanNetwork<?>) o;
 		return nodesNumber == that.nodesNumber &&
 				Objects.equals(graph, that.graph);
 	}
@@ -139,7 +140,59 @@ public abstract class AbstractBooleanNetwork<N extends Node, B extends BooleanNe
 	}
 
 
-	@Override
-	public abstract B getThis();
+
+
+
+	public static abstract class AbstractBuilder
+					<NODE extends Node,
+					BN extends BooleanNetwork<NODE>,
+					SUB extends AbstractBuilder<NODE,BN,SUB>> {
+
+		protected int[][] adj;
+		protected int[][] adjToModify;
+		protected Graph<NODE, DefaultEdge> inProgress;
+		public AbstractBuilder(BN bn) {
+
+			GraphBuilder<NODE, DefaultEdge, DefaultDirectedGraph<NODE,DefaultEdge>> builder
+					= new GraphBuilder<>(new DefaultDirectedGraph<>(DefaultEdge.class));
+			this.inProgress = builder.addGraph(bn.asGraph()).build();
+			initializeAdjacencyMatrix();
+		}
+
+		private void initializeAdjacencyMatrix(){
+			adj = new int[inProgress.vertexSet().size()]
+							[inProgress.vertexSet().size()];
+
+			adjToModify = new int[inProgress.vertexSet().size()]
+					[inProgress.vertexSet().size()];
+
+			for (NODE n: inProgress.vertexSet()) {
+				for (DefaultEdge e : inProgress.incomingEdgesOf(n)){
+					adj[n.getId()][inProgress.getEdgeSource(e).getId()] = 1;
+					adjToModify[n.getId()][inProgress.getEdgeSource(e).getId()] = 1;
+				}
+			}
+
+		}
+
+		public SUB reconfigureIncomingEdge(Integer targetNodeId, Integer newInputNodeId, Integer incomingNodeId) throws SimulatorExceptions.NetworkNodeException {
+
+			adjToModify[targetNodeId][newInputNodeId] = 1;
+			adjToModify[targetNodeId][incomingNodeId] = 0;
+
+			/*if (Objects.nonNull(inProgress.removeEdge(incomingNode, targetNode))){
+				if (Objects.isNull(inProgress.addEdge(newInputNode, targetNode))){
+					throw new SimulatorExceptions.NetworkNodeException.ReconfiguringNodeException();
+				}
+			} else {
+				throw new SimulatorExceptions.NetworkNodeException.ReconfiguringNodeException();
+			}*/
+			return self();
+		}
+
+
+		protected abstract SUB self();
+		public abstract BN build();
+	}
 
 }

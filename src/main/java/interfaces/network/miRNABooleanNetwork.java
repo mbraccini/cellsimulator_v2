@@ -3,13 +3,16 @@ package interfaces.network;
 
 import java.util.List;
 
-public interface miRNABooleanNetwork<K, V> extends BooleanNetwork<K, V> {
+public interface miRNABooleanNetwork<   N extends Node,
+                                        B extends BooleanNetwork<N>
+                                      , M extends Node> //in linea di principio il miRNA può essere di un altro tipo di nodo
+                                        extends BooleanNetwork<N> {
 
     /**
      * Unmodified Network connected to the miRNA network
      * @return
      */
-    BooleanNetwork<K, V> getWrappedBooleanNetwork();
+    B getWrappedBooleanNetwork();
 
     /**
      * miRNA nodes number
@@ -21,11 +24,11 @@ public interface miRNABooleanNetwork<K, V> extends BooleanNetwork<K, V> {
      * miRNA nodes.
      * @return
      */
-    List<Node<K,V>> miRNANodes();
+    List<M> miRNANodes();
 
     /**
      * Nodes influenced by the miRNA nodes.
      * @return
      */
-    List<Node<K,V>> miRNADownstreamNodes();
+    List<N> miRNADownstreamNodes();
 }

@@ -5,7 +5,9 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
 import interfaces.attractor.ImmutableAttractor;
+import interfaces.network.BNClassic;
 import interfaces.network.BooleanNetwork;
+import interfaces.network.NodeDeterministic;
 import interfaces.state.State;
 
 import java.io.*;
@@ -269,7 +271,7 @@ public class Files {
     }
 
 
-    public static <K> void writeBooleanNetworkToFile(BooleanNetwork<K, Boolean> bn, String filename) {
+    public static <K, N extends NodeDeterministic<K,Boolean>> void writeBooleanNetworkToFile(BNClassic<K,Boolean,N> bn, String filename) {
         writeStringToFileUTF8(filename, BooleanNetwork.getBNFileRepresentation(bn));
     }
 

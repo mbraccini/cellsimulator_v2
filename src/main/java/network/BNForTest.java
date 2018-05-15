@@ -67,7 +67,7 @@ public class BNForTest implements Factory<BNClassicImpl<BitSet,Boolean, NodeDete
 
 	public static void main(String a[]){
 		Random r = RandomnessFactory.getPureRandomGenerator();
-		BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>,BNClassicImpl<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>>> test = new BNForTest().newInstance();
+		/*BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>,BNClassicImpl<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>>> test = new BNForTest().newInstance();
 		BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>,BNClassicImpl<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>>> bn
 					= new RBNFactory<>(4,2,r,() -> new BiasedTable(2,0.5,r)).newInstance();
 
@@ -75,10 +75,27 @@ public class BNForTest implements Factory<BNClassicImpl<BitSet,Boolean, NodeDete
 		BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>,BNClassicImpl<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>>> cTest =
 				test.modifyFromThis()
 						.reconfigureIncomingEdge(0, 0,2)
-						.build();
+						.build();*/
+
+		BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> test = new BNForTest().newInstance();
+		BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> bn
+				= new RBNFactory<>(4,2,r,() -> new BiasedTable(2,0.5,r)).newInstance();
+
+
+		BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> cTest =
+		BNClassicImpl.from(test)
+				.changeNode(3, new NodeDeterministicImpl<>("Gauss", 3, new BiasedTable(3,0.5,r)))
+				.reconfigureIncomingEdge(2,2,1)
+				.changeNode(2, new NodeDeterministicImpl<>("Euclide", 2, new BiasedTable(2,0.5,r)))
+				.reconfigureIncomingEdge(3,3,1)
+				.build();
+
 		//System.out.println(bn.getThis());
 		System.out.println(test);
 		System.out.println(cTest);
+		System.out.println(test.equals(cTest));
+		System.out.println(test == cTest);
+
 		//System.out.println(test.equals(test.newInstance(test.asGraph())));
 
 		//System.out.println(bn.newInstance(bn.asGraph()).equals(bn));
