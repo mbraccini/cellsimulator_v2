@@ -1,12 +1,12 @@
 package interfaces.network;
 
-public interface Node<K,V> { //OK
+public interface Node{ //OK
 	
 	/* Immutable */
 	
 	String getName(); 	/* e.g. "gene_0" */
 
-	Table<K,V> getFunction();
+	//Table<K,V> getFunction();
 		
 	Integer getId(); //? serve per avere un ordinamento per esempio usando le Map
 	

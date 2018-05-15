@@ -5,20 +5,38 @@ import java.util.stream.Collectors;
 
 import exceptions.SimulatorExceptions;
 import interfaces.network.BooleanNetwork;
+import interfaces.network.BooleanNetworkBuilder;
 import interfaces.network.Node;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.AsUnmodifiableGraph;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.builder.GraphBuilder;
 
-public abstract class AbstractBooleanNetwork<K,V> implements BooleanNetwork<K,V> {
-
-	protected Properties properties = new Properties();
+public abstract class AbstractBooleanNetwork<N extends Node, B extends BooleanNetwork<N,B>> implements BooleanNetwork<N,B> {
 
 	protected int nodesNumber;
-	List<Node<K,V>> nodesList = new ArrayList<>();
-	protected Map<Node<K,V>, List<Node<K,V>>> nodesMap = new HashMap<>();
-	//Mappa con chiave i nodi e valore la lista degli INCOMING NODES DI QUEL NODO(chiave)
 
-	public AbstractBooleanNetwork(int nodesNumber){
-		this.nodesNumber = nodesNumber;
+	private Graph<N, DefaultEdge> graph;
+
+	public AbstractBooleanNetwork(Graph<N, DefaultEdge> graph){
+		this.graph = new AsUnmodifiableGraph<>(graph);
+		//this.graph = graph;
+		this.nodesNumber = graph.vertexSet().size();
+		//fromGraphToInternalStructures(graph);
 	}
+
+	/*private void fromGraphToInternalStructures(Graph<N,DefaultEdge> g){
+		nodesList = new ArrayList<>(g.vertexSet()); //nodesList initialization
+		List<Integer> incoming;
+		for (N node : g.vertexSet()) {				//nodesMap initialization
+			incoming = new ArrayList<>();
+			for (DefaultEdge edge : g.incomingEdgesOf(node)){
+				incoming.add(g.getEdgeSource(edge).getId());
+			}
+			nodesMap.put(node.getId(), incoming);
+		}
+	}*/
 
 	/* Immutable */
 
@@ -28,118 +46,100 @@ public abstract class AbstractBooleanNetwork<K,V> implements BooleanNetwork<K,V>
 	}
 
 	@Override
-	public List<Node<K,V>> getNodes() {
-		//List<Node<K,V>> l = this.nodesMap.keySet().stream().collect(Collectors.toList());
-		//this.nodesList.sort((Node<K,V> a, Node<K,V> b) -> a.getId().compareTo(b.getId()));
-		return this.nodesList;
+	public List<N> getNodes() {
+		return graph.vertexSet().stream().sorted(Comparator.comparingInt(N::getId)).collect(Collectors.toList());
 	}
 	
 	@Override
-	public Optional<Node<K, V>> getNodeByName(String name) {
-		//List<Node<K,V>> l = this.nodesMap.keySet().stream().collect(Collectors.toList());
-		return this.nodesList.stream().filter(x->x.getName().equals(name)).findFirst();
+	public N getNodeByName(String name) {
+		return graph.vertexSet().stream().filter(x->x.getName().equals(name)).findFirst().orElseThrow(() -> new SimulatorExceptions.NetworkNodeException.NodeNotPresentException());
 	}
 
 	@Override
-	public Optional<Node<K, V>> getNodeById(Integer id) {
-		//List<Node<K,V>> l = this.nodesMap.keySet().stream().collect(Collectors.toList());
-		return this.nodesList.stream().filter(x->x.getId().equals(id)).findFirst();
+	public N getNodeById(Integer id) {
+		return graph.vertexSet().stream().filter(x->x.getId().equals(id)).findFirst().orElseThrow(() -> new SimulatorExceptions.NetworkNodeException.NodeNotPresentException());
 	}
 
-	@Override
-	public Boolean isAffectedBy(Node<?, ?> a, Node<?, ?> b) {
-		// controlla se b è nella incoming list di a
-		return nodesMap.get(a).stream().anyMatch(x->x == b);
-	}
-
-	@Override
+	/*@Override
 	public void reconfigureIncomingEdge(Integer targetNodeId, Integer newInputNodeId, Integer incomingNodeIndex) {
+		/*
+		GraphBuilder<N, DefaultEdge, DefaultDirectedGraph<N,DefaultEdge>> builder
+				= new GraphBuilder<>(new DefaultDirectedGraph<>(DefaultEdge.class));
+		Graph<N, DefaultEdge> newGraph = builder.addGraph(graph).build();
 
-		Node<K, V> targetNode = getNodeById(targetNodeId).orElseThrow(() -> {
-			throw new SimulatorExceptions.NetworkNodeException.NodeNotPresentException();
-		});
-		Node<K, V> newInputNode = getNodeById(newInputNodeId).orElseThrow(() -> {
-			throw new SimulatorExceptions.NetworkNodeException.NodeNotPresentException();
-		});
-
-		if(nodesMap.get(targetNode).stream().anyMatch(e->e.equals(newInputNode))){
-			throw new SimulatorExceptions.NetworkNodeException.NodeAlreadyPresentException();
+		if (Objects.nonNull(newGraph.removeEdge(getNodeById(incomingNodeIndex), getNodeById(targetNodeId)))){
+			if (Objects.isNull(newGraph.addEdge(getNodeById(newInputNodeId), getNodeById(targetNodeId)))){
+				throw new SimulatorExceptions.NetworkNodeException.ReconfiguringNodeException();
+			}
+		} else {
+			throw new SimulatorExceptions.NetworkNodeException.ReconfiguringNodeException();
 		}
 
-		if (incomingNodeIndex >= getIncomingNodes(targetNode).size()) {
-			throw new SimulatorExceptions.NetworkNodeException.NodeNotPresentException();
+		return ;
+
+	}*/
+
+	@Override
+	public Graph<N, DefaultEdge> asGraph() {
+		return new AsUnmodifiableGraph<>(graph);
+		//return graph;
+	}
+
+	@Override
+	public List<N> getIncomingNodes(N node) {
+		List<N> incoming = new ArrayList<>();
+		for (DefaultEdge edge : graph.incomingEdgesOf(node)){
+			incoming.add(graph.getEdgeSource(edge));
 		}
-
-		nodesMap.get(targetNode).add(incomingNodeIndex, newInputNode);
-		nodesMap.get(targetNode).remove(incomingNodeIndex + 1);
-
+		return incoming;
 	}
 
 	@Override
-	public List<Node<K, V>> getIncomingNodes(Node<K, V> node) {
-		return this.nodesMap.get(node);
+	public List<N> getOutgoingNodes(N node) {
+		List<N> outgoing = new ArrayList<>();
+		for (DefaultEdge edge : graph.outgoingEdgesOf(node)){
+			outgoing.add(graph.getEdgeTarget(edge));
+		}
+		return outgoing;
 	}
 
 	@Override
-	public List<Node<K, V>> getOutcomingNodes(Node<K, V> node) {
-		return this.nodesMap.entrySet().stream().filter(x->x.getValue().stream().anyMatch(n->n.equals(node))).map(entry->entry.getKey()).collect(Collectors.toList());
+	public Integer getInDegree(N node) {
+		 return graph.inDegreeOf(node);
 	}
 
 	@Override
-	public Integer getInDegree(Node<?, ?> node) {
-		 return this.nodesMap.get(node).size();
-	}
-
-	@Override
-	public Integer getOutDegree(Node<?, ?> node) {
-		return Math.toIntExact(this.nodesMap.entrySet().stream().filter(x->x.getValue().stream().anyMatch(n->n.equals(node))).map(entry->entry.getKey()).count());
+	public Integer getOutDegree(N node) {
+		return graph.outDegreeOf(node);
 	}
 
 	@Override
 	public String toString() {
 		return "----["+this.getClass().getSimpleName() +  "]----\n" +
-					this.nodesMap.entrySet().stream()
-							.sorted(Comparator.comparingInt( x -> x.getKey().getId()))
+							getNodes()
+							.stream()
 							.map( r-> {
-							return r.getKey().toString() 
-							+ " <--- "+
-							r.getValue().toString();}).collect(Collectors.joining(" \n"))
-					+"\n--------------------\n"
-					+ this.nodesList.stream().map(x-> {return "NodeId=" + x.getId() +", "+ x.getFunction();}).collect(Collectors.joining(" \n"));
-
+							return r.toString()
+							+ " <--- "+ getIncomingNodes(r);}).collect(Collectors.joining(" \n"));
 	
 	}
 
-
-	@Override
-	public Properties getNetworkProperties() {
-		return properties;
-	}
-
-
 	@Override
 	public boolean equals(Object o) {
-		//self check
-		if (this == o)
-			return true;
-
-		// null check
-		if (o == null)
-			return false;
-
-		// type check and cast
-		if (!(o instanceof AbstractBooleanNetwork))
-			return false;
-
-		AbstractBooleanNetwork<?, ?> that = (AbstractBooleanNetwork<?, ?>) o;
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		AbstractBooleanNetwork<?,?> that = (AbstractBooleanNetwork<?,?>) o;
 		return nodesNumber == that.nodesNumber &&
-				Objects.equals(nodesList, that.nodesList) &&
-				Objects.equals(nodesMap, that.nodesMap);
+				Objects.equals(graph, that.graph);
 	}
 
 	@Override
 	public int hashCode() {
-
-		return Objects.hash(nodesNumber, nodesList, nodesMap);
+		return Objects.hash(nodesNumber, graph);
 	}
+
+
+	@Override
+	public abstract B getThis();
+
 }
