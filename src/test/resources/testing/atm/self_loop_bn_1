@@ -1,0 +1,26 @@
+#Node : incoming nodes...
+Topology:
+0 : 1, 2
+1 : 0,1,2
+2 : 1, 2
+
+
+# 0: 1, 2 ->corrisponde alla Truth Table:
+# x2 x1 | (t+1)
+# 0  0  | ...
+# 0  1  | ...
+# ...   | ...
+
+Functions E:
+0: 0101
+1: 01011001
+2 :1010
+
+#Functions I:
+#0:   !1*2  +  1*2
+#1:   0*2  +  !0*!2
+
+Names:
+0: Gene_0
+1: Gene_1
+2: Gene_2

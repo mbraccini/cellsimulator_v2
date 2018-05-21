@@ -1,22 +1,23 @@
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.Callable;
 
 import attractor.AttractorsImpl;
 import attractor.ImmutableAttractorImpl;
 import attractor.MutableAttractorImpl;
-import attractor.AttractorsUtility;
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import generator.RandomnessFactory;
 import generator.UniformlyDistributedGenerator;
 import interfaces.attractor.*;
+import interfaces.network.NodeDeterministic;
+import interfaces.network.BNKBias.BiasType;
 import interfaces.sequences.Generator;
 import interfaces.dynamic.Dynamics;
-import interfaces.network.BooleanNetwork;
+import interfaces.network.BNClassic;
 import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
 import network.BooleanNetworkFactory;
@@ -30,11 +31,21 @@ import utility.Files;
 import utility.GenericUtility;
 
 public class TestSynchronous {
-
-    private String rootDirectory = "testing"
+    private String rootDirectory =  "testing"
                                     + Files.FILE_SEPARATOR
                                     + "sync";
 
+
+    /**
+     * Retrieves path
+     * @param path
+     * @return
+     */
+    private String path(String path) {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource(path).getFile());
+        return file.getAbsolutePath();
+    }
     /**
      * Tests a simple bn ("sync_bn_1") with synchronous update scheme, previously verified with BoolNet
      *
@@ -72,12 +83,11 @@ public class TestSynchronous {
      **/
     @Test
     public void bnFromBoolNet() {
-
         /** BN from file "sync_bn" **/
-        String bnFilename = rootDirectory
+        String bnFilename = path(rootDirectory
                             + Files.FILE_SEPARATOR
-                            + "sync_bn_1";
-        BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newNetworkFromFile(bnFilename);
+                            + "sync_bn_1");
+        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn = BooleanNetworkFactory.newNetworkFromFile(bnFilename);
 
         System.out.println(bn);
 
@@ -155,7 +165,7 @@ public class TestSynchronous {
     @Test
     public void ifStatesAreDifferent() {
         Random rnd = RandomnessFactory.newPseudoRandomGenerator(10);
-        BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, 50, 3, 0.7, rnd);
+        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn = BooleanNetworkFactory.newRBN(BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, 50, 3, 0.7, rnd);
 
 
         /** Synchronous dynamics **/
@@ -184,10 +194,10 @@ public class TestSynchronous {
     public void bn_Huang_article() {
 
         /** BN from file "sync_bn" **/
-        String bnFilename = rootDirectory
+        String bnFilename = path(rootDirectory
                 + Files.FILE_SEPARATOR
-                + "bn_shape_dependent_control_huang";
-        BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newNetworkFromFile(bnFilename);
+                + "bn_shape_dependent_control_huang");
+        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn = BooleanNetworkFactory.newNetworkFromFile(bnFilename);
 
         System.out.println(bn);
 

@@ -272,7 +272,7 @@ public class Files {
 
 
     public static <K, N extends NodeDeterministic<K,Boolean>> void writeBooleanNetworkToFile(BNClassic<K,Boolean,N> bn, String filename) {
-        writeStringToFileUTF8(filename, BooleanNetwork.getBNFileRepresentation(bn));
+        writeStringToFileUTF8(filename, BNClassic.getBNFileRepresentation(bn));
     }
 
 

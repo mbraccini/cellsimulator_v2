@@ -20,12 +20,12 @@ public class ContextImpl<K,V> implements Context<K,V> {
 
     @Override
     public String toString() {
-        return "Ctx{\n" +
+        return "::Context::\n" +
                      m      .entrySet()
                             .stream()
                              .map(entry -> "Id: " + entry.getKey() + " - " + entry.getValue())
                              .collect(Collectors.joining("\n")) +
-                "\n}";
+                "\n::End Context::";
     }
 
     public static <K,V> ContextBuilder<K,V> builder(){

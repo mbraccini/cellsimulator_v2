@@ -2,25 +2,30 @@ package network;
 
 import exceptions.SemanticException;
 import exceptions.SyntaxParserException;
+import interfaces.network.BNClassic;
 import interfaces.network.Node;
+import interfaces.network.NodeDeterministic;
 import interfaces.network.Table;
 import interfaces.networkdescription.*;
+import javafx.util.Builder;
 import states.States;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class BNFromASTDescription extends AbstractBooleanNetwork<BitSet, Boolean> {
+public class BNFromASTDescription implements interfaces.network.Builder<BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>>> {
 
 
     private final NetworkAST ast;
+    private final int nodesNumber;
+    private List<NodeDeterministic<BitSet,Boolean>> nodesList = new ArrayList<>();
+    private Map<Integer, List<Integer>> nodesMap = new HashMap<>();
 
-    public BNFromASTDescription(int nodesNumber, NetworkAST ast) {
-        super(nodesNumber);
+    public BNFromASTDescription(NetworkAST ast) {
         this.ast = ast;
+        this.nodesNumber = ast.getTopology().size();
         configure();
-
     }
 
     /*public static BNFromASTDescription newNetworkFromFile(String filename) {
@@ -68,9 +73,9 @@ public class BNFromASTDescription extends AbstractBooleanNetwork<BitSet, Boolean
 
             String nodeName = retrieveNodeName("" + id).getName();
             if (Objects.nonNull(nodeName)) {
-                nodesList.add(new NodeImpl<>(nodeName, id, table));
+                nodesList.add(new NodeDeterministicImpl<>(nodeName, id, table));
             } else {
-                nodesList.add(new NodeImpl<>("gene_" + id, id, table));
+                nodesList.add(new NodeDeterministicImpl<>("gene_" + id, id, table));
             }
         }
 
@@ -230,19 +235,25 @@ public class BNFromASTDescription extends AbstractBooleanNetwork<BitSet, Boolean
     }
 
     private void addNodes(int indexNode, List<Integer> indexListToAdd) {
-        List<Node<BitSet, Boolean>> list = new ArrayList<>();
+        /*List<NodeDeterministic<BitSet, Boolean>> list = new ArrayList<>();
         for (int i : indexListToAdd) {
             list.add(nodesList.get(i));
-        }
-        this.nodesMap.put(this.nodesList.get(indexNode), list);
-
+        }*/
+        this.nodesMap.put(indexNode, indexListToAdd);
     }
 
 
 
 
+
+    @Override
+    public BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> build() {
+        return new BNClassicImpl<>(nodesList, nodesMap);
+    }
+
+
     public static void main(String args[]) {
-        NetworkAST ast = new NaiveBNParser("/Users/michelebraccini/IdeaProjects/cellsimulator/bn").parse();
-        System.out.println(new BNFromASTDescription(ast.getTopology().size(), ast));
+        NetworkAST ast = new NaiveBNParser("bn_test").parse();
+        System.out.println(new BNFromASTDescription(ast).build());
     }
 }
