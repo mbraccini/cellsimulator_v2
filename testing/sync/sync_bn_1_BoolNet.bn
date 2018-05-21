@@ -1,5 +1,0 @@
-targets, factors
-Gene0, Gene1 | Gene2
-Gene1, Gene0 & Gene3
-Gene2, Gene1 | Gene3
-Gene3, Gene0 & Gene2
