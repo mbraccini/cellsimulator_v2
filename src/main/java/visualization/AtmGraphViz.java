@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 
 
 public class AtmGraphViz implements Writable{
-	
-	private Map<Integer, String> mapIdAtmIndex; 
+
+	private Map<Integer, String> mapIdAtmIndex;
 	private Atm<?> atm;
 	private GraphViz gz;
 	public AtmGraphViz(Atm<?> atm){

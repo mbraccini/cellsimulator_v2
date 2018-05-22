@@ -90,103 +90,103 @@ public class TestBooleanNetworks {
         }
     }
 
-}
-//    @Test
-//    public void TestBNmiRNA() {
-//        /* wrapped BN */
-//        BNClassic<BitSet, Boolean> bn;
-//        int nodesNumber = 30;
-//        int k = 3;
-//        double bias = 0.5;
-//
-//        /* miRNA */
-//        miRNABooleanNetwork<BitSet, Boolean> miRNAbn;
-//        int miRNA_nodes = 5;
-//        int miRNA_K = 2;
-//        double miRNA_bias = 0.5;
-//        int miRNA_FanOut = 3;
-//
-//        while (iterations > 0) {
-//            if (iterations % 2 == 0) {
-//                bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.EXACT, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, pureRandomGenerator);
-//            } else {
-//                bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, pureRandomGenerator);
-//            }
-//
-//            miRNAbn = BooleanNetworkFactory.miRNANetworkInstance(bn, miRNA_nodes, miRNA_K, miRNA_bias, miRNA_FanOut, pureRandomGenerator);
-//
-//            // controllare che la rete wrapped sia la stessa di quella di partenza
-//
-//            assertTrue("Wrapped BN different from original BN", bn.equals(miRNAbn.getWrappedBooleanNetwork()));
-//
-//            // controllare il numero di nodi totale sia bn.getNodes + nodi miRNA
-//
-//            assertTrue("Total nodes number is wrong", miRNAbn.getNodesNumber() == bn.getNodesNumber() + miRNA_nodes);
-//
-//            // controllare che le funzioni dei nodi a valle dei miRNA abbiano false quando il miRNA è attivo
-//            // possibilmente controllandolo tramite agggiornamento della rete e non dalle tabelle che dovrebbe già essere vero!
-//
-//            final int max = miRNAbn.miRNANodes().size();
-//            final int miRNAIndexInExam = miRNAbn.miRNANodes().get(pureRandomGenerator.nextInt(max)).getId(); // indice di un miRNA
-//            // creo stato random
-//            int[] indices = pureRandomGenerator.ints(0, miRNAbn.getNodesNumber()).limit(10).toArray();
-//            BinaryState state = new ImmutableBinaryState(miRNAbn.getNodesNumber(), indices);
-//
-//            if (!state.getNodeValue(miRNAIndexInExam)) {
-//                state = state.flipNodesValues(miRNAIndexInExam); //settiamo a 1 il miRNA
-//            }
-//
-//            for (Node<BitSet, Boolean> n : miRNAbn.miRNADownstreamNodes()) {
-//                if (miRNAbn.getIncomingNodes(n).stream().map(Node::getId).anyMatch(x -> x == miRNAIndexInExam)) {
-//
-//                    if (!state.getNodeValue(n.getId())) {
-//                        state = state.flipNodesValues(n.getId()); //settiamo a 1 tutti i nodi che il miRNA influenza
-//                    }
-//                }
-//            }
-//
-//            Dynamics<BinaryState> dyn = new SynchronousDynamicsImpl(miRNAbn);
-//            BinaryState nextState = dyn.nextState(state); // aggiorno lo stato e ora devo verificare che tutti i nodi che il miRNA scelto influenza siano a 0!
-//
-//            for (Node<BitSet, Boolean> n : miRNAbn.miRNADownstreamNodes()) {
-//
-//                List<Integer> previousIndices = bn.getIncomingNodes(bn.getNodeById(n.getId()).get()).stream().map(Node::getId).collect(Collectors.toList());
-//                int previousLength = previousIndices.size();
-//                List<Integer> newIndices = miRNAbn.getIncomingNodes(n).stream().map(Node::getId).collect(Collectors.toList());
-//
-//                assertTrue("miRNA are not appended to the list of previous incoming nodes", previousIndices.equals(newIndices.subList(0, previousLength)));
-//
-//                if (miRNAbn.getIncomingNodes(n).stream().map(Node::getId).anyMatch(x -> x == miRNAIndexInExam)) {
-//                    assertTrue("The node " + n + " must be false since the miRNA that affects it was previously active", nextState.getNodeValue(n.getId()) == false);
-//                }
-//
-//            }
-//
-//            iterations--;
-//        }
-//    }
-//
 
-//
-//
-//    @Test
-//    public void TestManualTopologyReconfiguration() {
-//        /*int nodesNumber = 10;
-//        int k = 2;
-//        double bias = 0.5;
-//        //while (iterations > 0) {
-//            BNClassic<BitSet, Boolean> bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, pureRandomGenerator);
-//            System.out.println(bn);
-//            bn.reconfigureIncomingEdge(9, 9, 0);
-//        bn.reconfigureIncomingEdge(6, 2, 1);
-//        bn.reconfigureIncomingEdge(6, 6, 0);
-//
-//
-//        System.out.println(bn);
-//        System.out.println(bn.numberOfNodeWithSelfloops());
-//
-//*/
-//        //}
-//
-//    }
-//}
+    @Test
+    public void TestBNmiRNA() {
+        /* wrapped BN */
+        BNClassic<BitSet, Boolean,NodeDeterministic<BitSet,Boolean>> bn;
+        int nodesNumber = 30;
+        int k = 3;
+        double bias = 0.5;
+
+        /* miRNA */
+        miRNABNClassic<BitSet, Boolean,NodeDeterministic<BitSet,Boolean>,BNClassic<BitSet, Boolean,NodeDeterministic<BitSet,Boolean>>,NodeDeterministic<BitSet,Boolean>> miRNAbn;
+        int miRNA_nodes = 5;
+        int miRNA_K = 2;
+        double miRNA_bias = 0.5;
+        int miRNA_FanOut = 3;
+
+        while (iterations > 0) {
+            if (iterations % 2 == 0) {
+                bn = BooleanNetworkFactory.newRBN(BiasType.EXACT, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, pureRandomGenerator);
+            } else {
+                bn = BooleanNetworkFactory.newRBN(BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, pureRandomGenerator);
+            }
+
+            miRNAbn = BooleanNetworkFactory.miRNANetworkInstance(bn, miRNA_nodes, miRNA_K, miRNA_bias, miRNA_FanOut, pureRandomGenerator);
+
+            // controllare che la rete wrapped sia la stessa di quella di partenza
+
+            assertTrue("Wrapped BN different from original BN", bn.equals(miRNAbn.getWrappedBooleanNetwork()));
+
+            // controllare il numero di nodi totale sia bn.getNodes + nodi miRNA
+
+            assertTrue("Total nodes number is wrong", miRNAbn.getNodesNumber() == bn.getNodesNumber() + miRNA_nodes);
+
+            // controllare che le funzioni dei nodi a valle dei miRNA abbiano false quando il miRNA è attivo
+            // possibilmente controllandolo tramite agggiornamento della rete e non dalle tabelle che dovrebbe già essere vero!
+
+            final int max = miRNAbn.miRNANodes().size();
+            final int miRNAIndexInExam = miRNAbn.miRNANodes().get(pureRandomGenerator.nextInt(max)).getId(); // indice di un miRNA
+            // creo stato random
+            int[] indices = pureRandomGenerator.ints(0, miRNAbn.getNodesNumber()).limit(10).toArray();
+            BinaryState state = new ImmutableBinaryState(miRNAbn.getNodesNumber(), indices);
+
+            if (!state.getNodeValue(miRNAIndexInExam)) {
+                state = state.flipNodesValues(miRNAIndexInExam); //settiamo a 1 il miRNA
+            }
+
+            for (NodeDeterministic<BitSet, Boolean> n : miRNAbn.miRNADownstreamNodes()) {
+                if (miRNAbn.getIncomingNodes(n).stream().map(Node::getId).anyMatch(x -> x == miRNAIndexInExam)) {
+
+                    if (!state.getNodeValue(n.getId())) {
+                        state = state.flipNodesValues(n.getId()); //settiamo a 1 tutti i nodi che il miRNA influenza
+                    }
+                }
+            }
+
+            Dynamics<BinaryState> dyn = new SynchronousDynamicsImpl(miRNAbn);
+            BinaryState nextState = dyn.nextState(state); // aggiorno lo stato e ora devo verificare che tutti i nodi che il miRNA scelto influenza siano a 0!
+
+            for (NodeDeterministic<BitSet, Boolean> n : miRNAbn.miRNADownstreamNodes()) {
+
+                List<Integer> previousIndices = bn.getIncomingNodes(bn.getNodeById(n.getId())).stream().map(Node::getId).collect(Collectors.toList());
+                int previousLength = previousIndices.size();
+                List<Integer> newIndices = miRNAbn.getIncomingNodes(n).stream().map(Node::getId).collect(Collectors.toList());
+
+                assertTrue("miRNA are not appended to the list of previous incoming nodes", previousIndices.equals(newIndices.subList(0, previousLength)));
+
+                if (miRNAbn.getIncomingNodes(n).stream().map(Node::getId).anyMatch(x -> x == miRNAIndexInExam)) {
+                    assertTrue("The node " + n + " must be false since the miRNA that affects it was previously active", nextState.getNodeValue(n.getId()) == false);
+                }
+
+            }
+
+            iterations--;
+        }
+    }
+
+
+
+
+    @Test
+    public void TestManualTopologyReconfiguration() {
+        /*int nodesNumber = 10;
+        int k = 2;
+        double bias = 0.5;
+        //while (iterations > 0) {
+            BNClassic<BitSet, Boolean> bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, pureRandomGenerator);
+            System.out.println(bn);
+            bn.reconfigureIncomingEdge(9, 9, 0);
+        bn.reconfigureIncomingEdge(6, 2, 1);
+        bn.reconfigureIncomingEdge(6, 6, 0);
+
+
+        System.out.println(bn);
+        System.out.println(bn.numberOfNodeWithSelfloops());
+
+*/
+        //}
+
+    }
+}

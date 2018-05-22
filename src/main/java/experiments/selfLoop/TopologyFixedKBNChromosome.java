@@ -1,6 +1,7 @@
 package experiments.selfLoop;
 
-import interfaces.network.BooleanNetwork;
+import interfaces.network.BNClassic;
+import interfaces.network.NodeDeterministic;
 import io.jenetics.*;
 import io.jenetics.util.ISeq;
 import io.jenetics.util.IntRange;
@@ -208,7 +209,7 @@ public class TopologyFixedKBNChromosome implements NumericChromosome<Integer, In
         Genotype<IntegerGene> gen = Genotype.of(top, fun);
         System.out.println(gen.getChromosome(0));
         System.out.println(gen.getChromosome(1));
-        BooleanNetwork<BitSet, Boolean> bn = GeneticAlgFitness.fromGenotypeToBN(gen, 2);
+        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn = GeneticAlgFitness.fromGenotypeToBN(gen, 2);
 
 
         System.out.println(top.isValid());

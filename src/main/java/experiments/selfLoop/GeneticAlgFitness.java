@@ -3,10 +3,10 @@ package experiments.selfLoop;
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import interfaces.attractor.Attractors;
+import interfaces.network.BNClassic;
+import interfaces.network.NodeDeterministic;
 import interfaces.sequences.Generator;
-import interfaces.attractor.ImmutableAttractor;
 import interfaces.dynamic.Dynamics;
-import interfaces.network.BooleanNetwork;
 import interfaces.networkdescription.ExplicitFunExpr;
 import interfaces.networkdescription.NameExpr;
 import interfaces.networkdescription.NetworkAST;
@@ -20,22 +20,15 @@ import io.jenetics.ext.moea.Vec;
 import network.BooleanNetworkFactory;
 import network.NaiveBNParser;
 import noise.CompletePerturbations;
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-import org.jooq.lambda.tuple.Tuple2;
 import org.jooq.lambda.tuple.Tuple3;
 import simulator.AttractorsFinderService;
-import tes.FindGraphFromSCC;
-import tes.SCCTarjanAlgorithm;
 import utility.Constant;
 import utility.Files;
 import utility.GenericUtility;
 import utility.MatrixUtility;
-import visualization.AtmGraphViz;
 import visualization.BNGraphViz;
-import visualization.SCCGraphViz;
 
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 
@@ -106,11 +99,11 @@ public class GeneticAlgFitness {
 
 
     public static Tuple3Extended eval(Genotype<IntegerGene> gt) {
-        BooleanNetwork<BitSet, Boolean> bn = fromGenotypeToBN(gt, MainJenetics.K);
+        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn = fromGenotypeToBN(gt, MainJenetics.K);
         return eval(bn);
     }
 
-    public static Tuple3Extended eval(BooleanNetwork<BitSet, Boolean> bn) {
+    public static Tuple3Extended eval(BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn) {
         Double[][] atm = simulateBN(bn).getMatrixCopy();
         Number[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
         double[][] doubleSorted = MatrixUtility.fromNumberToDoubleMatrix(sorted);
@@ -121,10 +114,10 @@ public class GeneticAlgFitness {
     }
 
     public static Vec<double[]> evalMultiObjective(Genotype<IntegerGene> gt) {
-        BooleanNetwork<BitSet, Boolean> bn = fromGenotypeToBN(gt, MainJenetics.K);
+        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn = fromGenotypeToBN(gt, MainJenetics.K);
         return evalMultiObjective(bn);
     }
-    public static Vec<double[]> evalMultiObjective(BooleanNetwork<BitSet, Boolean> bn) {
+    public static Vec<double[]> evalMultiObjective(BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn) {
         Double[][] atm = simulateBN(bn).getMatrixCopy();
         Number[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
         double[][] doubleSorted = MatrixUtility.fromNumberToDoubleMatrix(sorted);
@@ -177,7 +170,7 @@ public class GeneticAlgFitness {
         return Math.round((upper - lower) * 100.0) / 100.0;
     }
 
-    public static BooleanNetwork<BitSet, Boolean> fromGenotypeToBN(Genotype<IntegerGene> gt, int k) {
+    public static BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> fromGenotypeToBN(Genotype<IntegerGene> gt, int k) {
         final int BINARY_DIGIT_NUMBER = (int) Math.round(Math.pow(2, k));
         /**
          * INPUT_NODES
@@ -218,7 +211,7 @@ public class GeneticAlgFitness {
         return BooleanNetworkFactory.newNetworkFromAST(ast);
     }
 
-    public static Atm<BinaryState> simulateBN(BooleanNetwork<BitSet, Boolean> bn) {
+    public static Atm<BinaryState> simulateBN(BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn) {
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
         Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics);
@@ -274,7 +267,7 @@ public class GeneticAlgFitness {
         for (int i = 1; i < 2; i++) {
             String genotype = path +   Files.FILE_SEPARATOR + "GeneticAlg/BestGenotype.ser";
             System.out.println(genotype);
-            BooleanNetwork<BitSet, Boolean> bn = fromGenotypeToBN((Genotype<IntegerGene>) Files.deserializeObject(genotype), 2);
+            BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn = fromGenotypeToBN((Genotype<IntegerGene>) Files.deserializeObject(genotype), 2);
             System.out.println(bn);
             Atm<BinaryState> atm = simulateBN(bn);
 
@@ -285,7 +278,7 @@ public class GeneticAlgFitness {
             Files.writeMatrixToCsv(MatrixUtility.reorderByDiagonalValues(atm.getMatrixCopy()), path_res + "sortedATM");
 
             //new AtmGraphViz(atm, path_res + "atm").generateDotFile().generateImg("jpg");
-            new BNGraphViz<BitSet, Boolean>(bn).saveOnDisk( path_res + "bn");
+            new BNGraphViz<>(bn).saveOnDisk( path_res + "bn");
         }
 
 

@@ -3,11 +3,11 @@ package visualization;
 import interfaces.network.BooleanNetwork;
 import interfaces.network.Node;
 
-public class BNGraphViz<K, V> implements Writable{
+public class BNGraphViz<N extends Node> implements Writable{
 
-    private BooleanNetwork<K, V> bn;
+    private BooleanNetwork<N> bn;
     private GraphViz gz;
-    public BNGraphViz(BooleanNetwork<K, V> bn) {
+    public BNGraphViz(BooleanNetwork<N> bn) {
         gz = new GraphViz("digraph", "bn");
         this.bn = bn;
         init();
@@ -15,8 +15,8 @@ public class BNGraphViz<K, V> implements Writable{
     }
 
     private void arcs() {
-        for (Node<K, V> node : this.bn.getNodes()) {
-            for (Node<?, ?> outNode : this.bn.getOutcomingNodes(node)) {
+        for (N node : this.bn.getNodes()) {
+            for (N outNode : bn.getOutgoingNodes(node)) {
                 gz.addLine(node.getId()
                         + GraphViz.ARC_START
                         + outNode.getId());
@@ -26,7 +26,7 @@ public class BNGraphViz<K, V> implements Writable{
     }
 
     private void init() {
-        for (Node<?, ?> node : this.bn.getNodes()) {
+        for (N node : this.bn.getNodes()) {
             String nodeLabel = "\"" + node.getName() + "\"";
             gz.addLine(node.getId() + GraphViz.LABEL_START + nodeLabel + GraphViz.LABEL_END);
         }

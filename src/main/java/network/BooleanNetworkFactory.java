@@ -38,53 +38,68 @@ public class BooleanNetworkFactory {
     public static BNClassic<BitSet, Boolean,NodeDeterministic<BitSet,Boolean>> newNetworkFromAST(NetworkAST ast) {
         return new BNFromASTDescription(ast).build();
     }
-//
-//    /**
-//     * miRNA network with fixed FAN-OUT and INCOMING NODES NUMBER (K); the miRNA nodes if active turn off the affected downstream nodes.
-//     *
-//     * @return
-//     */
-//    public static miRNABooleanNetwork<BitSet, Boolean> miRNANetworkInstance(
-//            BNClassic<BitSet, Boolean> wrappedBN,
-//            int miRNA_NodesNumber,
-//            int miRNA_K,
-//            double miRNA_bias,
-//            int miRNA_FanOut,
-//            Random r) {
-//
-//        Supplier<Table<BitSet, Boolean>> suppliermiRNA = () -> new BiasedTable(miRNA_K, miRNA_bias, r);
-//
-//        BiFunction<Integer, Table<BitSet, Boolean>, Table<BitSet, Boolean>> supplierDownstreamNode =
-//                (Integer variablesToAdd, Table<BitSet, Boolean> table) ->
-//                {
-//                    int variablesNumber = table.getVariablesNumber() + variablesToAdd;
-//                    List<Row<BitSet, Boolean>> rows = new ArrayList<>();
-//                    int rowsNumber = Double.valueOf(Math.pow(2, variablesNumber)).intValue(); //2^(variablesNumber)
-//                    for (int i = 0; i < rowsNumber; i++) {
-//                        BitSet input = States.convert(i, variablesNumber);
-//                        try {
-//                            rows.add(new RowImpl<>(input, table.getRowByInput(input).getOutput()));
-//                        } catch (RowNotFoundException e) {
-//                            rows.add(new RowImpl<>(input, false));
-//                        }
-//                    }
-//                    return ConfigurableGenericTable.newInstance(variablesNumber, rows);
-//                };
-//
-//
-//        int[] fixedFanOut = new int[miRNA_NodesNumber];
-//        Arrays.fill(fixedFanOut, miRNA_FanOut);
-//
-//        return miRNABNClassic.newInstance(miRNA_NodesNumber,
-//                fixedFanOut,
-//                wrappedBN,
-//                r,
-//                suppliermiRNA,
-//                supplierDownstreamNode);
-//
-//    }
-//
-//
+
+    /**
+     * miRNA network with fixed FAN-OUT and INCOMING NODES NUMBER (K); the miRNA nodes if active turn off the affected downstream nodes.
+     *
+     * @return
+     */
+    public static miRNABNClassic<BitSet,
+                                Boolean,
+                                NodeDeterministic<BitSet,Boolean>,
+                                BNClassic<BitSet, Boolean,NodeDeterministic<BitSet,Boolean>>,
+                                NodeDeterministic<BitSet,Boolean>> miRNANetworkInstance(BNClassic<BitSet, Boolean,NodeDeterministic<BitSet,Boolean>> wrappedBN,
+                                                                                        int miRNA_NodesNumber,
+                                                                                        int miRNA_K,
+                                                                                        double miRNA_bias,
+                                                                                        int miRNA_FanOut,
+                                                                                        Random r) {
+
+        Supplier<Table<BitSet, Boolean>> suppliermiRNA = () -> new BiasedTable(miRNA_K, miRNA_bias, r);
+
+
+        int[] fixedFanOut = new int[miRNA_NodesNumber];
+        Arrays.fill(fixedFanOut, miRNA_FanOut);
+
+        return miRNABNClassicImpl.newInstance(miRNA_NodesNumber,
+                fixedFanOut,
+                wrappedBN,
+                r,
+                suppliermiRNA,
+                UtilitiesBooleanNetwork.miRNADownstreamNodesSupplier());
+
+    }
+
+    /**
+     * miRNA network with fixed FAN-OUT and INCOMING NODES NUMBER (K); the miRNA nodes if active turn off the affected downstream nodes.
+     *
+     * @return
+     */
+    public static miRNABNClassic<BitSet,
+            Boolean,
+            NodeDeterministic<BitSet,Boolean>,
+            BNClassic<BitSet, Boolean,NodeDeterministic<BitSet,Boolean>>,
+            NodeDeterministic<BitSet,Boolean>> miRNAOneInput(BNClassic<BitSet, Boolean,NodeDeterministic<BitSet,Boolean>> wrappedBN,
+                                                                    int miRNA_NodesNumber,
+                                                                    int miRNA_FanOut,
+                                                                    Random r) {
+
+        Supplier<Table<BitSet, Boolean>> suppliermiRNA = () -> new OrTable(1);
+
+
+        int[] fixedFanOut = new int[miRNA_NodesNumber];
+        Arrays.fill(fixedFanOut, miRNA_FanOut);
+
+        return miRNABNClassicImpl.newInstance(miRNA_NodesNumber,
+                fixedFanOut,
+                wrappedBN,
+                r,
+                suppliermiRNA,
+                UtilitiesBooleanNetwork.miRNADownstreamNodesSupplier());
+
+    }
+
+
 
 
     public enum SelfLoop {

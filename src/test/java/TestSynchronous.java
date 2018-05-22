@@ -37,7 +37,7 @@ public class TestSynchronous {
 
 
     /**
-     * Retrieves path
+     * Retrieves the path
      * @param path
      * @return
      */

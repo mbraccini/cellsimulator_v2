@@ -101,7 +101,7 @@ public class DifferentiationTreeGraphViz<T> implements Writable{
 	public void saveOnDisk(String path) {
 		this.gz.generateDotFile(path).generateImg("jpg");
 	}
-	
+
 
 
 

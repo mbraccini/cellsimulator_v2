@@ -2,10 +2,10 @@ import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import generator.RandomnessFactory;
 import interfaces.attractor.Attractors;
+import interfaces.network.BNClassic;
+import interfaces.network.NodeDeterministic;
 import interfaces.sequences.Generator;
-import interfaces.attractor.ImmutableAttractor;
 import interfaces.dynamic.Dynamics;
-import interfaces.network.BooleanNetwork;
 import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
 import network.BooleanNetworkFactory;
@@ -17,6 +17,7 @@ import utility.Constant;
 import utility.Files;
 import utility.GenericUtility;
 
+import java.io.File;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
@@ -25,6 +26,17 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertTrue;
 
 public class TestAtm {
+
+    /**
+     * Retrieves the path
+     * @param path
+     * @return
+     */
+    private String path(String path) {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource(path).getFile());
+        return file.getAbsolutePath();
+    }
 
     private String rootDirectory = "testing"
             + Files.FILE_SEPARATOR
@@ -59,12 +71,12 @@ public class TestAtm {
     public void TestAtm() {
 
         /** BN from file "sync_bn" **/
-        String bnFilename = rootDirectory
+        String bnFilename = path(rootDirectory
                 + Files.FILE_SEPARATOR
-                + "self_loop_bn_1";
+                + "self_loop_bn_1");
         Random pseudoRandom;
 
-        BooleanNetwork<BitSet, Boolean> bn = BooleanNetworkFactory.newNetworkFromFile(bnFilename);
+        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn = BooleanNetworkFactory.newNetworkFromFile(bnFilename);
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
         Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics);

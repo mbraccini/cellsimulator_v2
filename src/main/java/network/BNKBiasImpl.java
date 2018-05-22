@@ -1,7 +1,6 @@
 package network;
 
 import exceptions.InputConnectionsException;
-import exceptions.SimulatorExceptions;
 import interfaces.network.*;
 
 import java.util.*;
@@ -30,7 +29,7 @@ public final class BNKBiasImpl
         this.biasType = biasType;
         this.bias = bias;
         this.hasSelfLoop = hasSelfLoop;
-        this.tableSupplier = UtilitiesBooleanNetwork.tableSupplier(biasType, nodesNumber, k, bias, random);
+        this.tableSupplier = UtilitiesBooleanNetwork.rndTableSupplier(biasType, nodesNumber, k, bias, random);
 
         configure();
     }
@@ -123,14 +122,9 @@ public final class BNKBiasImpl
 
 
 
-    private BNKBiasImpl(List<NodeDeterministic<BitSet,Boolean>> nodes, Map<Integer, List<Integer>> topology) {
-        super(nodes, topology);
-    }
 
-    @Override
-    public BNClassic<BitSet,Boolean, NodeDeterministic<BitSet,Boolean>> newInstance(List<NodeDeterministic<BitSet, Boolean>> nodes, Map<Integer, List<Integer>> topology) {
-        return new BNClassicImpl<>(nodes, topology);
-    }
+
+
 
 
 

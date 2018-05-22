@@ -5,7 +5,7 @@ import java.io.IOException;
 import utility.Files;
 
 public class GraphViz {
-	
+
 	public static final String NEW_LINE_DOT_ESCAPE = "\\n";
 	public static final String LABEL_START = "[label = ";
 	public static final String LABEL_END = "];";
