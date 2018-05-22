@@ -15,6 +15,15 @@ public interface DifferentiationNode<E>{
 	 * @return
 	 */
 	Integer getLevel();
+
+	/**
+	 * Branching factor of the node: the number of its children.
+	 * Note: the last level hasn't got any children!!!
+	 * @return
+	 */
+	default Integer branchingFactor(){
+		return getChildren().size();
+	}
 	
 	void setLevel(Integer level);
 

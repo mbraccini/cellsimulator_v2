@@ -16,6 +16,7 @@ import interfaces.tes.Tes;
 import network.*;
 import noise.CompletePerturbations;
 import simulator.AttractorsFinderService;
+import tes.StaticAnalysisTES;
 import tes.TesCreator;
 import utility.*;
 import visualization.DifferentiationTesTreeGraphViz;
@@ -102,9 +103,9 @@ public class Main_miRNA {
     private static void simulate(BNClassic<BitSet,Boolean, NodeDeterministic<BitSet,Boolean>> bn, Random pseudoRandom, String path) {
         Generator<BinaryState> generator = new UniformlyDistributedGenerator(new BigInteger(SAMPLES), bn.getNodesNumber(), pseudoRandom);
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
-        Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics);
-        Atm<BinaryState> atm = new CompletePerturbations().apply(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
-        TESDifferentiationTree<BinaryState, Tes<BinaryState>> differentiationTree = new TesCreator<>(atm, pseudoRandom).call();
+        Attractors<BinaryState> attractors = StaticAnalysisTES.attractors(generator, dynamics);
+        Atm<BinaryState> atm = StaticAnalysisTES.atmFromCompletePerturbations(attractors,dynamics);
+        TESDifferentiationTree<BinaryState, Tes<BinaryState>> differentiationTree = StaticAnalysisTES.TESDifferentiationTree(atm,pseudoRandom);
 
         writeResultsOnDisk(path, bn, atm, attractors, differentiationTree);
     }

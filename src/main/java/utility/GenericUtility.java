@@ -1,9 +1,14 @@
 package utility;
 
+import interfaces.network.Table;
+import interfaces.tes.DifferentiationTree;
+import network.NodeDeterministicImpl;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class GenericUtility {
     private GenericUtility(){ }
@@ -121,5 +126,16 @@ public class GenericUtility {
         return a;
     }
 
+    /**
+     * A measure of how the differentiation potential of a tree is.
+     * @param tree
+     * @return
+     */
+    public static double differentiationMeasure(DifferentiationTree<?> tree) {
+        Integer levels = tree.getLevelsNumber();
+        return IntStream.range(0, levels-1) //partono da 0, e giusto contarne uno in meno perché l'ultimo livello non ha figli
+                .mapToDouble(lvl -> tree.getLevel(lvl).get().stream().mapToDouble(y -> y.branchingFactor() * (1d/(lvl + 1))).sum()).sum();
+
+    }
 
 }

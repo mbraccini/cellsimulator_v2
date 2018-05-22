@@ -24,6 +24,7 @@ import org.junit.Test;
 import simulator.AttractorsFinderService;
 import tes.TesCreator;
 import utility.Constant;
+import utility.GenericUtility;
 
 public class TestDifferentiationTree {
 
@@ -58,9 +59,11 @@ public class TestDifferentiationTree {
 
 		Atm<BinaryState> atm = new CompletePerturbations().apply(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
 
-		TESDifferentiationTree<BinaryState, Tes<BinaryState>> tesTree = new TesCreator<BinaryState>(atm, RandomnessFactory.getPureRandomGenerator()).call();
+		TESDifferentiationTree<BinaryState, Tes<BinaryState>> tesTree = new TesCreator<>(atm, RandomnessFactory.getPureRandomGenerator()).apply();
 
 		List<Double> thresCheck = new ArrayList<>(Arrays.asList(0.0, 0.2, 0.45));
+
+		System.out.println(tesTree.getTreeRepresentation());
 
 		System.out.println(tesTree.getThresholds());
 
@@ -70,6 +73,8 @@ public class TestDifferentiationTree {
 
 		assertTrue("L'albero dei TES deve avere queste soglie 0.0, 0.2 e 0.45", thresCheck.equals(tesTree.getThresholds()));
 
+
+		System.out.println(GenericUtility.differentiationMeasure(tesTree));
 
 	}
 }

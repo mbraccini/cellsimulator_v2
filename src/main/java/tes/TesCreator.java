@@ -8,8 +8,9 @@ import java.util.stream.Stream;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.state.State;
 import interfaces.tes.*;
+import io.vavr.Function0;
 
-public class TesCreator<T extends State> {
+public class TesCreator<T extends State> implements Function0<TESDifferentiationTree<T, Tes<T>>> {
 
 	protected final int NAME_LENGTH = 1;
 	protected Atm<T> atm;
@@ -38,7 +39,7 @@ public class TesCreator<T extends State> {
 
 	private UniqueNameGenerator nameGenerator;
 
-	public TESDifferentiationTree<T, Tes<T>> call() {
+	public TESDifferentiationTree<T, Tes<T>> apply() {
 		if (this.thresholds == null) {
 			searchCorrectThresholds();
 		}
