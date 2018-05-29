@@ -5,6 +5,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public interface BooleanNetwork<N extends Node>{
@@ -51,7 +52,7 @@ public interface BooleanNetwork<N extends Node>{
      */
     Map<Integer, List<Integer>> topology();
 
-    BooleanNetwork<N> newInstance(List<N> nodes, Map<Integer, List<Integer>> topology);
+    BooleanNetwork<N> newInstance(Set<N> nodes, Map<Integer, List<Integer>> topology);
 
 
     default Boolean hasSelfLoop() {

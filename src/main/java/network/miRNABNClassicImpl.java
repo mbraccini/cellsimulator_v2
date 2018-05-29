@@ -86,7 +86,7 @@ public class miRNABNClassicImpl<K, V> extends BNClassicImpl<K,V,NodeDeterministi
             if (Objects.isNull(countsIncomingNodesToAdd.get(i))) {
                 // We copy the wrappedBN's node
                 NodeDeterministic<K,V> wrappedNode = wrappedNodesList.get(i);
-                nodesList.add(wrappedNode);                                             /* wrapped nodes added to nodesList */
+                nodes.add(wrappedNode);                                             /* wrapped nodes added to nodes */
                 incomingNodesMap.put(wrappedNode.getId(), wrappedBN.getIncomingNodes(wrappedNode).stream().mapToInt(Node::getId).boxed().collect(Collectors.toList()));     /* wrapped nodes added to nodesMap */
             } else {
                 // We create a MODIFIED COPY of the wrappedBN's node
@@ -94,7 +94,7 @@ public class miRNABNClassicImpl<K, V> extends BNClassicImpl<K,V,NodeDeterministi
                 NodeDeterministic<K,V> wrappedNode = wrappedNodesList.get(i);
                 Table<K, V> newTable = supplierDownstreamNode.apply(miRNAIncomingNodesnumber, wrappedNodesList.get(i).getFunction());
                 NodeDeterministic<K,V> newNode = new NodeDeterministicImpl<>(wrappedNode.getName(), wrappedNode.getId(), newTable);
-                nodesList.add(newNode);                                                 /* MODIFIED wrapped nodes added to nodesList */
+                nodes.add(newNode);                                                 /* MODIFIED wrapped nodes added to nodes */
 
                 List<Integer> miRNAIncomingIndices = new ArrayList<>();
                 for (int miRNAIdx = 0; miRNAIdx < miRNADownstreamNodes.size(); miRNAIdx++) {
@@ -112,7 +112,7 @@ public class miRNABNClassicImpl<K, V> extends BNClassicImpl<K,V,NodeDeterministi
             }
         }
 
-        nodesList.addAll(miRNAnodesList);                                               /* miRNA nodes added to nodesList */
+        nodes.addAll(miRNAnodesList);                                               /* miRNA nodes added to nodes */
 
 
         /**
@@ -126,7 +126,7 @@ public class miRNABNClassicImpl<K, V> extends BNClassicImpl<K,V,NodeDeterministi
          */
         IntStream.range(0, miRNA_Number)
                 .forEach(idx -> incomingNodesMap.put(miRNAnodesList.get(idx).getId(),
-                        miRNAIncomingNodes.get(idx).stream().mapToInt(y -> nodesList.get(y).getId()).boxed().collect(Collectors.toList())));
+                        miRNAIncomingNodes.get(idx).stream().mapToInt(y -> getNodeById(y).getId()).boxed().collect(Collectors.toList())));
 
 
     }

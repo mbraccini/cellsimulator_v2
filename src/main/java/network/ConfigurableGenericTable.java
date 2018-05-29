@@ -13,15 +13,15 @@ import java.util.function.Supplier;
 public class ConfigurableGenericTable<K,V> extends AbstractTable<K,V>{
 
     private List<Row<K,V>> rowsToCopy;
-    private ConfigurableGenericTable(int variablesNumber, List<Row<K,V>> rowsToCopy) {
+    public ConfigurableGenericTable(int variablesNumber, List<Row<K,V>> rowsToCopy) {
         super(variablesNumber);
         this.rowsToCopy = rowsToCopy;
         configure();
     }
 
-    public static <K,V> Table<K,V> newInstance(int variablesNumber, List<Row<K,V>> rowsToCopy) {
+    /*public static <K,V> Table<K,V> newInstance(int variablesNumber, List<Row<K,V>> rowsToCopy) {
         return new ConfigurableGenericTable<K,V>(variablesNumber, rowsToCopy);
-    }
+    }*/
 
     @Override
     protected void configure(){
@@ -38,7 +38,7 @@ public class ConfigurableGenericTable<K,V> extends AbstractTable<K,V>{
         Random r = RandomnessFactory.getPureRandomGenerator();
         Supplier<Table<BitSet, Boolean>> suppliermiRNA = () -> new BiasedTable(2, 0.5, r);
         Table<BitSet,Boolean> b = suppliermiRNA.get();
-        Table<BitSet,Boolean> bb = ConfigurableGenericTable.newInstance(2, b.getRows());
+        Table<BitSet,Boolean> bb = new ConfigurableGenericTable<>(2, b.getRows());
         System.out.println(b == bb);
         System.out.println(b.equals(bb));
         System.out.println(bb.equals(b));

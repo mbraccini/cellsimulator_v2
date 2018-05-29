@@ -15,24 +15,24 @@ import org.jgrapht.graph.DefaultEdge;
 public abstract class AbstractBooleanNetwork<N extends Node> implements BooleanNetwork<N> {
 
 
-	List<N> nodesList = new ArrayList<>();
+	Set<N> nodes = new HashSet<>();
 	protected Map<Integer, List<Integer>> incomingNodesMap = new HashMap<>();
 
 	protected AbstractBooleanNetwork(){ }
 
-	protected AbstractBooleanNetwork(List<N> nodesList, Map<Integer, List<Integer>> map){
-		this.nodesList = nodesList;
+	protected AbstractBooleanNetwork(Set<N> nodes, Map<Integer, List<Integer>> map){
+		this.nodes = nodes;
 		this.incomingNodesMap = map;
 		check();
 	}
 
 
 	/**
-	 * NodesList must have node ids from 0 to N-1
+	 * NODES must have Id from 0 to N-1
 	 */
 	protected void check() {
-		IntStream.range(0, nodesList.size())
-					.forEach(x -> nodesList.stream()
+		IntStream.range(0, nodes.size())
+					.forEach(x -> nodes.stream()
 									.filter(y -> y.getId() == x)
 									.findAny()
 									.orElseThrow(() -> new SimulatorExceptions.NetworkNodeException.BooleanNetworkNodeIdConfigurationException()));
@@ -49,29 +49,29 @@ public abstract class AbstractBooleanNetwork<N extends Node> implements BooleanN
 
 	@Override
 	public Integer getNodesNumber() {
-		return nodesList.size();
+		return nodes.size();
 	}
 
 	@Override
 	public List<N> getNodes() {
-		return nodesList.stream().sorted(Comparator.comparingInt(N::getId)).collect(Collectors.toList());
+		return nodes.stream().sorted(Comparator.comparingInt(N::getId)).collect(Collectors.toList());
 	}
 	
 	@Override
 	public N getNodeByName(String name) {
-		return nodesList.stream().filter(x->x.getName().equals(name)).findFirst().orElseThrow(() -> new SimulatorExceptions.NetworkNodeException.NodeNotPresentException());
+		return nodes.stream().filter(x->x.getName().equals(name)).findFirst().orElseThrow(() -> new SimulatorExceptions.NetworkNodeException.NodeNotPresentException());
 	}
 
 	@Override
 	public N getNodeById(Integer id) {
-		return nodesList.stream().filter(x->x.getId().equals(id)).findFirst().orElseThrow(() -> new SimulatorExceptions.NetworkNodeException.NodeNotPresentException());
+		return nodes.stream().filter(x->x.getId().equals(id)).findFirst().orElseThrow(() -> new SimulatorExceptions.NetworkNodeException.NodeNotPresentException());
 	}
 
 
 	@Override
 	public Graph<N, DefaultEdge> asGraph() {
 		Graph<N, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
-		nodesList.stream().forEach(x -> graph.addVertex(x)); 								//addToTheGraph
+		nodes.stream().forEach(x -> graph.addVertex(x)); 								//addToTheGraph
 		for (Map.Entry<Integer, List<Integer>> incoming : incomingNodesMap.entrySet()) {	//addIncomingNodes
 			for (Integer i: incoming.getValue()) {
 				graph.addEdge(getNodeById(incoming.getKey()), getNodeById(i));
@@ -82,7 +82,7 @@ public abstract class AbstractBooleanNetwork<N extends Node> implements BooleanN
 
 	@Override
 	public List<N> getIncomingNodes(N node) {
-		return incomingNodesMap.get(node.getId()).stream().map(x -> nodesList.get(x)).collect(Collectors.toList());
+		return incomingNodesMap.get(node.getId()).stream().map(id -> getNodeById(id)).collect(Collectors.toList());
 	}
 
 	@Override
@@ -126,7 +126,7 @@ public abstract class AbstractBooleanNetwork<N extends Node> implements BooleanN
 
 
 	@Override
-	public boolean equals(Object o) {
+	public final boolean equals(Object o) {
 		//self check
 		if (this == o)
 			return true;
@@ -140,13 +140,13 @@ public abstract class AbstractBooleanNetwork<N extends Node> implements BooleanN
 			return false;
 
 		AbstractBooleanNetwork<?> that = (AbstractBooleanNetwork<?>) o;
-		return Objects.equals(nodesList, that.nodesList) &&
+		return Objects.equals(getNodes(), that.getNodes()) &&  //perché le liste possono anche avere degli elementi in ordine diverso quel che conta è la incomingNodesMap che deve essere UGUALE
 				Objects.equals(incomingNodesMap, that.incomingNodesMap);
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash( nodesList, incomingNodesMap);
+	public final int hashCode() {
+		return Objects.hash(nodes, incomingNodesMap);
 	}
 }
 

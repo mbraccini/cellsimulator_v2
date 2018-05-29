@@ -57,7 +57,7 @@ public class UtilitiesBooleanNetwork {
                             rows.add(new RowImpl<>(input, false));
                         }
                     }
-                    return ConfigurableGenericTable.newInstance(variablesNumber, rows);
+                    return new ConfigurableGenericTable<>(variablesNumber, rows);
                 };
         return supplierDownstreamNode;
     }

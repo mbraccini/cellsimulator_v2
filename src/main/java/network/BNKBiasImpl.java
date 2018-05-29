@@ -63,11 +63,11 @@ public final class BNKBiasImpl
 
 
     protected void initNodes() {
-        nodesList = IntStream.range(0, nodesNumber)
+        nodes = IntStream.range(0, nodesNumber)
                 .mapToObj(x -> {
                     return new NodeDeterministicImpl<>("gene_" + x, x, tableSupplier.get());
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
     }
 

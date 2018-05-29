@@ -4,9 +4,12 @@ import exceptions.SimulatorExceptions;
 import interfaces.network.BooleanNetwork;
 import interfaces.network.Builder;
 import interfaces.network.Node;
+import interfaces.network.Table;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class AbstractBNBuilder
                     <NODE extends Node,
@@ -17,11 +20,11 @@ public abstract class AbstractBNBuilder
 
         protected Map<Integer, List<Integer>> newTopology;
         protected BN bn;
-        List<NODE> nodes;
+        protected Set<NODE> nodes;
 
         public AbstractBNBuilder(BN bn) {
             this.bn = bn;
-            this.nodes = bn.getNodes();
+            this.nodes = new HashSet<>(bn.getNodes());
             this.newTopology = bn.topology();
         }
 
@@ -30,7 +33,7 @@ public abstract class AbstractBNBuilder
             if (!newTopology.get(targetNodeId).contains(incomingNodeId)){
                 throw new SimulatorExceptions.NetworkNodeException.NodeNotPresentException();
             } else {
-                nodes.stream().filter(x -> x.getId().intValue() == newInputNodeId).findAny().orElseThrow(()->new SimulatorExceptions.NetworkNodeException.NodeNotPresentException());
+                nodes.stream().filter(x -> x.getId().intValue() == newInputNodeId).findAny().orElseThrow(() -> new SimulatorExceptions.NetworkNodeException.NodeNotPresentException());
                 newTopology.get(targetNodeId).set(newTopology.get(targetNodeId).indexOf(incomingNodeId), newInputNodeId);
             }
 

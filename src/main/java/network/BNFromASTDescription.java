@@ -237,7 +237,7 @@ public class BNFromASTDescription implements interfaces.network.Builder<BNClassi
     private void addNodes(int indexNode, List<Integer> indexListToAdd) {
         /*List<NodeDeterministic<BitSet, Boolean>> list = new ArrayList<>();
         for (int i : indexListToAdd) {
-            list.add(nodesList.get(i));
+            list.add(nodes.get(i));
         }*/
         this.nodesMap.put(indexNode, indexListToAdd);
     }
@@ -248,7 +248,8 @@ public class BNFromASTDescription implements interfaces.network.Builder<BNClassi
 
     @Override
     public BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> build() {
-        return new BNClassicImpl<>(nodesList, nodesMap);
+        System.err.println("DA RIVEDERE dopo cambiamento da List a Set");
+        return new BNClassicImpl<>(new HashSet<>(nodesList), nodesMap);
     }
 
 
