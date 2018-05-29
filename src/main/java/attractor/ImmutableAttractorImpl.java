@@ -55,8 +55,18 @@ public class ImmutableAttractorImpl<T extends State> implements ImmutableAttract
     }
 
     @Override
+    public Optional<Integer> getBasinSize() {
+        return info.getBasinSize();
+    }
+
+    @Override
     public Optional<List<Transient<T>>> getTransients() {
         return info.getTransients();
+    }
+
+    @Override
+    public Optional<List<Integer>> getTransientsLengths() {
+        return info.getTransientsLengths();
     }
 
     @Override

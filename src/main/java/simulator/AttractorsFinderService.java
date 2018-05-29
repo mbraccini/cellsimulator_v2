@@ -8,13 +8,14 @@ import interfaces.pipeline.Pipe;
 import interfaces.sequences.Generator;
 import interfaces.state.State;
 import io.vavr.Function2;
+import io.vavr.Function4;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
-public class AttractorsFinderService<T extends State> implements Function2<Generator<T>,Dynamics<T>, Attractors<T>> {
+public class AttractorsFinderService<T extends State> implements Function4<Generator<T>,Dynamics<T>,Boolean,Boolean,Attractors<T>> {
     /* thread pool */
     //final ExecutorService executor;
     /*private Generator<T> generator;
@@ -35,7 +36,7 @@ public class AttractorsFinderService<T extends State> implements Function2<Gener
     }*/
 
     @Override
-    public Attractors<T> apply(Generator<T> generator, Dynamics<T> dynamics) {
+    public Attractors<T> apply(Generator<T> generator, Dynamics<T> dynamics, Boolean basin, Boolean transients) {
         BigInteger combinations = generator.totalNumberOfSamplesToBeGenerated();
         MyCountDownLatch latch = new MyCountDownLatch(combinations);
         Collection<MutableAttractor<T>> mutableAttractors = new ArrayList<>();
@@ -43,7 +44,7 @@ public class AttractorsFinderService<T extends State> implements Function2<Gener
         T state = generator.nextSample();
         while (state != null) {
             try {
-                new AttractorFinderTask<>(state, dynamics, latch, mutableAttractors).call();
+                new AttractorFinderTask<>(state, dynamics, latch, mutableAttractors, basin, transients).call();
             } catch (Exception e) {
                 e.printStackTrace();
             }

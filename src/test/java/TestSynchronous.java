@@ -98,7 +98,7 @@ public class TestSynchronous {
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
 
         /** Sync AttractorsUtility Finder **/
-        Attractors<BinaryState> attractorsFound = new AttractorsFinderService<BinaryState>().apply(generator, dynamics);
+        Attractors<BinaryState> attractorsFound = new AttractorsFinderService<BinaryState>().apply(generator, dynamics, true,false);
 
         System.out.println(attractorsFound);
 
@@ -156,9 +156,24 @@ public class TestSynchronous {
                     System.out.println(att.getBasin().get());
                     assertTrue(att.getBasin().get().getDimension() == 8);
                 }
+            } else {
+                System.out.println("Dimensione bacini SOLO DIMENSIONE-> " + att.getBasinSize().get());
+                if (att.equals(new ImmutableAttractorImpl<>(new MutableAttractorImpl<>(fixed_point_0), 1))) {
+                    assertTrue(att.getBasinSize().get() == 4);
+                } else if (att.equals(new ImmutableAttractorImpl<>(new MutableAttractorImpl<>(fixed_point_1), 3))) {
+                    assertTrue(att.getBasinSize().get() == 4);
+                } else if (att.equals(new ImmutableAttractorImpl<>(new MutableAttractorImpl<>(cyclic_attractor), 2))) {
+                    assertTrue(att.getBasinSize().get() == 8);
+                }
             }
         }
 
+//        attractorsFound.getAttractors().forEach(x -> System.out.println(x.getTransients().get()));
+
+        assertTrue("La dei transitori deve essere 16 ",
+                    attractorsFound.getAttractors().stream()
+                                                    .mapToInt(x -> x.getTransientsLengths().get().size())
+                                                    .sum() == 16);
 
     }
 
@@ -208,7 +223,7 @@ public class TestSynchronous {
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
 
         /** Sync AttractorsUtility Finder **/
-        Attractors<BinaryState> attractorsFound = new AttractorsFinderService<BinaryState>().apply(generator, dynamics);
+        Attractors<BinaryState> attractorsFound = new AttractorsFinderService<BinaryState>().apply(generator, dynamics, true, true);
 
 
         attractorsFound.getAttractors().forEach(System.out::println);

@@ -1,7 +1,5 @@
 package tes;
 
-import dynamic.SynchronousDynamicsImpl;
-import generator.UniformlyDistributedGenerator;
 import interfaces.attractor.Attractors;
 import interfaces.dynamic.Dynamics;
 import interfaces.sequences.Generator;
@@ -13,9 +11,8 @@ import noise.CompletePerturbations;
 import noise.IncompletePerturbations;
 import simulator.AttractorsFinderService;
 import utility.Constant;
-
-import java.math.BigInteger;
 import java.util.Random;
+
 
 public class StaticAnalysisTES {
     private StaticAnalysisTES(){}
@@ -27,7 +24,10 @@ public class StaticAnalysisTES {
      * @return
      */
     public static Attractors<BinaryState> attractors(Generator<BinaryState> generator, Dynamics<BinaryState> dynamics){
-       return new AttractorsFinderService<BinaryState>().apply(generator, dynamics);
+       return new AttractorsFinderService<BinaryState>().apply(generator,
+                                                                dynamics,
+                                                                Constant.BASIN_COMPUTATION_DEFAULT_VALUE,
+                                                                Constant.TRANSIENTS_COMPUTATION_DEFAULT_VALUE);
     }
 
     /**

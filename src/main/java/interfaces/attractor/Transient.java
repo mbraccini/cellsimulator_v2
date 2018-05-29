@@ -1,11 +1,12 @@
 package interfaces.attractor;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface Transient<T> {
 
-    Optional<Stream<T>> getStates();
+    Optional<List<T>> getStates();
 
     Integer getLength();
 }

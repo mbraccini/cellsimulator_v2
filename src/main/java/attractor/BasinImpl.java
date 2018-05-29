@@ -2,9 +2,7 @@ package attractor;
 
 import interfaces.attractor.Basin;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Immutable basin
@@ -14,9 +12,10 @@ public class BasinImpl<T> implements Basin<T>{
 
 
     private Set<T> basin;
-    private Integer basinDimension;
+    private final Integer basinDimension;
 
     public BasinImpl(Set<T> basin) {
+        this(basin.size());
         this.basin = basin;
     }
 
@@ -27,14 +26,11 @@ public class BasinImpl<T> implements Basin<T>{
 
     @Override
     public Optional<Set<T>> getStates() {
-        return Optional.empty();
+        return Optional.of(Collections.unmodifiableSet(basin));
     }
 
     @Override
     public Integer getDimension() {
-        if (Objects.nonNull(basin)) {
-            return basin.size();
-        }
         return basinDimension;
     }
 
