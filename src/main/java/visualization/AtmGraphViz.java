@@ -1,44 +1,52 @@
 package visualization;
 
+import interfaces.attractor.Attractors;
+import interfaces.attractor.ImmutableAttractor;
+import interfaces.state.State;
 import interfaces.tes.Atm;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 
 public class AtmGraphViz implements Writable{
 
-	private Map<Integer, String> mapIdAtmIndex;
+	private final Attractors<?> attractors;
 	private Atm<?> atm;
 	private GraphViz gz;
 	public AtmGraphViz(Atm<?> atm){
 		this.gz = new GraphViz("digraph", "atm");
 		this.atm = atm;
+		this.attractors = atm.getAttractors();
 		init();
 		arcs();
 	}
 
 	private void init() {
-		this.mapIdAtmIndex = new HashMap<>();
-		int index = 0;
-		for(String id : atm.getAttractors().getAttractors().stream().map(x -> x.getId() + "").collect(Collectors.toList())){
-			this.mapIdAtmIndex.put(index++, id);
-			gz.addLine(id + GraphViz.LABEL_START + id + GraphViz.LABEL_END);
+		attractors.getAttractors().forEach(x -> System.out.println(x.getBasinSize()));
+		int max = attractors.getAttractors().stream().mapToInt(x -> x.getBasinSize().get()).max().getAsInt();
+		//int min = attractors.getAttractors().stream().mapToInt(x -> x.getBasinSize().get()).min().getAsInt();
+		for(ImmutableAttractor<?> att: attractors.getAttractors()){
+			double radius = (((double) att.getBasinSize().get()) / max) * 0.8 + 0.2;
+			gz.addLine(att.getId() + GraphViz.LABEL_START + att.getId() + ", shape=circle, fixedsize=true, width=" + radius + GraphViz.LABEL_END);
 		}
 	}
 
 	private void arcs() {
+		double max = 1.0;
 		for (int i = 0; i < this.atm.getMatrix().length; i++) {
 			for (int j = 0; j < this.atm.getMatrix().length; j++) {
 				if (this.atm.getMatrix()[i][j] > 0.0) {
-					gz.addLine(this.mapIdAtmIndex.get(i)
+					gz.addLine(attractors.getAttractors().get(i).getId()
 								+ GraphViz.ARC_START
-								+ this.mapIdAtmIndex.get(j)
+								+ attractors.getAttractors().get(j).getId()
 								+ " "
 								+ GraphViz.LABEL_START
 								+ this.atm.getMatrix()[i][j]
+								+ ", penwidth = " + ((this.atm.getMatrix()[i][j] / max) * 4.0 + 0.1)
 								+ GraphViz.LABEL_END);
 				}
 			}
