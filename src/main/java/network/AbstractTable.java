@@ -76,4 +76,10 @@ public abstract class AbstractTable<K,V> implements Table<K,V> {
 
 		return Objects.hash(variablesNumber, rows, mapRows);
 	}
+
+	@Override
+	public <S,P> Table<S,P> newInstance(int variablesNumber, List<Row<S,P>> rowsToCopy){
+		return new ConfigurableGenericTable<>(variablesNumber,rowsToCopy);
+	}
+
 }

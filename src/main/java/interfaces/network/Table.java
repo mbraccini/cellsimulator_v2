@@ -15,8 +15,11 @@ public interface Table<K,V> { //OK
 	Row<K,V> getRow(Integer index); // with respect to a lexicographical order with leftmost more important
 	
 	Row<K,V> getRowByInput(K input) throws RowNotFoundException; // e.g. "010"
-		
-	/* Mutable */
+
+	<S,P> Table<S,P> newInstance(int variablesNumber, List<Row<S,P>> rowsToCopy);
+
+
+		/* Mutable */
 	
 	/* If we want to change the table, we must recreate it*/
 }

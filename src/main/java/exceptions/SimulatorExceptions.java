@@ -10,6 +10,8 @@ public abstract class SimulatorExceptions extends RuntimeException {
         public static class FunctionTopologyMismatch extends SimulatorExceptions { }
         public static class BooleanNetworkNodeIdConfigurationException extends SimulatorExceptions { }
         public static class IncomingArcAlredyPresent extends SimulatorExceptions { }
+        public static class NodesAndTopologyMismatch extends SimulatorExceptions { }
+
 
 
 

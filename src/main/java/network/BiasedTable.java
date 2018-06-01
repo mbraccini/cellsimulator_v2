@@ -1,10 +1,12 @@
 package network;
 
 import interfaces.network.Row;
+import interfaces.network.Table;
 import states.States;
 import utility.Randomness;
 
 import java.util.BitSet;
+import java.util.List;
 import java.util.Random;
 
 
@@ -38,8 +40,5 @@ public class BiasedTable extends AbstractTable<BitSet, Boolean> {
 
 		}
 	}
-	
-	
-	
 
 }
