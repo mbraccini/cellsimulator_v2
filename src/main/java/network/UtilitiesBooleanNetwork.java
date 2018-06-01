@@ -62,6 +62,26 @@ public class UtilitiesBooleanNetwork {
         return supplierDownstreamNode;
     }
 
+
+    /**
+     * Function that returns an extended table
+     * @return
+     */
+    public static Table<BitSet, Boolean> extendTable(Table<BitSet, Boolean> oldTable, int variablesToAdd, Supplier<Boolean> outputSupplier){
+        int variablesNumber = oldTable.getVariablesNumber() + variablesToAdd;
+        List<Row<BitSet, Boolean>> rows = new ArrayList<>();
+        int rowsNumber = Double.valueOf(Math.pow(2, variablesNumber)).intValue(); //2^(variablesNumber)
+        for (int i = 0; i < rowsNumber; i++) {
+            BitSet input = States.convert(i, variablesNumber);
+            try {
+                rows.add(new RowImpl<>(input, oldTable.getRowByInput(input).getOutput()));
+            } catch (RowNotFoundException e) {
+                rows.add(new RowImpl<>(input, outputSupplier.get()));
+            }
+        }
+        return new ConfigurableGenericTable<>(variablesNumber, rows);
+    }
+
     /**
      * Utility method for generating List of table with exact bias
      * @param nodesNumber
