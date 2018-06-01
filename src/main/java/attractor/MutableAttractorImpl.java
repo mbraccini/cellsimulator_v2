@@ -38,6 +38,9 @@ public class MutableAttractorImpl<T extends State> implements MutableAttractor<T
 
     @Override
     public Optional<Integer> getBasinSize() {
+        if (!Objects.isNull(basin)) {
+            return Optional.of(basin.size());
+        }
         return Optional.of(basinDimension);
     }
 
