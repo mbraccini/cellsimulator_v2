@@ -2,14 +2,7 @@ package visualization;
 
 import interfaces.attractor.Attractors;
 import interfaces.attractor.ImmutableAttractor;
-import interfaces.state.State;
 import interfaces.tes.Atm;
-
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 
 public class AtmGraphViz implements Writable{

@@ -11,6 +11,7 @@ import interfaces.network.NodeDeterministic;
 import interfaces.state.State;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -242,6 +243,21 @@ public class Files {
     public static void writeListsToCsv(List<List<?>> list, String filename) {
         List<String[]> s = list.stream().map(x -> x.stream().map(Object::toString).toArray(String[]::new)).collect(Collectors.toList());
         writeToCsv(s, filename);
+    }
+
+    /**
+     * Writes to .txt
+     * @param list
+     * @param filename
+     */
+    public static void writeListToTxt(List<?> list, String filename){
+        if (!filename.endsWith(".txt")) filename = filename + ".txt";
+        Path file = Paths.get(filename);
+        try {
+            java.nio.file.Files.write(file, list.stream().map(Object::toString).collect(Collectors.toList()), Charset.forName("UTF-8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

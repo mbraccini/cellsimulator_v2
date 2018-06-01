@@ -79,6 +79,11 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 		return Optional.ofNullable(this.occurrencesIntegerMatrix);
 	}
 
+	@Override
+	public String[] header() {
+		return attractors.getAttractors().stream().map(x -> x.getId() + "").toArray(String[]::new);
+	}
+
 	// Convert int[][] to Integer[][]
 	private void matrixIntToInteger() {
 		if (intMatrix != null) {

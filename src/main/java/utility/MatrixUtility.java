@@ -1,5 +1,8 @@
 package utility;
 
+import interfaces.tes.Atm;
+import io.vavr.Tuple2;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -9,6 +12,32 @@ import java.util.stream.Stream;
 public class MatrixUtility {
 
     private MatrixUtility() { }
+
+
+    /**
+     * Reorder an ATM (its matrix and header) with the main diagonal as the key
+     * @param atm
+     * @return
+     */
+    public static Tuple2<Number[][], String[]> reorderByDiagonalValuesATM(Atm<?> atm) {
+        Double[][] m = atm.getMatrixCopy();
+        List<Integer> indices = indicesSortedByDiagonalValues(m);
+        Number[][] newMatrix = new Number[m.length][m.length];
+
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[i].length; j++) {
+                newMatrix[i][j] = m[indices.get(i)][indices.get(j)];
+            }
+        }
+
+        String[] header = atm.header();
+        String[] newHeader = new String[header.length];
+        for (int i = 0; i < header.length; i++) {
+           newHeader[i] = header[indices.get(i)];
+        }
+        return new Tuple2<>(newMatrix, newHeader);
+    }
+
 
     /**
      * Reorder a matrix with the main diagonal as the key

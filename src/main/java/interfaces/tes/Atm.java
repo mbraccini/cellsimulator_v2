@@ -12,8 +12,15 @@ public interface Atm<T extends State> {
 	Attractors<T> getAttractors();
 	
 	Optional<Integer[][]> getOccurrencesMatrix();
-	
+
+	/**
+	 * Returns the header of the ATM (Attractors IDs)
+	 * @return
+	 */
+	String[] header();
+
 	Double[][] getMatrix();
 
 	Double[][] getMatrixCopy();
+
 }
