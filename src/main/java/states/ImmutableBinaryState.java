@@ -169,8 +169,7 @@ public class ImmutableBinaryState implements BinaryState{
 
     @Override
     public String toString() {
-        return "s:" +
-                getStringRepresentation();
+        return  getStringRepresentation();
                 //" <#" + bitsNumber +
                 //'>';
     }

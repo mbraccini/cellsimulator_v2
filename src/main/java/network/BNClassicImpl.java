@@ -4,9 +4,8 @@ import exceptions.SimulatorExceptions;
 import interfaces.network.BNClassic;
 import interfaces.network.NodeDeterministic;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BNClassicImpl<K,V, N extends NodeDeterministic<K,V>> extends AbstractBooleanNetwork<N> implements BNClassic<K,V,N>{
 
@@ -40,7 +39,14 @@ public class BNClassicImpl<K,V, N extends NodeDeterministic<K,V>> extends Abstra
     public String toString() {
         return super.toString()
                 + "\n"
-                + context();
+                + context().context().entrySet()
+                        .stream()
+                        .map(x -> {
+                                List<Integer> incoming = new ArrayList<>(incomingNodesMap.get(x.getKey()));
+                                Collections.reverse(incoming);
+                                return incoming + " | t+1" + "\n" + x.getValue().toString();
+                        })
+                        .collect(Collectors.joining("\n"));
     }
 
 }
