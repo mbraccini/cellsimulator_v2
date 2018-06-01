@@ -29,24 +29,31 @@ public class BNClassicBuilder
      * @return
      * @throws SimulatorExceptions.NetworkNodeException
      */
-    public BNClassicBuilder<K, V, NODE> replaceNode(NODE newNode) throws SimulatorExceptions.NetworkNodeException {
+     public BNClassicBuilder<K, V, NODE> replaceNode(NODE oldNode,NODE newNode) throws SimulatorExceptions.NetworkNodeException {
+         nodes.remove(oldNode);
+         nodes.add(newNode);
+         return self();
+     }
 
-        nodes.stream()
-                .filter(x -> x.getId().equals(newNode.getId()) && x.getName().equals(newNode.getName()))
-                .findFirst()
-                .ifPresentOrElse( old-> tryToReplace(old, newNode), ()-> new SimulatorExceptions.NetworkNodeException.NodeNotPresentException());
 
-        return self();
-    }
-
-    private void tryToReplace(NODE oldNode, NODE newNode) {
-        if (oldNode.getFunction().getVariablesNumber().equals(newNode.getFunction().getVariablesNumber())) {
-            nodes.remove(oldNode);
-            nodes.add(newNode);
-        } else {
-            throw new SimulatorExceptions.NetworkNodeException.FunctionTopologyMismatch();
-        }
-    }
+//    public BNClassicBuilder<K, V, NODE> replaceNode(NODE newNode) throws SimulatorExceptions.NetworkNodeException {
+//
+//        nodes.stream()
+//                .filter(x -> x.getId().equals(newNode.getId()) && x.getName().equals(newNode.getName()))
+//                .findFirst()
+//                .ifPresentOrElse( old-> tryToReplace(old, newNode), ()-> new SimulatorExceptions.NetworkNodeException.NodeNotPresentException());
+//
+//        return self();
+//    }
+//
+//    private void tryToReplace(NODE oldNode, NODE newNode) {
+//       // if (oldNode.getFunction().getVariablesNumber().equals(newNode.getFunction().getVariablesNumber())) {
+//            nodes.remove(oldNode);
+//            nodes.add(newNode);
+//        //} else {
+//         //   throw new SimulatorExceptions.NetworkNodeException.FunctionTopologyMismatch();
+//        //}
+//    }
 
 
     @Override

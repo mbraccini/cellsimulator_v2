@@ -31,19 +31,28 @@ public abstract class AbstractBooleanNetwork<N extends Node> implements BooleanN
 	 * NODES must have Id from 0 to N-1
 	 */
 	protected void check() {
-		IntStream.range(0, nodes.size())
-					.forEach(x -> nodes.stream()
-									.filter(y -> y.getId() == x)
-									.findAny()
-									.orElseThrow(() -> new SimulatorExceptions.NetworkNodeException.BooleanNetworkNodeIdConfigurationException()));
 
-		for (List<Integer> incoming : incomingNodesMap.values()) {   //check that all incoming nodes are distinct, no more than one arc of the same type
+		//check that all nodes in this BN have at least 1 incoming node
+		if (incomingNodesMap.keySet().size() != nodes.size()){
+			throw new SimulatorExceptions.NetworkNodeException.NodesAndTopologyMismatch();
+		}
+
+		//IDs must be from 0 to N-1
+		IntStream.range(0, nodes.size())
+				.forEach(x -> nodes.stream()
+						.filter(y -> y.getId() == x)
+						.findAny()
+						.orElseThrow(() -> new SimulatorExceptions.NetworkNodeException.BooleanNetworkNodeIdConfigurationException()));
+
+		//check that all incoming nodes are distinct, no more than one arc of the same type
+		for (List<Integer> incoming : incomingNodesMap.values()) {
 			if (new HashSet<>(incoming).size() < incoming.size()) {
 				throw new SimulatorExceptions.NetworkNodeException.IncomingArcAlredyPresent();
 			}
 		}
-	}
 
+
+		}
 
 	/* Immutable */
 
