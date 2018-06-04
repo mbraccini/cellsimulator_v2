@@ -4,7 +4,10 @@ import interfaces.dynamic.Dynamics;
 import interfaces.network.*;
 import interfaces.network.BNKBias.BiasType;
 import interfaces.state.BinaryState;
+import network.BNClassicBuilder;
 import network.BooleanNetworkFactory;
+import network.NodeDeterministicImpl;
+import network.UtilitiesBooleanNetwork;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -167,6 +170,43 @@ public class TestBooleanNetworks {
     }
 
 
+    @Test
+    public void TestBuilder() {
+        int nodesNumber = 30;
+        int k = 2;
+        double bias = 0.5;
+
+        while (iterations > 0) {
+            BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> current_bn = BooleanNetworkFactory.newRBN(BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, pureRandomGenerator);
+            //
+            int selfLoopNodeId = pureRandomGenerator.nextInt(nodesNumber);
+            NodeDeterministic<BitSet,Boolean> node = current_bn.getNodeById(selfLoopNodeId);
+
+            current_bn = new BNClassicBuilder<>(current_bn)
+                    .addIncomingNode(node.getId(),node.getId()) //selfloop
+                    .replaceNode(node,
+                            new NodeDeterministicImpl<>("r_" + node.getName(),
+                                    node.getId(),
+                                    UtilitiesBooleanNetwork.extendTable(node.getFunction(),1, () -> true)))
+                    .build();
+            //
+
+            BinaryState s = ImmutableBinaryState.valueOf(nodesNumber, pureRandomGenerator.ints(0, nodesNumber).limit(5).toArray())
+                            .setNodesValue(selfLoopNodeId);
+
+            Dynamics<BinaryState> d = new SynchronousDynamicsImpl(current_bn);
+            BinaryState sNext = d.nextState(s);
+
+
+            /** Tests **/
+            assertTrue("Must be true the node with selfloop and OR function", sNext.getNodeValue(selfLoopNodeId));
+            assertTrue("Must have a selfloop", current_bn.hasSelfLoop());
+            assertTrue("Must have ONE selfloop", current_bn.numberOfNodeWithSelfloops() == 1);
+
+
+            iterations--;
+        }
+    }
 
 
     @Test
