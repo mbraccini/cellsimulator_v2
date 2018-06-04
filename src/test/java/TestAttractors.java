@@ -13,6 +13,7 @@ import network.BooleanNetworkFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import simulator.AttractorsFinderService;
+import states.ImmutableBinaryState;
 import utility.Files;
 
 import java.io.File;
@@ -64,7 +65,7 @@ public class TestAttractors {
         Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics, true, true);
 
 
-        attractors.getAttractors().add(new ImmutableAttractorImpl<BinaryState>(new MutableAttractorImpl<>(List.of(BinaryState.valueOf("0100"))),5));
+        attractors.getAttractors().add(new ImmutableAttractorImpl<BinaryState>(new MutableAttractorImpl<>(List.of(ImmutableBinaryState.valueOf("0100"))),5));
 
         attractors.getAttractors().sort((x, y) -> x.getStates().get(0).compareTo(y.getStates().get(0)));
 
