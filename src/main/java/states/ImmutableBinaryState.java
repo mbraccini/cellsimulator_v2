@@ -1,5 +1,6 @@
 package states;
 
+import exceptions.SyntaxParserException;
 import interfaces.state.BinaryState;
 import interfaces.state.State;
 
@@ -70,6 +71,48 @@ public class ImmutableBinaryState implements BinaryState{
         }
     }
 
+
+    /**
+     * Creates a copy of the state and SET a node.
+     */
+    private ImmutableBinaryState(ImmutableBinaryState binaryState, int bitsNumber, Integer indexToSet) {
+        this(bitsNumber, binaryState);
+        this.state.set(indexToSet);
+    }
+
+    /**
+     * Creates a copy of the state and SET more than one nodes.
+     */
+    private ImmutableBinaryState(ImmutableBinaryState binaryState, int bitsNumber, Integer... indicesToSet) {
+        this(bitsNumber, binaryState);
+        for (Integer index : indicesToSet) {
+            this.state.set(index);
+        }
+    }
+
+    /**
+     * From binary string to BinaryState
+     *
+     * @param binary
+     * @return
+     */
+    public static BinaryState valueOf(String binary) {
+        if (!binary.matches("[0|1]*"))
+            throw new SyntaxParserException("Binary string must contain only 0 and 1 digits!");
+
+        BitSet bitset = new BitSet(binary.length());
+        for (int i = 0; i < binary.length(); i++) {
+            if (binary.charAt(i) == '1') {
+                bitset.set((binary.length() - 1) - i);
+            }
+        }
+        return new ImmutableBinaryState(binary.length(), bitset);
+    }
+
+    public static BinaryState valueOf(int length, int... indicesToOne) {
+        return new ImmutableBinaryState(length, indicesToOne);
+    }
+
     @Override
     public Boolean getNodeValue(Integer index) {
         return this.state.get(index);
@@ -104,6 +147,16 @@ public class ImmutableBinaryState implements BinaryState{
     @Override
     public BinaryState flipNodesValues(Integer... indices) {
         return new ImmutableBinaryState(this.bitsNumber, this, indices);
+    }
+
+    @Override
+    public BinaryState setNodesValue(Integer index) {
+        return new ImmutableBinaryState(this, this.bitsNumber, index);
+    }
+
+    @Override
+    public BinaryState setNodesValues(Integer... indices) {
+        return new ImmutableBinaryState(this, this.bitsNumber, indices);
     }
 
     /*@Override

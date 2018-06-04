@@ -40,43 +40,20 @@ public interface BinaryState extends State {
 
 
     /**
-     * From binary string to BinaryState
-     *
-     * @param binary
+     * Returns a new BinaryState with the specified node with value 1.
+     * @param index
      * @return
      */
-    static BinaryState valueOf(String binary) {
-        if (!binary.matches("[0|1]*"))
-            throw new SyntaxParserException("Binary string must contain only 0 and 1 digits!");
-
-        BitSet bitset = new BitSet(binary.length());
-        for (int i = 0; i < binary.length(); i++) {
-            if (binary.charAt(i) == '1') {
-                bitset.set((binary.length() - 1) - i);
-            }
-        }
-        return new ImmutableBinaryState(binary.length(), bitset);
-    }
-
-
-    static BinaryState valueOf(int length, int... indicesToOne) {
-        return new ImmutableBinaryState(length, indicesToOne);
-    }
-
+    BinaryState setNodesValue(Integer index);
 
     /**
-     * Returns a new BinaryState with the specified nodes with value 1.
+     * Returns a new BinaryState with specified nodes with value 1.
      * @param indices
      * @return
      */
-    //BinaryState setNodesValues(Integer... indices);
+    BinaryState setNodesValues(Integer... indices);
 
 
-    /**
-     * Logical negation of the node.
-     * @param index
-     */
-    //void flipNodeValue(Integer index);
 
     /**
      * Sets to 0 all bits.
@@ -84,9 +61,5 @@ public interface BinaryState extends State {
     //void clear();
 
     //gli altri operatori ANd, or ... solo più avanti se necessari
-    /**
-     * Sets the value of the node.
-     * @param value
-     */
-    //void setNodeValue(T value);
+
 }
