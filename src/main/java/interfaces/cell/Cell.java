@@ -1,20 +1,22 @@
 package interfaces.cell;
 
 import interfaces.dynamic.Dynamics;
+import interfaces.network.BNClassic;
 import interfaces.network.BooleanNetwork;
+import interfaces.network.Node;
 import interfaces.state.State;
 
-import java.util.function.Function;
+public interface Cell<T extends State, B extends BooleanNetwork<? extends Node>>{// extends StateFunction<T>{
 
-public interface Cell<K,V, T extends State> extends StateFunction<T>{
-
-    BooleanNetwork<K,V> getBooleanNetwork();
+    B getBooleanNetwork();
 
     Dynamics<T> getDynamics(); //le cellule di un tessuto avranno la stessa dinamica, settata dal tessuto!
 
     String getName();
 
-    @Override
+    Integer id();
+
+    /*@Override
     default T apply(T t){
         return getDynamics().apply(t);
     }
@@ -23,5 +25,5 @@ public interface Cell<K,V, T extends State> extends StateFunction<T>{
 
     LiveCell<K, V, T> getCustom(StateFunction<T> fun, T initialState);
 
-
+*/
 }

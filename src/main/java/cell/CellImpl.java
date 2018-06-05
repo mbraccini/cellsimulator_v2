@@ -1,42 +1,51 @@
 package cell;
 
+import dynamic.SynchronousDynamicsImpl;
+import utility.RandomnessFactory;
 import interfaces.cell.Cell;
-import interfaces.cell.LiveCell;
-import interfaces.cell.LiveCellImpl;
-import interfaces.cell.StateFunction;
 import interfaces.dynamic.Dynamics;
-import interfaces.network.BooleanNetwork;
-import interfaces.sequences.UnboundedSequence;
+import interfaces.network.*;
+import interfaces.state.BinaryState;
 import interfaces.state.State;
+import network.BooleanNetworkFactory;
 
-import java.util.function.Function;
+import java.util.BitSet;
 
-public class CellImpl<K,V,T extends State> implements Cell<K,V,T>{
+public class CellImpl<T extends State, B extends BooleanNetwork<? extends Node>> implements Cell<T,B>{
 
-    private final BooleanNetwork<K, V> bn;
+    private final B bn;
     private final Dynamics<T> dynamics;
     private final String name;
+    private final Integer id;
 
-    public CellImpl (BooleanNetwork<K, V> bn , Dynamics<T> dynamics, String name) {
+    public CellImpl (B bn, Dynamics<T> dynamics, String name, Integer id) {
         this.bn = bn;
         this.dynamics = dynamics;
         this.name = name;
+        this.id = id;
     }
 
+
     @Override
-    public BooleanNetwork<K, V> getBooleanNetwork() {
+    public B getBooleanNetwork(){
         return bn;
     }
 
     @Override
-    public Dynamics<T> getDynamics() {
+    public Dynamics<T> getDynamics(){
         return dynamics;
     }
 
     @Override
-    public String getName() {
+    public String getName(){
         return name;
     }
+
+    @Override
+    public Integer id(){
+        return id;
+    }
+
 
 
     @Override
@@ -44,20 +53,28 @@ public class CellImpl<K,V,T extends State> implements Cell<K,V,T>{
         return "CellImpl{" +
                 "bn=" + bn +
                 ", dynamics=" + dynamics +
+                ", id=" + id+
                 ", name='" + name + '\'' +
                 '}';
     }
 
+//
+//    @Override
+//    public LiveCell<K, V, T> getDefault(T initialState) {
+//        return new LiveCellImpl<>(getDynamics(), initialState);
+//    }
+//
+//    @Override
+//    public LiveCell<K, V, T> getCustom(StateFunction<T> fun, T initialState) {
+//        return new LiveCellImpl<>(fun, initialState);
+//    }
 
-    @Override
-    public LiveCell<K, V, T> getDefault(T initialState) {
-        return new LiveCellImpl<>(getDynamics(), initialState);
+
+    public static void main(String []a){
+        BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL,BooleanNetworkFactory.SelfLoop.WITHOUT,3,2,0.5,RandomnessFactory.getPureRandomGenerator());
+        Cell<BinaryState, BNClassic<BitSet,Boolean, NodeDeterministic<BitSet,Boolean>>> cell = new CellImpl<>(bn, new SynchronousDynamicsImpl(bn),"First",1);
+
+
     }
-
-    @Override
-    public LiveCell<K, V, T> getCustom(StateFunction<T> fun, T initialState) {
-        return new LiveCellImpl<>(fun, initialState);
-    }
-
 
 }
