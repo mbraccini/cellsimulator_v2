@@ -2,23 +2,25 @@ package generator;
 
 import interfaces.sequences.Generator;
 import interfaces.state.BinaryState;
+import org.apache.commons.math3.random.RandomGenerator;
 import states.ImmutableBinaryState;
 import utility.Randomness;
+import utility.RandomnessFactory;
 
 import java.math.BigInteger;
 import java.util.BitSet;
-import java.util.Random;
+
 
 public class UniformlyDistributedGenerator implements Generator<BinaryState> {
 
     private final int nodesNumber;
-    private final Random random;
+    private final RandomGenerator random;
     private BigInteger start;
     private final BigInteger end;
     private BitSet bitSetState;
     private BinaryState binaryState;
 
-    public UniformlyDistributedGenerator(BigInteger combinations, int nodesNumber, Random randomInstance) {
+    public UniformlyDistributedGenerator(BigInteger combinations, int nodesNumber,RandomGenerator randomInstance) {
         this.nodesNumber = nodesNumber;
         this.start = BigInteger.ZERO;
         this.end = combinations;

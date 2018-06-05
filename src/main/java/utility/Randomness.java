@@ -1,6 +1,7 @@
 package utility;
 
-import java.util.Random;
+import org.apache.commons.math3.random.RandomGenerator;
+
 
 public class Randomness {
     private Randomness() {}
@@ -11,7 +12,7 @@ public class Randomness {
      * @param bias
      * @return
      */
-    public static boolean randomBooleanOutcome(double bias, Random random){
+    public static boolean randomBooleanOutcome(double bias, RandomGenerator random){
         if (random.nextDouble() <= bias) return true;
         return false;
     }

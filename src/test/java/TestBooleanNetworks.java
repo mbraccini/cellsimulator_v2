@@ -1,5 +1,6 @@
 import dynamic.SynchronousDynamicsImpl;
-import generator.RandomnessFactory;
+import org.apache.commons.math3.random.RandomGenerator;
+import utility.RandomnessFactory;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.*;
 import interfaces.network.BNKBias.BiasType;
@@ -16,14 +17,13 @@ import states.ImmutableBinaryState;
 
 import java.util.BitSet;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertTrue;
 
 public class TestBooleanNetworks {
 
-    static Random pureRandomGenerator;
+    static RandomGenerator pureRandomGenerator;
     static int iterations;
 
     @BeforeClass
@@ -132,7 +132,10 @@ public class TestBooleanNetworks {
             final int max = miRNAbn.miRNANodes().size();
             final int miRNAIndexInExam = miRNAbn.miRNANodes().get(pureRandomGenerator.nextInt(max)).getId(); // indice di un miRNA
             // creo stato random
-            int[] indices = pureRandomGenerator.ints(0, miRNAbn.getNodesNumber()).limit(10).toArray();
+            int[] indices = new int[10];
+            for (int i = 0; i < 10; i++) {
+                indices[i] = pureRandomGenerator.nextInt(miRNAbn.getNodesNumber());
+            }
             BinaryState state = new ImmutableBinaryState(miRNAbn.getNodesNumber(), indices);
 
             if (!state.getNodeValue(miRNAIndexInExam)) {
@@ -191,7 +194,11 @@ public class TestBooleanNetworks {
                     .build();
             //
 
-            BinaryState s = ImmutableBinaryState.valueOf(nodesNumber, pureRandomGenerator.ints(0, nodesNumber).limit(5).toArray())
+            int[] indices = new int[5];
+            for (int i = 0; i < 5; i++) {
+                indices[i] = pureRandomGenerator.nextInt(nodesNumber);
+            }
+            BinaryState s = ImmutableBinaryState.valueOf(nodesNumber, indices)
                             .setNodesValue(selfLoopNodeId);
 
             Dynamics<BinaryState> d = new SynchronousDynamicsImpl(current_bn);

@@ -1,7 +1,7 @@
 package experiments.selfLoop;
 
-import generator.RandomnessFactory;
-import interfaces.attractor.Attractors;
+import org.apache.commons.math3.random.RandomGenerator;
+import utility.RandomnessFactory;
 import interfaces.network.BNClassic;
 import interfaces.network.BNKBias;
 import interfaces.network.NodeDeterministic;
@@ -10,7 +10,6 @@ import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
 import io.vavr.Tuple6;
 import network.*;
-import org.jooq.lambda.tuple.Tuple5;
 import utility.Files;
 import utility.GenericUtility;
 import utility.MatrixUtility;
@@ -19,10 +18,8 @@ import visualization.AtmGraphViz;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -63,36 +60,36 @@ public class MainSamplingEvaluateAndThrowAway {
 //            System.err.println("Fornire 2 input [startSelfLoop][stopSelfLoop]");
 //            System.exit(-1);
 //        }
-        System.out.println("MainSamplingEvaluateAndThrowAway 1June2018");
+        System.out.println("MainSamplingEvaluateAndThrowAway 1June2018 - OR_K2");
 
         Object[] o = GenericUtility.fromArgsStringToObjects(args,
                 List.of(Integer.class,
                         Integer.class));
 
-        //int selfLoopStart = (Integer) o[0];
-        //int selfLoopStop = (Integer) o[1];
+//        int selfLoopStart = (Integer) o[0];
+//        int selfLoopStop = (Integer) o[1];
 
         int selfLoopStart = 0;
-        int selfLoopStop = 2;
+        int selfLoopStop = 3;
 
-        Random r = RandomnessFactory.getPureRandomGenerator();
+        RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
         final int k = 2;
-        final int nodesNumber = 3;
+        final int nodesNumber = 8;
         final double bias = 0.5;
 
 
 
         while (selfLoopStart <= selfLoopStop) {
 
-            run(selfLoopStart, nodesNumber, k, bias, SAMPLES_NUMBER, r, NUMBER_OF_ATTRACTORS_LIMIT, EXP_TYPE.OR_K2);
+            run(selfLoopStart, nodesNumber, k, bias, SAMPLES_NUMBER, r, NUMBER_OF_ATTRACTORS_LIMIT, EXP_TYPE.RND_K2_plus_1);
 
             selfLoopStart++;
         }
     }
 
 
-    private static void run(int selfLoop, int nodesNumber, int k, double bias, int samplesForEachAttractorsNumber, Random r, int numberOfAttractorsLimit, EXP_TYPE expType) {
+    private static void run(int selfLoop, int nodesNumber, int k, double bias, int samplesForEachAttractorsNumber, RandomGenerator r, int numberOfAttractorsLimit, EXP_TYPE expType) {
 
         Supplier<Table<BitSet, Boolean>> supplier = () -> new BiasedTable(k, bias, r);
         BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> current_bn;
@@ -137,8 +134,23 @@ public class MainSamplingEvaluateAndThrowAway {
                                                             .build();
                                             break;
                                 case OR_K2_plus_1:
+                                            current_bn = new BNClassicBuilder<>(current_bn)
+                                                            .addIncomingNode(node.getId(),node.getId()) //selfloop
+                                                            .replaceNode(node,
+                                                                            new NodeDeterministicImpl<>("r_" + node.getName(),
+                                                                                                        node.getId(),
+                                                                                                        UtilitiesBooleanNetwork.extendTable(node.getFunction(),1, () -> true)))
+                                                            .build();
                                             break;
                                 case RND_K2_plus_1:
+
+                                            current_bn = new BNClassicBuilder<>(current_bn)
+                                                            .addIncomingNode(node.getId(),node.getId()) //selfloop
+                                                            .replaceNode(node,
+                                                                    new NodeDeterministicImpl<>("r_" + node.getName(),
+                                                                            node.getId(),
+                                                                            UtilitiesBooleanNetwork.extendTable(node.getFunction(),1, () -> r.nextBoolean())))
+                                                            .build();
                                             break;
                             }
 

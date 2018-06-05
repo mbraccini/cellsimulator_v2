@@ -2,6 +2,7 @@ package network;
 
 import exceptions.InputConnectionsException;
 import interfaces.network.*;
+import org.apache.commons.math3.random.RandomGenerator;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -13,7 +14,7 @@ public final class BNKBiasImpl
             extends BNClassicImpl<BitSet,Boolean, NodeDeterministic<BitSet, Boolean>>
             implements BNKBias<BitSet, Boolean,NodeDeterministic<BitSet, Boolean>>{
 
-    private Random random;
+    private RandomGenerator random;
     private  int k;
     private  double bias;
     private  int nodesNumber;
@@ -21,7 +22,7 @@ public final class BNKBiasImpl
     private boolean hasSelfLoop;
     private  Supplier<Table<BitSet, Boolean>> tableSupplier;
 
-    public BNKBiasImpl(int nodesNumber, int k, double bias, Random random, BiasType biasType, boolean hasSelfLoop) {
+    public BNKBiasImpl(int nodesNumber, int k, double bias, RandomGenerator random, BiasType biasType, boolean hasSelfLoop) {
         super();
         this.nodesNumber = nodesNumber;
         this.k = k;

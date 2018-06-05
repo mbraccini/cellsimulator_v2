@@ -8,7 +8,7 @@ import java.util.List;
 
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
-import generator.RandomnessFactory;
+import utility.RandomnessFactory;
 import interfaces.attractor.Attractors;
 import interfaces.network.BNClassic;
 import interfaces.network.NodeDeterministic;

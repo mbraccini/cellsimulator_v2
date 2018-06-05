@@ -2,6 +2,7 @@ package network;
 
 import interfaces.network.Row;
 import interfaces.network.Table;
+import org.apache.commons.math3.random.RandomGenerator;
 import states.States;
 import utility.Randomness;
 
@@ -12,13 +13,13 @@ import java.util.Random;
 
 public class BiasedTable extends AbstractTable<BitSet, Boolean> {
 
-	private final Random random;
+	private final RandomGenerator random;
 	protected double bias;
 	protected int rowsNumber;
 
 
 
-	public BiasedTable(int variableNumber, double bias, Random random) {
+	public BiasedTable(int variableNumber, double bias,RandomGenerator random) {
 		super(variableNumber);
 		this.rowsNumber = Double.valueOf(Math.pow(2, variablesNumber)).intValue(); //2^(variablesNumber)
 		this.bias = bias;

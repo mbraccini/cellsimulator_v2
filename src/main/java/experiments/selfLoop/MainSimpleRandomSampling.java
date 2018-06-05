@@ -1,10 +1,12 @@
 package experiments.selfLoop;
 
-import generator.RandomnessFactory;
-import interfaces.network.BooleanNetwork;
+import org.apache.commons.math3.random.RandomGenerator;
+import utility.RandomnessFactory;
+import interfaces.network.BNClassic;
+import interfaces.network.BNKBias;
+import interfaces.network.NodeDeterministic;
 import interfaces.network.Table;
-import network.BiasedTable;
-import network.BooleanNetworkFactory;
+import network.*;
 import org.jooq.lambda.tuple.Tuple5;
 import utility.Files;
 import utility.GenericUtility;
@@ -18,7 +20,7 @@ import java.util.function.Supplier;
 
 public class MainSimpleRandomSampling {
 
-    public static Tuple5<Double, Double, Double, Double, Integer> extEvaluate(BooleanNetwork<BitSet, Boolean> bn) {
+    public static Tuple5<Double, Double, Double, Double, Integer> extEvaluate(BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn) {
         Double[][] atm = GeneticAlgFitness.simulateBN(bn).getMatrixCopy();
         Number[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
         double[][] doubleSorted = MatrixUtility.fromNumberToDoubleMatrix(sorted);
@@ -37,7 +39,7 @@ public class MainSimpleRandomSampling {
         boolean inputFormTerminal = false;
 
         if (inputFormTerminal) {
-            if (args.length < 6) {
+            if (args.length < 7) {
                 System.exit(-1);
             }
 
@@ -55,13 +57,7 @@ public class MainSimpleRandomSampling {
             int samples = (Integer) o[3];
             long seed = (Long) o[4];
             Integer selfLoop = (Integer) o[5];
-
-        /*int k = 2;
-        int nodesNumber = 5;
-        double bias = 0.5;
-        int samples = 10;
-        long seed = 2;
-        Integer selfLoop = 5;*/
+            Boolean orFunctions = ((Integer) o[6] == 1 ? Boolean.TRUE : Boolean.FALSE);
 
 
             if (selfLoop > nodesNumber) {
@@ -74,27 +70,29 @@ public class MainSimpleRandomSampling {
             System.out.println("SAMPLES: " + samples);
             System.out.println("SEED: " + seed);
             System.out.println("SELF_LOOP: " + selfLoop);
+            System.out.println("OR_FUNCTIONS: " + orFunctions);
 
 
-            Random r = RandomnessFactory.newPseudoRandomGenerator(seed);
+            RandomGenerator r = RandomnessFactory.newPseudoRandomGenerator(seed);
 
-            run(selfLoop, nodesNumber, k, bias, samples, r);
+            run(selfLoop, nodesNumber, k, bias, samples, r, orFunctions);
 
 
         } else {
 
-            Random r = RandomnessFactory.getPureRandomGenerator();
+            RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
             int k = 2;
             int nodesNumber = 15;
             double bias = 0.5;
-            int samples = 10000;
+            int samples = 1;
+            boolean orFunctions = true;
 
             int selfLoop = 0;
 
             while (selfLoop <= nodesNumber) {
 
-                run(selfLoop, nodesNumber, k, bias, samples, r);
+                run(selfLoop, nodesNumber, k, bias, samples, r, orFunctions);
 
                 selfLoop++;
             }
@@ -103,10 +101,10 @@ public class MainSimpleRandomSampling {
     }
 
 
-    private static void run(int selfLoop, int nodesNumber, int k, double bias, int samples, Random r) {
+    private static void run(int selfLoop, int nodesNumber, int k, double bias, int samples, RandomGenerator r, boolean OrFunctions) {
 
         Supplier<Table<BitSet, Boolean>> supplier = () -> new BiasedTable(k, bias, r);
-        BooleanNetwork<BitSet, Boolean> current_bn;
+        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> current_bn;
         int counter = 0;
         Tuple5<Double, Double, Double, Double, Integer> evaluation;
 
@@ -119,34 +117,49 @@ public class MainSimpleRandomSampling {
 
             while (counter < samples) {
                 if (selfLoop == 0) {
-                    current_bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
+                    current_bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
                 } else if (selfLoop == -1) {
                     System.out.println("numero casuale di selfloop");
-                    current_bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITH, nodesNumber, k, bias, r);
+                    current_bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITH, nodesNumber, k, bias, r);
                 } else {
-                    current_bn = BooleanNetworkFactory.newRBN(BooleanNetworkFactory.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
+                    current_bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
 
                     int selfloopsToAdd = 0;
                     while (selfloopsToAdd < selfLoop) {
-                        current_bn.reconfigureIncomingEdge(selfloopsToAdd, selfloopsToAdd, 0);
+                        NodeDeterministic<BitSet,Boolean> node = current_bn.getNodeById(selfloopsToAdd);
+
+                        if (!OrFunctions) {
+                            current_bn = new BNClassicBuilder<>(current_bn)
+                                    .reconfigureIncomingEdge(node.getId(), node.getId(), current_bn.getIncomingNodes(node).get(0).getId())
+                                    .build();
+                        } else {
+                            current_bn = new BNClassicBuilder<>(current_bn)
+                                    .reconfigureIncomingEdge(node.getId(), node.getId(), current_bn.getIncomingNodes(node).get(0).getId())
+                                    //*.replaceNode(new NodeDeterministicImpl<>(node.getName(), node.getId(), new OrTable(node.getFunction().getVariablesNumber())))
+                                    .build();
+                        }
+
                         selfloopsToAdd++;
                     }
-
+                    if (current_bn.numberOfNodeWithSelfloops() != selfLoop) {
+                        throw new RuntimeException("Mismatch in selfloops number, expected" + selfLoop  + ", present " + current_bn.numberOfNodeWithSelfloops());
+                    }
                     System.out.println("numSelfLoop " + current_bn.numberOfNodeWithSelfloops());
                 }
 
-                evaluation = extEvaluate(current_bn);
 
-                Files.writeBooleanNetworkToFile(current_bn, directory + "bn_" + counter);
-
-                String res = counter + ";"
-                        + evaluation.v1() + ";"
-                        + evaluation.v2() + ";"
-                        + evaluation.v3() + ";"
-                        + evaluation.v4() + ";"
-                        + evaluation.v5() + Files.NEW_LINE;
-
-                bw.write(res);
+//                evaluation = extEvaluate(current_bn);
+//
+//                Files.writeBooleanNetworkToFile(current_bn, directory + "bn_" + counter);
+//
+//                String res = counter + ";"
+//                        + evaluation.v1() + ";"
+//                        + evaluation.v2() + ";"
+//                        + evaluation.v3() + ";"
+//                        + evaluation.v4() + ";"
+//                        + evaluation.v5() + Files.NEW_LINE;
+//
+//                bw.write(res);
                 counter++;
             }
 

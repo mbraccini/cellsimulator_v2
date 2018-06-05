@@ -1,6 +1,7 @@
 package network;
 
 import interfaces.network.*;
+import org.apache.commons.math3.random.RandomGenerator;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -17,7 +18,7 @@ public class miRNABNClassicImpl<K, V> extends BNClassicImpl<K,V,NodeDeterministi
 
     private final BNClassic<K,V,NodeDeterministic<K,V>> wrappedBN;
     private final int miRNA_Number;
-    private final Random random;
+    private final RandomGenerator random;
     private final int[] miRNA_FanOut;
     private final Supplier<Table<K, V>> miRNATableSupplier;
     private List<NodeDeterministic<K,V>> miRNAnodesList;
@@ -26,7 +27,7 @@ public class miRNABNClassicImpl<K, V> extends BNClassicImpl<K,V,NodeDeterministi
     private List<NodeDeterministic<K,V>> miRNADownstreamNodesList;
 
 
-    protected miRNABNClassicImpl(int nodesNumber, int miRNA_Number, int[] miRNA_FanOut, BNClassic<K,V,NodeDeterministic<K,V>> wrappedBN, Random random, Supplier<Table<K, V>> miRNATableSupplier, BiFunction<Integer, Table<K, V>, Table<K, V>> supplierDownstreamNode) {
+    protected miRNABNClassicImpl(int nodesNumber, int miRNA_Number, int[] miRNA_FanOut, BNClassic<K,V,NodeDeterministic<K,V>> wrappedBN,RandomGenerator random, Supplier<Table<K, V>> miRNATableSupplier, BiFunction<Integer, Table<K, V>, Table<K, V>> supplierDownstreamNode) {
         super();
         this.wrappedBN = wrappedBN;
         this.miRNA_Number = miRNA_Number;
@@ -46,7 +47,7 @@ public class miRNABNClassicImpl<K, V> extends BNClassicImpl<K,V,NodeDeterministi
                                                                         newInstance(int miRNA_Number,
                                                                                    int[] miRNA_FanOut,
                                                                                    BNClassic<K,V,NodeDeterministic<K,V>> wrappedBN,
-                                                                                   Random random,
+                                                                                    RandomGenerator random,
                                                                                    Supplier<Table<K, V>> miRNATableSupplier,
                                                                                    BiFunction<Integer, Table<K, V>, Table<K, V>> supplierDownstreamNode) {
         /**

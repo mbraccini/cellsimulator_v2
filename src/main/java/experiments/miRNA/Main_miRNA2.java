@@ -1,7 +1,8 @@
 package experiments.miRNA;
 
 import dynamic.SynchronousDynamicsImpl;
-import generator.RandomnessFactory;
+import org.apache.commons.math3.random.RandomGenerator;
+import utility.RandomnessFactory;
 import generator.UniformlyDistributedGenerator;
 import interfaces.attractor.Attractors;
 import interfaces.dynamic.Dynamics;
@@ -35,13 +36,14 @@ public class Main_miRNA2 {
     public static final int NETWORKS_NUMBER = 30;
 
 
-    public static final Random pureRnd = RandomnessFactory.getPureRandomGenerator();
+    public static final RandomGenerator pureRnd = RandomnessFactory.getPureRandomGenerator();
 
     public static void main(String[] args) {
 
         /** pseudorandom generator **/
         long seed = pureRnd.nextLong();
-        Random pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(seed);
+        System.out.println("seed: "+seed);
+        RandomGenerator pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(seed);
 
         int iterations = 0;
         while (iterations < NETWORKS_NUMBER) {
@@ -52,12 +54,13 @@ public class Main_miRNA2 {
 
     }
 
-    public static void oneRun(int iteration, Random r) {
+    public static void oneRun(int iteration, RandomGenerator r) {
 
         String path = "miRNA_" + iteration + Files.FILE_SEPARATOR;
         Files.createDirectories(path);
 
 
+        System.out.println("original");
         /** 0 miRNA -ORIGINAL BN- **/
         String pathBN = path + "originalBN" + Files.FILE_SEPARATOR;
         Files.createDirectories(pathBN);
@@ -71,7 +74,7 @@ public class Main_miRNA2 {
 
         simulate(bn, r, pathBN);
 
-
+        System.out.println("mu1");
         /** 1 miRNA**/
         String path_mu1 = path + "mu1" + Files.FILE_SEPARATOR;
         Files.createDirectories(path_mu1);
@@ -79,6 +82,7 @@ public class Main_miRNA2 {
         BNClassic<BitSet,Boolean, NodeDeterministic<BitSet,Boolean>> miRNA_mu1 = BooleanNetworkFactory.miRNAOneInput(bn, 1, miRNA_FANOUT, r);
         simulate(miRNA_mu1, r, path_mu1);
 
+        System.out.println("mu2");
         /** 2 miRNA**/
         String path_mu2 = path + "mu2" + Files.FILE_SEPARATOR;
         Files.createDirectories(path_mu2);
@@ -86,6 +90,7 @@ public class Main_miRNA2 {
         BNClassic<BitSet,Boolean, NodeDeterministic<BitSet,Boolean>> miRNA_mu2 = BooleanNetworkFactory.miRNAOneInput(bn, 2, miRNA_FANOUT, r);
         simulate(miRNA_mu2, r, path_mu2);
 
+        System.out.println("mu3");
         /** 3 miRNA**/
         String path_mu3 = path + "mu3" + Files.FILE_SEPARATOR;
         Files.createDirectories(path_mu3);
@@ -94,6 +99,7 @@ public class Main_miRNA2 {
         simulate(miRNA_mu3, r, path_mu3);
 
 
+        System.out.println("mu4");
         /** 4 miRNA**/
         String path_mu4 = path + "mu4" + Files.FILE_SEPARATOR;
         Files.createDirectories(path_mu4);
@@ -101,6 +107,7 @@ public class Main_miRNA2 {
         BNClassic<BitSet,Boolean, NodeDeterministic<BitSet,Boolean>> miRNA_mu4 = BooleanNetworkFactory.miRNAOneInput(bn, 4, miRNA_FANOUT, r);
         simulate(miRNA_mu4, r, path_mu4);
 
+        System.out.println("mu5");
         /** 5 miRNA**/
         String path_mu5 = path + "mu5" + Files.FILE_SEPARATOR;
         Files.createDirectories(path_mu5);
@@ -110,13 +117,18 @@ public class Main_miRNA2 {
 
     }
 
-    private static void simulate(BNClassic<BitSet,Boolean, NodeDeterministic<BitSet,Boolean>> bn, Random r, String path) {
+    private static void simulate(BNClassic<BitSet,Boolean, NodeDeterministic<BitSet,Boolean>> bn,RandomGenerator r, String path) {
+        System.out.println("pre-generator");
         Generator<BinaryState> generator = new UniformlyDistributedGenerator(new BigInteger(SAMPLES), bn.getNodesNumber(), r);
+        System.out.println("pre-dynamics");
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
+        System.out.println("pre-attractor-search");
         Attractors<BinaryState> attractors = StaticAnalysisTES.attractors(generator, dynamics);
+        System.out.println("pre-atm-complete-perturbations");
         Atm<BinaryState> atm = StaticAnalysisTES.atmFromCompletePerturbations(attractors,dynamics);
+        System.out.println("pre-atm-differentiation-tree");
         TESDifferentiationTree<BinaryState, Tes<BinaryState>> differentiationTree = StaticAnalysisTES.TESDifferentiationTree(atm, r);
-
+        System.out.println("pre-write-on-disk");
         writeResultsOnDisk(path, bn, atm, attractors, differentiationTree);
     }
 

@@ -1,7 +1,8 @@
 package experiments.miRNA;
 
 import dynamic.SynchronousDynamicsImpl;
-import generator.RandomnessFactory;
+import org.apache.commons.math3.random.RandomGenerator;
+import utility.RandomnessFactory;
 import generator.UniformlyDistributedGenerator;
 import interfaces.attractor.Attractors;
 import interfaces.network.BNClassic;
@@ -14,16 +15,12 @@ import interfaces.tes.Atm;
 import interfaces.tes.TESDifferentiationTree;
 import interfaces.tes.Tes;
 import network.*;
-import noise.CompletePerturbations;
-import simulator.AttractorsFinderService;
 import tes.StaticAnalysisTES;
-import tes.TesCreator;
 import utility.*;
 import visualization.DifferentiationTesTreeGraphViz;
 
 import java.math.BigInteger;
 import java.util.BitSet;
-import java.util.Random;
 
 public class Main_miRNA {
 
@@ -38,13 +35,13 @@ public class Main_miRNA {
     public static final double miRNA_BIAS = 0.5;
     public static final int miRNA_K = 1;
 
-    public static final Random pureRnd = RandomnessFactory.getPureRandomGenerator();
+    public static final RandomGenerator pureRnd = RandomnessFactory.getPureRandomGenerator();
 
     public static void main(String[] args) {
 
         /** pseudorandom generator **/
         long seed = pureRnd.nextLong();
-        Random pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(seed);
+        RandomGenerator pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(seed);
 
         int iterations = 0;
         while (iterations < 30) {
@@ -55,7 +52,7 @@ public class Main_miRNA {
 
     }
 
-    public static void oneRun(int iteration, Random pseudoRandom) {
+    public static void oneRun(int iteration, RandomGenerator pseudoRandom) {
 
         String path = "miRNA_" + iteration + Files.FILE_SEPARATOR;
         Files.createDirectories(path);
@@ -100,7 +97,7 @@ public class Main_miRNA {
         simulate(miRNA_mu10fo5, pseudoRandom, path_mu10fo5);
     }
 
-    private static void simulate(BNClassic<BitSet,Boolean, NodeDeterministic<BitSet,Boolean>> bn, Random pseudoRandom, String path) {
+    private static void simulate(BNClassic<BitSet,Boolean, NodeDeterministic<BitSet,Boolean>> bn,RandomGenerator pseudoRandom, String path) {
         Generator<BinaryState> generator = new UniformlyDistributedGenerator(new BigInteger(SAMPLES), bn.getNodesNumber(), pseudoRandom);
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
         Attractors<BinaryState> attractors = StaticAnalysisTES.attractors(generator, dynamics);

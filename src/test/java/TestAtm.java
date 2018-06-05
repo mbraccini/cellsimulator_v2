@@ -1,6 +1,7 @@
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
-import generator.RandomnessFactory;
+import org.apache.commons.math3.random.RandomGenerator;
+import utility.RandomnessFactory;
 import interfaces.attractor.Attractors;
 import interfaces.network.BNClassic;
 import interfaces.network.NodeDeterministic;
@@ -18,10 +19,9 @@ import utility.Files;
 import utility.GenericUtility;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertTrue;
 
@@ -74,7 +74,7 @@ public class TestAtm {
         String bnFilename = path(rootDirectory
                 + Files.FILE_SEPARATOR
                 + "self_loop_bn_1");
-        Random pseudoRandom;
+        RandomGenerator pseudoRandom;
 
         BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn = BooleanNetworkFactory.newNetworkFromFile(bnFilename);
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
@@ -115,12 +115,14 @@ public class TestAtm {
     @Test
     public void atmSumsOfRows() {
 
-        Random rnd = RandomnessFactory.getPureRandomGenerator();
+        RandomGenerator rnd = RandomnessFactory.getPureRandomGenerator();
         int iterations = 30000;
         while (iterations > 0) {
             int matrixSize = rnd.nextInt(10) + 2;
-            List<Integer> list = rnd.ints(0, 1000).limit(matrixSize * matrixSize).boxed().collect(Collectors.toList());
-
+            List<Integer> list = new ArrayList<>();
+            for (int i = 0; i < matrixSize * matrixSize; i++) {
+                list.add(rnd.nextInt(1000));
+            }
             int[][] a = new int[matrixSize][matrixSize];
 
             int start = 0;

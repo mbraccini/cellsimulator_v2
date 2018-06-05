@@ -9,6 +9,7 @@ import interfaces.attractor.ImmutableAttractor;
 import interfaces.state.State;
 import interfaces.tes.*;
 import io.vavr.Function0;
+import org.apache.commons.math3.random.RandomGenerator;
 
 public class TesCreator<T extends State> implements Function0<TESDifferentiationTree<T, Tes<T>>> {
 
@@ -19,7 +20,7 @@ public class TesCreator<T extends State> implements Function0<TESDifferentiation
 	protected List<ImmutableAttractor<T>> attractorsList;
 	protected Set<String> nameAlreadyUsed = new HashSet<>();
 	private Map<Double, Set<List<Integer>>> chachedThresholdTes;
-	public TesCreator(Atm<T> atm, List<Double> thresholds, Random random) {
+	public TesCreator(Atm<T> atm, List<Double> thresholds,RandomGenerator random) {
 		this(atm, random);
 		this.atmCopy = this.atm.getMatrixCopy();
 		this.thresholds = thresholds;
@@ -31,7 +32,7 @@ public class TesCreator<T extends State> implements Function0<TESDifferentiation
 		Collections.sort(this.thresholds);
 	}
 
-	public TesCreator(Atm<T> atm, Random random) {
+	public TesCreator(Atm<T> atm,RandomGenerator random) {
 		this.atm = atm;
 		this.attractorsList = this.atm.getAttractors().getAttractors();
 		this.nameGenerator = new UniqueNameGenerator(random);
@@ -184,8 +185,8 @@ public class TesCreator<T extends State> implements Function0<TESDifferentiation
 
 		static final String Az_09 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 		static final String Az = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-		private Random rnd;
-		public UniqueNameGenerator(Random rnd) {
+		private RandomGenerator rnd;
+		public UniqueNameGenerator(RandomGenerator rnd) {
 			this.rnd = rnd;
 		}
 

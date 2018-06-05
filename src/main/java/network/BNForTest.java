@@ -1,16 +1,17 @@
 package network;
 
 import dynamic.SynchronousDynamicsImpl;
-import generator.RandomnessFactory;
+import org.apache.commons.math3.random.RandomGenerator;
+import utility.RandomnessFactory;
 import interfaces.network.*;
-import interfaces.state.BinaryState;
+import states.ImmutableBinaryState;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
-public class BNForTest extends AbstractBooleanNetwork<NodeDeterministic<BitSet,Boolean>> implements BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>>{
+public class BNForTest extends BNClassicImpl<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> implements BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>>{
 
 
 	public BNForTest() {
@@ -47,7 +48,7 @@ public class BNForTest extends AbstractBooleanNetwork<NodeDeterministic<BitSet,B
 
 
 	public static void main(String a[]){
-		Random r = RandomnessFactory.getPureRandomGenerator();
+		RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
 		BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> test = new BNForTest();
 		BNKBias<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> test2 = new BNKBiasImpl(3,2,0.5,r,BNKBias.BiasType.EXACT,false);
@@ -66,10 +67,14 @@ public class BNForTest extends AbstractBooleanNetwork<NodeDeterministic<BitSet,B
 				.modifyBooleanFunction(new NodeDeterministicImpl<>(miRNA.getNodeById(1).getName(),1, new OrTable(2)))
 				.build();*/
 
+
+
+
 		BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> test3 = new BNClassicBuilder<>(test)
-				//.modifyBooleanFunction(new NodeDeterministicImpl<>(miRNA.getNodeById(0).getName(),0, new AndTable(2)))
-				//.modifyBooleanFunction(new NodeDeterministicImpl<>(miRNA.getNodeById(2).getName(),2, new AndTable(2)))
-				.build();
+															.reconfigureIncomingEdge(0,0,1)
+															.addIncomingNode(0,3)
+															.replaceNode(test.getNodeById(0), new NodeDeterministicImpl<>("sostituito",0, new OrTable(3)))
+															.build();
 
 		System.out.println(test);
 		System.out.println(test3);
@@ -92,10 +97,10 @@ public class BNForTest extends AbstractBooleanNetwork<NodeDeterministic<BitSet,B
 
 		//System.out.println(bn.newInstance(bn.asGraph()).equals(bn));
 
-		System.out.println(Stream.iterate(BinaryState.valueOf("0011"), new SynchronousDynamicsImpl(test)::nextState).limit(10).collect(Collectors.toList()));
+		System.out.println(Stream.iterate(ImmutableBinaryState.valueOf("0011"), new SynchronousDynamicsImpl(test)::nextState).limit(10).collect(Collectors.toList()));
 
 		System.out.println(new SynchronousDynamicsImpl(test)
-								.nextState(BinaryState.valueOf("0011")
+								.nextState(ImmutableBinaryState.valueOf("0011")
 								));
 	}
 

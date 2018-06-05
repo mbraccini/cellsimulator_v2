@@ -1,10 +1,12 @@
 package network;
 
 import exceptions.RowNotFoundException;
-import interfaces.network.BNKBias;
 import interfaces.network.BNKBias.BiasType;
 import interfaces.network.Row;
 import interfaces.network.Table;
+import org.apache.commons.math3.random.JDKRandomGenerator;
+import org.apache.commons.math3.random.RandomAdaptor;
+import org.apache.commons.math3.random.RandomGenerator;
 import states.States;
 
 import java.util.*;
@@ -24,7 +26,7 @@ public class UtilitiesBooleanNetwork {
      * @param r
      * @return
      */
-    public static Supplier<Table<BitSet, Boolean>> rndTableSupplier(BiasType biasType, int nodesNumber, int k, double bias, Random r) {
+    public static Supplier<Table<BitSet, Boolean>> rndTableSupplier(BiasType biasType, int nodesNumber, int k, double bias, RandomGenerator r) {
         Supplier<Table<BitSet, Boolean>> supplier;
 
         if (biasType == BiasType.EXACT) {
@@ -90,7 +92,7 @@ public class UtilitiesBooleanNetwork {
      * @param r
      * @return
      */
-    public static List<Table<BitSet, Boolean>> exactBiasNodesGenerator(int nodesNumber, int k, double bias, Random r) {
+    public static List<Table<BitSet, Boolean>> exactBiasNodesGenerator(int nodesNumber, int k, double bias,RandomGenerator r) {
         List<Table<BitSet, Boolean>> list = new ArrayList<>();
         int outcomesForTruthTable = Double.valueOf(Math.pow(2, k)).intValue(); //2^(variablesNumber)
         int totalOutcomesNumber = nodesNumber * outcomesForTruthTable;
@@ -109,7 +111,7 @@ public class UtilitiesBooleanNetwork {
      * @param randomInstance
      * @return
      */
-    public static List<Boolean> generateExactBiasOutcomes(int totalOutcomesNumber, double bias, Random randomInstance) {
+    public static List<Boolean> generateExactBiasOutcomes(int totalOutcomesNumber, double bias, RandomGenerator randomInstance) {
         List<Boolean> outcomeList;
 
         int ones = (int) Math.round((totalOutcomesNumber) * bias);
@@ -118,7 +120,7 @@ public class UtilitiesBooleanNetwork {
         outcomeList = new ArrayList<Boolean>(Collections.nCopies(ones, true));
         outcomeList.addAll(new ArrayList<Boolean>(Collections.nCopies(zeros, false)));
 
-        Collections.shuffle(outcomeList, randomInstance);
+        Collections.shuffle(outcomeList, new RandomAdaptor(randomInstance));
         return outcomeList;
     }
 }

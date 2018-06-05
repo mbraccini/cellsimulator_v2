@@ -1,17 +1,15 @@
 package network;
 
-import exceptions.RowNotFoundException;
-import generator.RandomnessFactory;
+import org.apache.commons.math3.random.RandomGenerator;
+import utility.RandomnessFactory;
 import interfaces.network.BNKBias;
 import interfaces.network.BNKBias.BiasType;
 
 import interfaces.network.*;
 
 import interfaces.networkdescription.NetworkAST;
-import states.States;
 
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 
@@ -53,7 +51,7 @@ public class BooleanNetworkFactory {
                                                                                         int miRNA_K,
                                                                                         double miRNA_bias,
                                                                                         int miRNA_FanOut,
-                                                                                        Random r) {
+                                                                                        RandomGenerator r) {
 
         Supplier<Table<BitSet, Boolean>> suppliermiRNA = () -> new BiasedTable(miRNA_K, miRNA_bias, r);
 
@@ -82,7 +80,7 @@ public class BooleanNetworkFactory {
             NodeDeterministic<BitSet,Boolean>> miRNAOneInput(BNClassic<BitSet, Boolean,NodeDeterministic<BitSet,Boolean>> wrappedBN,
                                                                     int miRNA_NodesNumber,
                                                                     int miRNA_FanOut,
-                                                                    Random r) {
+                                                                    RandomGenerator r) {
 
         Supplier<Table<BitSet, Boolean>> suppliermiRNA = () -> new OrTable(1);
 
@@ -116,7 +114,7 @@ public class BooleanNetworkFactory {
      * @param r
      * @return
      */
-    public static BNKBias<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> newRBN(BiasType biasType, SelfLoop selfLoop, int nodesNumber, int k, double bias, Random r) {
+    public static BNKBias<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> newRBN(BiasType biasType, SelfLoop selfLoop, int nodesNumber, int k, double bias,RandomGenerator r) {
         Supplier<Table<BitSet, Boolean>> supplier;
 
         if (biasType == BiasType.EXACT) {
@@ -139,7 +137,7 @@ public class BooleanNetworkFactory {
 
 
     public static void main(String[] args) {
-        Random pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(1222);
+        RandomGenerator pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(1222);
         System.out.println(BooleanNetworkFactory.newRBN(BiasType.CLASSICAL, SelfLoop.WITH,10, 2, 0.5 , pseudoRandom));
 
     }

@@ -10,7 +10,8 @@ import attractor.ImmutableAttractorImpl;
 import attractor.MutableAttractorImpl;
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
-import generator.RandomnessFactory;
+import org.apache.commons.math3.random.RandomGenerator;
+import utility.RandomnessFactory;
 import generator.UniformlyDistributedGenerator;
 import interfaces.attractor.*;
 import interfaces.network.NodeDeterministic;
@@ -179,7 +180,7 @@ public class TestSynchronous {
 
     @Test
     public void ifStatesAreDifferent() {
-        Random rnd = RandomnessFactory.newPseudoRandomGenerator(10);
+        RandomGenerator rnd = RandomnessFactory.newPseudoRandomGenerator(10);
         BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn = BooleanNetworkFactory.newRBN(BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, 50, 3, 0.7, rnd);
 
 

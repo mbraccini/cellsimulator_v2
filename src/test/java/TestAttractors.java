@@ -2,7 +2,7 @@ import attractor.ImmutableAttractorImpl;
 import attractor.MutableAttractorImpl;
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
-import generator.RandomnessFactory;
+import utility.RandomnessFactory;
 import interfaces.attractor.Attractors;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BNClassic;
@@ -19,7 +19,7 @@ import utility.Files;
 import java.io.File;
 import java.util.BitSet;
 import java.util.List;
-import java.util.Random;
+import org.apache.commons.math3.random.RandomGenerator;
 
 public class TestAttractors {
 
@@ -34,7 +34,7 @@ public class TestAttractors {
         return file.getAbsolutePath();
     }
 
-    static Random pureRandomGenerator;
+    static RandomGenerator pureRandomGenerator;
 
     @BeforeClass
     public static void initializationRunOnce() {

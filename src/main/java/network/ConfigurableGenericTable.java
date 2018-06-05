@@ -1,13 +1,12 @@
 package network;
 
-import generator.RandomnessFactory;
+import org.apache.commons.math3.random.RandomGenerator;
+import utility.RandomnessFactory;
 import interfaces.network.Row;
 import interfaces.network.Table;
-import states.States;
 
 import java.util.BitSet;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Supplier;
 
 public class ConfigurableGenericTable<K,V> extends AbstractTable<K,V>{
@@ -35,7 +34,7 @@ public class ConfigurableGenericTable<K,V> extends AbstractTable<K,V>{
     }
 
     public static void main(String args[]) {
-        Random r = RandomnessFactory.getPureRandomGenerator();
+        RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
         Supplier<Table<BitSet, Boolean>> suppliermiRNA = () -> new BiasedTable(2, 0.5, r);
         Table<BitSet,Boolean> b = suppliermiRNA.get();
         Table<BitSet,Boolean> bb = new ConfigurableGenericTable<>(2, b.getRows());

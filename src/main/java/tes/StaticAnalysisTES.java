@@ -9,9 +9,9 @@ import interfaces.tes.TESDifferentiationTree;
 import interfaces.tes.Tes;
 import noise.CompletePerturbations;
 import noise.IncompletePerturbations;
+import org.apache.commons.math3.random.RandomGenerator;
 import simulator.AttractorsFinderService;
 import utility.Constant;
-import java.util.Random;
 
 
 public class StaticAnalysisTES {
@@ -54,7 +54,7 @@ public class StaticAnalysisTES {
                                                        Dynamics<BinaryState> dynamics,
                                                        Integer percentageStatesToPerturb,
                                                        Integer percentageNodesToPerturb,
-                                                       Random r){
+                                                                  RandomGenerator r){
         return new IncompletePerturbations().apply(attractors, dynamics,percentageStatesToPerturb, percentageNodesToPerturb, Constant.PERTURBATIONS_CUTOFF,r);
     }
 
@@ -64,7 +64,7 @@ public class StaticAnalysisTES {
      * @param r
      * @return
      */
-    public static TESDifferentiationTree<BinaryState, Tes<BinaryState>> TESDifferentiationTree(Atm<BinaryState> atm, Random r){
+    public static TESDifferentiationTree<BinaryState, Tes<BinaryState>> TESDifferentiationTree(Atm<BinaryState> atm, RandomGenerator r){
         return new TesCreator<>(atm, r).apply();
     }
 

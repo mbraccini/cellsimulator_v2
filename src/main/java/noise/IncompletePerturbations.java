@@ -8,9 +8,9 @@ import interfaces.dynamic.Dynamics;
 import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
 import io.vavr.Function6;
+import org.apache.commons.math3.random.RandomGenerator;
 import tes.AtmImpl;
 import java.util.List;
-import java.util.Random;
 
 /**
  * This class permits to instantiate objects to performs the incomplete version of the perturbations; this class
@@ -21,7 +21,7 @@ import java.util.Random;
  *
  */
 public class IncompletePerturbations implements Function6<Attractors<BinaryState>, Dynamics<BinaryState>, Integer,
-		Integer, Integer,Random, Atm<BinaryState>> {
+		Integer, Integer,RandomGenerator, Atm<BinaryState>> {
 	
 	
 	// gli attrattori li guardiamo tutti -> 100%
@@ -32,7 +32,7 @@ public class IncompletePerturbations implements Function6<Attractors<BinaryState
 								  Dynamics<BinaryState> dynamics,
 								  Integer percentageStatesToPerturb,
 								  Integer percentageNodesToPerturb,
-								  Integer cutoff, Random pseudoRandomInstance){
+								  Integer cutoff,RandomGenerator pseudoRandomInstance){
 		if (attractors.numberOfAttractors() == 0) {
 			throw new EmptyAttractorsList();
 		}
