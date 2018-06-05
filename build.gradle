@@ -25,8 +25,9 @@ dependencies {
     compile group: 'org.jooq', name: 'jool', version: jooqVersion
     compile group: 'io.vavr', name:'vavr', version: vavrVersion
     compile group: 'com.google.guava', name: 'guava', version: guavaVersion
+    compile group: 'org.jgrapht', name: 'jgrapht-core', version: jgraphtVersion
 
-    //compile group: 'org.renjin', name:'renjin-script-engine', version: renjinVersion
+
 
 }
 
@@ -41,35 +42,11 @@ test {
 
 
 //create a single Jar with all dependencies
-/*task fatJar(type: Jar) {
-    manifest {
-        attributes 'Implementation-Title': 'miRNA',
-                'Implementation-Version': '1.0',
-                'Main-Class': 'experiments.miRNA.Main_miRNA'
-    }
-    baseName = project.name + '-all'
-    from(configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) })
-            {
-                // remove all signature files
-                exclude "META-INF/*.SF"
-                exclude "META-INF/*.DSA"
-                exclude "META-INF/*.RSA"
-                exclude 'build'
-                exclude '.gradle'
-                exclude 'build.gradle'
-                exclude 'gradle'
-                exclude 'gradlew'
-                exclude 'gradlew.bat'
-            }
-    with jar
-}*/
-
-//create a single Jar with all dependencies
 task fatJar(type: Jar) {
     manifest {
-        attributes 'Implementation-Title': 'Multi',
-                'Implementation-Version': '2.0',
-                'Main-Class': 'experiments.selfLoop.MainSamplingEvaluateAndThrowAway'
+        attributes  'Implementation-Title': jarTitle,
+                    'Implementation-Version': jarVersion,
+                    'Main-Class': jarMain
     }
     baseName = project.name + '-all'
     from(configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) })

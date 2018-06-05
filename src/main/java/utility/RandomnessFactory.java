@@ -17,7 +17,7 @@ public class RandomnessFactory {
     }
 
     public static RandomGenerator newPseudoRandomGenerator(long seed) {
-        return new MersenneTwister(seed);
+        return new MersenneTwister(seed & Long.MAX_VALUE);
     }
-
+    
 }
