@@ -1,5 +1,6 @@
 package network;
 
+import experiments.selfLoop.MainSelfLoopsStatisticsNumberOfAttractors;
 import org.apache.commons.math3.random.RandomGenerator;
 import utility.RandomnessFactory;
 import interfaces.network.BNKBias;
@@ -134,6 +135,75 @@ public class BooleanNetworkFactory {
     }
 
 
+    public enum WIRING_TYPE {
+        RND_K_FIXED, RND_K_plus_1, OR_K_FIXED, OR_K_plus_1
+    }
+
+    /**
+     *
+     * @param k
+     * @param bias
+     * @param nodesNumber
+     * @param r
+     * @param selfLoop
+     * @param wiringType
+     * @return
+     */
+    public static BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> newBNwithSelfLoop(int k, double bias, int nodesNumber, RandomGenerator r, int selfLoop, WIRING_TYPE wiringType) {
+        Supplier<Table<BitSet, Boolean>> supplier = () -> new BiasedTable(k, bias, r);
+        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> current_bn;
+
+        if (selfLoop == 0) {
+            current_bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
+        } else {
+            current_bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
+
+            int selfloopsToAdd = 0;
+            while (selfloopsToAdd < selfLoop) {
+                NodeDeterministic<BitSet, Boolean> node = current_bn.getNodeById(selfloopsToAdd);
+                switch (wiringType) {
+                    case OR_K_FIXED:
+                        current_bn = new BNClassicBuilder<>(current_bn)
+                                .reconfigureIncomingEdge(node.getId(), node.getId(), current_bn.getIncomingNodes(node).get(0).getId())
+                                .replaceNode(node, new NodeDeterministicImpl<>("r_" + node.getName(), node.getId(), new OrTable(node.getFunction().getVariablesNumber())))
+                                .build();
+                        break;
+                    case RND_K_FIXED:
+                        current_bn = new BNClassicBuilder<>(current_bn)
+                                .reconfigureIncomingEdge(node.getId(), node.getId(), current_bn.getIncomingNodes(node).get(0).getId())
+                                .build();
+                        break;
+                    case OR_K_plus_1:
+                        current_bn = new BNClassicBuilder<>(current_bn)
+                                .addIncomingNode(node.getId(), node.getId()) //selfloop
+                                .replaceNode(node,
+                                        new NodeDeterministicImpl<>("r_" + node.getName(),
+                                                node.getId(),
+                                                UtilitiesBooleanNetwork.extendTable(node.getFunction(), 1, () -> true)))
+                                .build();
+                        break;
+                    case RND_K_plus_1:
+
+                        current_bn = new BNClassicBuilder<>(current_bn)
+                                .addIncomingNode(node.getId(), node.getId()) //selfloop
+                                .replaceNode(node,
+                                        new NodeDeterministicImpl<>("r_" + node.getName(),
+                                                node.getId(),
+                                                UtilitiesBooleanNetwork.extendTable(node.getFunction(), 1, () -> r.nextBoolean())))
+                                .build();
+                        break;
+                }
+
+                selfloopsToAdd++;
+            }
+        }
+
+        if (current_bn.numberOfNodeWithSelfloops() != selfLoop) {
+            throw new RuntimeException("Mismatch in selfloops number, expected" + selfLoop + ", present " + current_bn.numberOfNodeWithSelfloops());
+        }
+
+        return current_bn;
+    }
 
 
     public static void main(String[] args) {
