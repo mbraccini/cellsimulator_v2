@@ -26,15 +26,11 @@ import java.util.stream.IntStream;
 
 public class MainSamplingEvaluateAndThrowAway {
 
-    private enum EXP_TYPE {
-        RND_K2, RND_K2_plus_1, OR_K2, OR_K2_plus_1
-    }
-
     public static final int SAMPLES_NUMBER = 30; //for each number of attractors
     public static final int NUMBER_OF_ATTRACTORS_LIMIT = 20;
 
 
-    public static Tuple6<Double, Double, Double, Double, Atm<BinaryState>, List<Double>> extEvaluate(BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn) {
+    public static Tuple6<Double, Double, Double, Double, Atm<BinaryState>, List<Double>> extEvaluate(BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn) {
         Atm<BinaryState> atmObj = GeneticAlgFitness.simulateBN(bn);
         Double[][] atm = atmObj.getMatrixCopy();
         Number[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
@@ -56,46 +52,48 @@ public class MainSamplingEvaluateAndThrowAway {
 
     public static void main(String[] args) {
 
-        if (args.length < 2) {
+        /*if (args.length < 2) {
             System.err.println("Fornire 2 input [startSelfLoop][stopSelfLoop]");
             System.exit(-1);
-        }
-        System.out.println("MainSamplingEvaluateAndThrowAway 1June2018 - RND_K2_plus_1");
+        }*/
+        System.out.println("MainSamplingEvaluateAndThrowAway - 20 nodi da 0 a 15 self-loop");
 
-        Object[] o = GenericUtility.fromArgsStringToObjects(args,
+        /*Object[] o = GenericUtility.fromArgsStringToObjects(args,
                 List.of(Integer.class,
                         Integer.class));
+        */
+        //int selfLoopStart = (Integer) o[0];
+        //int selfLoopStop = (Integer) o[1];
 
-        int selfLoopStart = (Integer) o[0];
-        int selfLoopStop = (Integer) o[1];
-
-//        int selfLoopStart = 0;
-//        int selfLoopStop = 3;
+        int selfLoopStart = 0;
+        int selfLoopStop = 15;
 
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
         final int k = 2;
-        final int nodesNumber = 15;
+        final int nodesNumber = 20;
         final double bias = 0.5;
 
 
+        //4 casi
+        for (BooleanNetworkFactory.WIRING_TYPE wiringType : BooleanNetworkFactory.WIRING_TYPE.values()) {
+            String directory = wiringType + Files.FILE_SEPARATOR;
+            Files.createDirectories(directory);
 
-        while (selfLoopStart <= selfLoopStop) {
-
-            run(selfLoopStart, nodesNumber, k, bias, SAMPLES_NUMBER, r, NUMBER_OF_ATTRACTORS_LIMIT, EXP_TYPE.RND_K2_plus_1);
-
-            selfLoopStart++;
+            while (selfLoopStart <= selfLoopStop) {
+                run(selfLoopStart, nodesNumber, k, bias, SAMPLES_NUMBER, r, NUMBER_OF_ATTRACTORS_LIMIT, wiringType, directory);
+                selfLoopStart++;
+            }
+            selfLoopStart = 0;
         }
     }
 
 
-    private static void run(int selfLoop, int nodesNumber, int k, double bias, int samplesForEachAttractorsNumber, RandomGenerator r, int numberOfAttractorsLimit, EXP_TYPE expType) {
+    private static void run(int selfLoop, int nodesNumber, int k, double bias, int samplesForEachAttractorsNumber, RandomGenerator r, int numberOfAttractorsLimit, BooleanNetworkFactory.WIRING_TYPE wiringType, String folder) {
+        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> current_bn = null;
+        Tuple6<Double, Double, Double, Double, Atm<BinaryState>, List<Double>> evaluation;
 
-        Supplier<Table<BitSet, Boolean>> supplier = () -> new BiasedTable(k, bias, r);
-        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> current_bn;
-        Tuple6<Double, Double, Double, Double,Atm<BinaryState>, List<Double>> evaluation;
-
-        String directory = selfLoop + Files.FILE_SEPARATOR;
+        String directory = folder + selfLoop + Files.FILE_SEPARATOR;
         Files.createDirectories(directory);
 
 
@@ -103,66 +101,21 @@ public class MainSamplingEvaluateAndThrowAway {
 
         int howManyNetworksGenerated = 0;
 
-        try (BufferedWriter mainCSV = new BufferedWriter(new FileWriter(selfLoop + ".csv", true))) {
+        try (BufferedWriter mainCSV = new BufferedWriter(new FileWriter(folder + selfLoop + ".csv", true))) {
 
-            while(numOfAttractorsWeAreAnalyzing <= numberOfAttractorsLimit) {
+            while (numOfAttractorsWeAreAnalyzing <= numberOfAttractorsLimit) {
 
                 int counterSamples = 0;
 
                 while (counterSamples < samplesForEachAttractorsNumber) {
                     if (selfLoop == 0) {
                         current_bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
-                    } else if (selfLoop == -1) {
-                        System.out.println("numero casuale di selfloop");
-                        current_bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITH, nodesNumber, k, bias, r);
                     } else {
-                        current_bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
-
-                        int selfloopsToAdd = 0;
-                        while (selfloopsToAdd < selfLoop) {
-                            NodeDeterministic<BitSet,Boolean> node = current_bn.getNodeById(selfloopsToAdd);
-                            switch (expType){
-                                case OR_K2:
-                                            current_bn = new BNClassicBuilder<>(current_bn)
-                                                            .reconfigureIncomingEdge(node.getId(), node.getId(), current_bn.getIncomingNodes(node).get(0).getId())
-                                                            .replaceNode(node, new NodeDeterministicImpl<>("r_" + node.getName(), node.getId(), new OrTable(node.getFunction().getVariablesNumber())))
-                                                            .build();
-                                            break;
-                                case RND_K2:
-                                            current_bn = new BNClassicBuilder<>(current_bn)
-                                                            .reconfigureIncomingEdge(node.getId(), node.getId(), current_bn.getIncomingNodes(node).get(0).getId())
-                                                            .build();
-                                            break;
-                                case OR_K2_plus_1:
-                                            current_bn = new BNClassicBuilder<>(current_bn)
-                                                            .addIncomingNode(node.getId(),node.getId()) //selfloop
-                                                            .replaceNode(node,
-                                                                            new NodeDeterministicImpl<>("r_" + node.getName(),
-                                                                                                        node.getId(),
-                                                                                                        UtilitiesBooleanNetwork.extendTable(node.getFunction(),1, () -> true)))
-                                                            .build();
-                                            break;
-                                case RND_K2_plus_1:
-
-                                            current_bn = new BNClassicBuilder<>(current_bn)
-                                                            .addIncomingNode(node.getId(),node.getId()) //selfloop
-                                                            .replaceNode(node,
-                                                                    new NodeDeterministicImpl<>("r_" + node.getName(),
-                                                                            node.getId(),
-                                                                            UtilitiesBooleanNetwork.extendTable(node.getFunction(),1, () -> r.nextBoolean())))
-                                                            .build();
-                                            break;
-                            }
-
-                            selfloopsToAdd++;
-                        }
-
-                        //System.out.println("numSelfLoop " + current_bn.numberOfNodeWithSelfloops());
-
+                        current_bn = BooleanNetworkFactory.newBNwithSelfLoop(k, bias, nodesNumber, r, selfLoop, wiringType);
                     }
 
                     if (current_bn.numberOfNodeWithSelfloops() != selfLoop) {
-                        throw new RuntimeException("Mismatch in selfloops number, expected" + selfLoop  + ", present " + current_bn.numberOfNodeWithSelfloops());
+                        throw new RuntimeException("Mismatch in selfloops number, expected" + selfLoop + ", present " + current_bn.numberOfNodeWithSelfloops());
                     }
 
                     evaluation = extEvaluate(current_bn);
@@ -174,11 +127,11 @@ public class MainSamplingEvaluateAndThrowAway {
                         Files.createDirectories(subFolder);
 
                         Files.writeBooleanNetworkToFile(current_bn, subFolder + "bn_" + howManyNetworksGenerated);
-                        Files.writeAttractorsToReadableFile(evaluation._5().getAttractors().getAttractors(),subFolder + "attrctrs_" + howManyNetworksGenerated);
+                        Files.writeAttractorsToReadableFile(evaluation._5().getAttractors().getAttractors(), subFolder + "attrctrs_" + howManyNetworksGenerated);
                         Files.writeListToTxt(List.of(evaluation._6().stream().map(Object::toString).collect(Collectors.joining(" "))), subFolder + "diag_" + howManyNetworksGenerated);
                         new AtmGraphViz(evaluation._5()).saveOnDisk(subFolder + "atm_" + howManyNetworksGenerated);
 
-                        Files.zip(subFolder, subFolder,true); //zip and delete
+                        Files.zip(subFolder, subFolder, true); //zip and delete
 
                         String res = howManyNetworksGenerated + ";"
                                 + evaluation._1() + ";"
@@ -203,7 +156,7 @@ public class MainSamplingEvaluateAndThrowAway {
         }
 
 
-        Files.zip(directory, directory,true); //zip and delete
+        Files.zip(directory, directory, true); //zip and delete
 
     }
 }

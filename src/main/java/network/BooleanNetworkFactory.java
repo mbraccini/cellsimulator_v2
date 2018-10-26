@@ -145,21 +145,21 @@ public class BooleanNetworkFactory {
      * @param bias
      * @param nodesNumber
      * @param r
-     * @param selfLoop
+     * @param selfLoopNumber
      * @param wiringType
      * @return
      */
-    public static BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> newBNwithSelfLoop(int k, double bias, int nodesNumber, RandomGenerator r, int selfLoop, WIRING_TYPE wiringType) {
+    public static BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> newBNwithSelfLoop(int k, double bias, int nodesNumber, RandomGenerator r, int selfLoopNumber, WIRING_TYPE wiringType) {
         Supplier<Table<BitSet, Boolean>> supplier = () -> new BiasedTable(k, bias, r);
         BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> current_bn;
 
-        if (selfLoop == 0) {
+        if (selfLoopNumber == 0) {
             current_bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
         } else {
             current_bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
 
             int selfloopsToAdd = 0;
-            while (selfloopsToAdd < selfLoop) {
+            while (selfloopsToAdd < selfLoopNumber) {
                 NodeDeterministic<BitSet, Boolean> node = current_bn.getNodeById(selfloopsToAdd);
                 switch (wiringType) {
                     case OR_K_FIXED:
@@ -198,8 +198,8 @@ public class BooleanNetworkFactory {
             }
         }
 
-        if (current_bn.numberOfNodeWithSelfloops() != selfLoop) {
-            throw new RuntimeException("Mismatch in selfloops number, expected" + selfLoop + ", present " + current_bn.numberOfNodeWithSelfloops());
+        if (current_bn.numberOfNodeWithSelfloops() != selfLoopNumber) {
+            throw new RuntimeException("Mismatch in selfloops number, expected" + selfLoopNumber + ", present " + current_bn.numberOfNodeWithSelfloops());
         }
 
         return current_bn;
