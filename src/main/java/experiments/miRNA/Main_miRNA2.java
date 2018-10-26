@@ -36,14 +36,10 @@ public class Main_miRNA2 {
     public static final int NETWORKS_NUMBER = 30;
 
 
-    public static final RandomGenerator pureRnd = RandomnessFactory.getPureRandomGenerator();
-
     public static void main(String[] args) {
 
         /** pseudorandom generator **/
-        long seed = pureRnd.nextLong();
-        System.out.println("seed: "+seed);
-        RandomGenerator pseudoRandom = RandomnessFactory.newPseudoRandomGenerator(seed);
+        RandomGenerator pseudoRandom = RandomnessFactory.getPureRandomGenerator();
 
         int iterations = 0;
         while (iterations < NETWORKS_NUMBER) {

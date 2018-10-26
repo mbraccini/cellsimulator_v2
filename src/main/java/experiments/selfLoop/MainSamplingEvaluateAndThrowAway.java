@@ -30,8 +30,8 @@ public class MainSamplingEvaluateAndThrowAway {
         RND_K2, RND_K2_plus_1, OR_K2, OR_K2_plus_1
     }
 
-    public static final int SAMPLES_NUMBER = 2; //for each number of attractors
-    public static final int NUMBER_OF_ATTRACTORS_LIMIT = 2;
+    public static final int SAMPLES_NUMBER = 30; //for each number of attractors
+    public static final int NUMBER_OF_ATTRACTORS_LIMIT = 20;
 
 
     public static Tuple6<Double, Double, Double, Double, Atm<BinaryState>, List<Double>> extEvaluate(BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn) {
@@ -56,26 +56,26 @@ public class MainSamplingEvaluateAndThrowAway {
 
     public static void main(String[] args) {
 
-//        if (args.length < 2) {
-//            System.err.println("Fornire 2 input [startSelfLoop][stopSelfLoop]");
-//            System.exit(-1);
-//        }
-        System.out.println("MainSamplingEvaluateAndThrowAway 1June2018 - OR_K2");
+        if (args.length < 2) {
+            System.err.println("Fornire 2 input [startSelfLoop][stopSelfLoop]");
+            System.exit(-1);
+        }
+        System.out.println("MainSamplingEvaluateAndThrowAway 1June2018 - RND_K2_plus_1");
 
         Object[] o = GenericUtility.fromArgsStringToObjects(args,
                 List.of(Integer.class,
                         Integer.class));
 
-//        int selfLoopStart = (Integer) o[0];
-//        int selfLoopStop = (Integer) o[1];
+        int selfLoopStart = (Integer) o[0];
+        int selfLoopStop = (Integer) o[1];
 
-        int selfLoopStart = 0;
-        int selfLoopStop = 3;
+//        int selfLoopStart = 0;
+//        int selfLoopStop = 3;
 
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
         final int k = 2;
-        final int nodesNumber = 8;
+        final int nodesNumber = 15;
         final double bias = 0.5;
 
 
