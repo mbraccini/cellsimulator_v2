@@ -6,6 +6,7 @@ import interfaces.attractor.Attractors;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.state.State;
 import interfaces.tes.Atm;
+import utility.GenericUtility;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -135,7 +136,7 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 			/* ATM not yet initialized */
 			getMatrix();
 		}
-		Double[][] newAtm = new Double[this.atm.length][this.atm.length];
+		Double[][] newAtm = new Double[this.doubleAtm.length][this.doubleAtm.length];
 		for (int i = 0; i < newAtm.length; i++) {
 			for (int j = 0; j < newAtm.length; j++) {
 				newAtm[i][j] = this.doubleAtm[i][j];
@@ -197,4 +198,11 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 
 	}
 
+	@Override
+	public String toString() {
+		return "AtmImpl{" +
+				" attractors=" + attractors +
+				", doubleAtm=\n" + GenericUtility.matrixToString(doubleAtm) +
+				'}';
+	}
 }
