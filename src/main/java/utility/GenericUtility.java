@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class GenericUtility {
@@ -62,7 +63,21 @@ public class GenericUtility {
         System.out.println("---------------");
     }
 
+    public static String matrixToString(Number[][] matrix){
+        return Arrays.stream(matrix).map(x -> Arrays.toString(x)).collect(Collectors.joining("\n"));
+    }
 
+    public static String matrixToString(double[][] matrix){
+        return Arrays.stream(matrix).map(x -> Arrays.toString(x)).collect(Collectors.joining("\n"));
+    }
+
+    public static String matrixToString(int[][] matrix){
+        return Arrays.stream(matrix).map(x -> Arrays.toString(x)).collect(Collectors.joining("\n"));
+    }
+
+    public static <E> String matrixToString(E[][] matrix){
+        return Arrays.stream(matrix).map(x -> Arrays.toString(x)).collect(Collectors.joining("\n"));
+    }
 
     /**
      * Converts a number in decimal representation to a binary representation with a number of digitNumber digit

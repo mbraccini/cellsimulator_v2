@@ -1,7 +1,7 @@
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
-import utility.RandomnessFactory;
+import utility.*;
 import interfaces.attractor.Attractors;
 import interfaces.network.BNClassic;
 import interfaces.network.NodeDeterministic;
@@ -14,15 +14,15 @@ import noise.CompletePerturbations;
 import org.junit.Test;
 import simulator.AttractorsFinderService;
 import tes.AtmImpl;
-import utility.Constant;
-import utility.Files;
-import utility.GenericUtility;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestAtm {
@@ -138,6 +138,52 @@ public class TestAtm {
 
             iterations --;
         }
+    }
+
+
+
+
+
+    @Test
+    public void TestRelativeStabilityIndex_1() {
+        Double[][] occ =  {  {0.8, 0.2, 0.0},
+                             {0.2, 0.5, 0.3},
+                             {0.2, 0.4, 0.4}
+                          };
+        Atm<?> atm = AtmImpl.newInstance(null, occ);
+        double delta = 0.01;
+        assertArrayEquals("Arrays must be equals", MatrixUtility.stabilityIndexRelativeStabilityJoo(atm), new double[]{1,0.6, 0.1}, delta);
+    }
+
+    @Test
+    public void TestRelativeStabilityIndex_2() {
+        Double[][] occ =    {   {0.8, 0.2},
+                                {0.2,0.8},};
+        Atm<?> atm = AtmImpl.newInstance(null, occ);
+        double delta = 0.01;
+        assertArrayEquals("Arrays must be equals", MatrixUtility.stabilityIndexRelativeStabilityJoo(atm), new double[]{0.8,0.8}, delta);
+    }
+
+    @Test
+    public void TestRelativeStabilityIndex_3() {
+        Double[][] occ =  {  {0.2, 0.8},
+                {1.0,0.0}
+        };
+        Atm<?> atm = AtmImpl.newInstance(null, occ);
+        double delta = 0.01;
+        assertArrayEquals("Arrays must be equals", MatrixUtility.stabilityIndexRelativeStabilityJoo(atm), new double[]{0.4, -0.2}, delta);
+    }
+
+    @Test
+    public void TestRelativeStabilityIndex_4() {
+        Double[][] occ =  {  {0.4, 0.2, 0.4, 0.0},
+                            {0.2, 0.4, 0.0, 0.4},
+                             {0.6, 0.0, 0.2, 0.2},
+                            {0.0, 0.6, 0.2, 0.2},
+        };
+        Atm<?> atm = AtmImpl.newInstance(null, occ);
+        double delta = 0.01;
+        assertArrayEquals("Arrays must be equals", MatrixUtility.stabilityIndexRelativeStabilityJoo(atm), new double[]{0.6, 0.6, 0.0, 0.0}, delta);
     }
 
 }

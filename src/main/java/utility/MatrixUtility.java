@@ -90,4 +90,31 @@ public class MatrixUtility {
         }
         return newM;
     }
+
+    /**
+     * S_A index as defined in the work "Determining Relative Dynamic Stability of Cell States Using Boolean Network Model"
+     * Jae Il Joo, Joseph X. Zhou, Sui Huang & Kwang-Hyun Cho
+     */
+    public static double[] stabilityIndexRelativeStabilityJoo(Atm<?> atm){
+        Double[][] m = atm.getMatrixCopy();
+        double[] sum = new double[m.length];
+
+        // Sommo per colonna
+        for (int j = 0; j < m.length; j++ ) {
+            for (int i = 0; i < m.length; i++) {
+                sum[j] += m[i][j];
+            }
+        }
+        // Sottraggo per riga
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m.length; j++ ) {
+                if (j != i) {
+                    sum[i] -= m[i][j];
+                }
+            }
+        }
+
+        double[] newSum = Arrays.stream(sum).map(a ->  Math.round(a * 100.0) / 100.0).toArray();
+        return newSum;
+    }
 }
