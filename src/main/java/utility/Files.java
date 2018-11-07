@@ -4,6 +4,7 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
+import interfaces.attractor.Attractors;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.network.BNClassic;
 import interfaces.network.BooleanNetwork;
@@ -261,6 +262,7 @@ public class Files {
     }
 
 
+    @Deprecated
     /**
      * Writes an attractors list to a file.
      * @param attractors
@@ -284,6 +286,15 @@ public class Files {
 
 
         Files.writeStringToFileUTF8(filename, writer.toString());
+    }
+
+    /**
+     * Writes attractors to a file.
+     * @param attractors
+     * @param filename
+     */
+    public static <T extends State> void writeAttractorsToReadableFile(final Attractors<T> attractors, final String filename) {
+       Files.writeStringToFileUTF8(filename,  attractors.toString());
     }
 
 

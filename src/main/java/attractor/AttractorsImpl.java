@@ -8,6 +8,7 @@ import interfaces.state.State;
 import java.util.*;
 
 import com.google.common.collect.ImmutableList;
+import utility.Files;
 
 public class AttractorsImpl<T extends State> implements Attractors<T> {
 
@@ -55,7 +56,24 @@ public class AttractorsImpl<T extends State> implements Attractors<T> {
 
     @Override
     public String toString() {
-        return "AttractorsImpl{" + attractors +
-                '}';
+        StringBuilder sb = new StringBuilder();
+        List<T> statesInAttractor;
+        for (ImmutableAttractor<T> attractor : attractors) {
+            statesInAttractor = attractor.getStates();
+            sb.append("[id: " + attractor.getId() + " Attractor] Length= " + attractor.getLength()
+                    + ", BasinSize= " + (attractor.getBasin().isPresent() ? attractor.getBasin().get().getDimension() : "")
+                    + ", MeanTransientsLength= " + (attractor.getTransientsLengths().isPresent() ? String.format("%.2f", attractor.getTransientsLengths().get().stream().mapToInt(x -> x).average().orElseGet(() -> -1)) : "")
+                    + ":"
+                    );
+            sb.append(Files.NEW_LINE);
+
+            for (int i = 0; i < attractor.getLength(); i++) {
+                sb.append("s" + i + ":  " + statesInAttractor.get(i).toString());
+                sb.append(Files.NEW_LINE);
+            }
+            sb.append(Files.NEW_LINE);
+        }
+
+        return sb.toString();
     }
 }
