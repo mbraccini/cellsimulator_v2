@@ -15,6 +15,17 @@ public class GenericUtility {
     private GenericUtility(){ }
 
     /**
+     * Log of "x" in base "base"
+     * @param x
+     * @param base
+     * @return
+     */
+    public static int log(int x, int base)
+    {
+        return (int) (Math.log(x) / Math.log(base));
+    }
+
+    /**
      * Generic print matrix
      * @param matrix
      */

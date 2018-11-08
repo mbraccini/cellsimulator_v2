@@ -94,3 +94,45 @@
 //    }
 //
 //}
+
+
+import dynamic.FrozenNodesDynamicsDecorator;
+import dynamic.SynchronousDynamicsImpl;
+import generator.CompleteGenerator;
+import interfaces.attractor.Attractors;
+import interfaces.dynamic.DecoratingDynamics;
+import interfaces.dynamic.Dynamics;
+import interfaces.network.BNClassic;
+import interfaces.network.BNKBias;
+import interfaces.network.NodeDeterministic;
+import interfaces.sequences.Generator;
+import interfaces.state.BinaryState;
+import io.vavr.Tuple2;
+import network.BooleanNetworkFactory;
+import org.apache.commons.math3.random.RandomGenerator;
+import tes.StaticAnalysisTES;
+import utility.Files;
+import utility.RandomnessFactory;
+
+import java.util.BitSet;
+import java.util.List;
+
+public class Main {
+    public static void main (String [] args) {
+        RandomGenerator r = RandomnessFactory.newPseudoRandomGenerator(2);
+        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn =
+                BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL,BooleanNetworkFactory.SelfLoop.WITHOUT,10, 2, 0.5, r);
+        Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
+
+        Dynamics<BinaryState> dynamics = DecoratingDynamics
+                                            .from(new SynchronousDynamicsImpl(bn))
+                                            .decorate(dyn -> new FrozenNodesDynamicsDecorator(dyn,
+                                                    List.of(0,1)));
+
+        Dynamics<BinaryState> dynamics2 = new SynchronousDynamicsImpl(bn);
+        Attractors<BinaryState> a = StaticAnalysisTES.attractors(generator,dynamics2);
+        System.out.print(a);
+        Files.writeAttractorsToReadableFile(a, "pluto");
+
+    }
+}
