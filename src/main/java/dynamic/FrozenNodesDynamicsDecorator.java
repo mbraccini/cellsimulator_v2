@@ -6,16 +6,19 @@ import interfaces.state.BinaryState;
 import io.vavr.Tuple2;
 import states.ImmutableBinaryState;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
 public class FrozenNodesDynamicsDecorator extends AbstractDynamicsDecorator<BinaryState> implements DecoratingDynamics<BinaryState> {
 
-    private final List<Tuple2<Integer,Boolean>> nodesToFreeze;
+    private final List<Integer> nodesIndicesToFreeze;
+    private final List<Tuple2<Integer,Boolean>> nodesToFreeze = new ArrayList<>();
 
-    public FrozenNodesDynamicsDecorator(Dynamics<BinaryState> dynamics, List<Tuple2<Integer,Boolean>> nodesToFreeze){
+
+    public FrozenNodesDynamicsDecorator(Dynamics<BinaryState> dynamics, List<Integer> nodesIndicesToFreeze){
         super(dynamics);
-        this.nodesToFreeze = nodesToFreeze;
+        this.nodesIndicesToFreeze = nodesIndicesToFreeze;
     }
 
     private BinaryState frozen(BinaryState state){
@@ -31,6 +34,9 @@ public class FrozenNodesDynamicsDecorator extends AbstractDynamicsDecorator<Bina
 
     @Override
     public BinaryState nextState(BinaryState state) {
+        for (Integer idx : nodesIndicesToFreeze){
+            nodesToFreeze.add(new Tuple2<>(idx, state.getNodeValue(idx)));
+        }
         return frozen(dynamics.apply(state));
     }
 }

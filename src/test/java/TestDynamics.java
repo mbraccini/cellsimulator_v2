@@ -13,13 +13,14 @@ import network.BooleanNetworkFactory;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import states.ImmutableBinaryState;
 import utility.RandomnessFactory;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class TestDynamics {
 
@@ -39,24 +40,68 @@ public class TestDynamics {
                 BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL,BooleanNetworkFactory.SelfLoop.WITHOUT,nodesNumber, 3, 0.5, randomInstance);
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
 
-        List<Tuple2<Integer,Boolean>> l = List.of(new Tuple2<>(randomInstance.nextInt(nodesNumber),Boolean.FALSE),
-                                                                new Tuple2<>(randomInstance.nextInt(nodesNumber),Boolean.TRUE),
-                                                                new Tuple2<>(randomInstance.nextInt(nodesNumber),Boolean.FALSE));
+        List<Integer> indicesToFreeze = List.of(randomInstance.nextInt(nodesNumber),
+                                                                randomInstance.nextInt(nodesNumber),
+                                                                randomInstance.nextInt(nodesNumber));
+
+        System.out.println("indicesToFreeze");
+        System.out.println(indicesToFreeze);
+        Dynamics<BinaryState> onlySynchronousUpdate = new SynchronousDynamicsImpl(bn);
 
         Dynamics<BinaryState> dynamics = DecoratingDynamics
                 .from(new SynchronousDynamicsImpl(bn))
-                .decorate(dyn -> new FrozenNodesDynamicsDecorator(dyn,
-                      l));
+                .decorate(dyn -> new FrozenNodesDynamicsDecorator(dyn, indicesToFreeze));
 
+        List<Tuple2<Integer,Boolean>> nodesToFreezeCheck;
+        List<Tuple2<Integer,Boolean>> nodesNOTtoFreezeCheck;
+
+        BinaryState stateTemp;
         //TEST FOR 50 SAMPLES (INTIAL STATES)
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 100; i++) {
+            Boolean firstTimeWeUpdate = Boolean.TRUE;
+            nodesToFreezeCheck = new ArrayList<>();
             BinaryState sample = generator.nextSample();
             //100 STEPS OF UPDATING FOR EACH INITIAL STATE
-            for (int j = 0; j < 100; j++) {
-                sample = dynamics.nextState(sample);
+            /*System.out.println("SAMPLE");
+            System.out.println(sample);*/
+            for (int j = 0; j < 80; j++) {
+                //read nodes that must be frozen
+                if (firstTimeWeUpdate){
+                    for (Integer idxC : indicesToFreeze) {
+                        nodesToFreezeCheck.add(new Tuple2<>(idxC, sample.getNodeValue(idxC)));
+                    }
+                    firstTimeWeUpdate = Boolean.FALSE;
+                }
+                /*System.out.println("toFreeze");
+                System.out.println(nodesToFreezeCheck);*/
 
-                for (Tuple2<Integer,Boolean> t : l) {
-                    assertEquals("Nodes specified by means of the list MUST BE FROZEN (SAME VALUES)",t._2(), sample.getNodeValue(t._1()));
+                stateTemp = sample; //copy of the state
+                /*System.out.println("stateTemp");
+                System.out.println(stateTemp);*/
+                //UPDATE
+                sample = dynamics.nextState(sample);
+                /*System.out.println("sample (AfterUpdateDECORATED)");
+                System.out.println(sample);*/
+                //read nodes that must not freeze
+                nodesNOTtoFreezeCheck = new ArrayList<>();//in every step we must check the nodes that will not be frozen
+                for (int x = 0; x < sample.getLength(); x++) {
+                    if (!indicesToFreeze.contains(x)){
+                        nodesNOTtoFreezeCheck.add(new Tuple2<>(x, sample.getNodeValue(x)));
+                    }
+                }
+                /*System.out.println("NOTtoFreeze");
+                System.out.println(nodesNOTtoFreezeCheck);*/
+                //compare FROZEN nodes
+                for (Tuple2<Integer,Boolean> frozen: nodesToFreezeCheck) {
+                    assertEquals("Nodes specified by means of the list MUST BE FROZEN (SAME VALUES)",frozen._2(), sample.getNodeValue(frozen._1()));
+                }
+
+                stateTemp = onlySynchronousUpdate.nextState(stateTemp);
+                /*System.out.println("stateTemp (AfterUpdateSync)");
+                System.out.println(stateTemp);*/
+                //Check if other nodes (not frozen) remain the same as the sync update
+                for (Tuple2<Integer,Boolean> notFrozen : nodesNOTtoFreezeCheck) {
+                    assertEquals("Nodes NOT FROZEN must be the same with the 2 different updating schemes",notFrozen._2(), stateTemp.getNodeValue(notFrozen._1()));
                 }
             }
         }
