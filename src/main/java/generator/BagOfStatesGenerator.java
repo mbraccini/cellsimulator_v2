@@ -4,15 +4,16 @@ import interfaces.sequences.Generator;
 import interfaces.state.State;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
 public class BagOfStatesGenerator<T extends State> implements Generator<T> {
 
-    final protected Set<T> states;
+    final protected Collection<T> states;
     final private Iterator<T> iterator;
 
-    public BagOfStatesGenerator(Set<T> states){
+    public BagOfStatesGenerator(Collection<T> states){
         this.states = states;
         this.iterator = states.iterator();
     }
