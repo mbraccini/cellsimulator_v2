@@ -1,4 +1,5 @@
 import dynamic.SynchronousDynamicsImpl;
+import experiments.selfLoop.MainSelfLoopsStatisticsNumberOfAttractors;
 import generator.CompleteGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import utility.*;
@@ -186,4 +187,31 @@ public class TestAtm {
         assertArrayEquals("Arrays must be equals", MatrixUtility.stabilityIndexRelativeStabilityJoo(atm), new double[]{0.6, 0.6, 0.0, 0.0}, delta);
     }
 
+
+    @Test
+    public void TestMaxMinDiagonal() {
+        Double[][] occ = {{0.4, 0.2, 0.4, 0.0},
+                            {0.2, 0.4, 0.0, 0.4},
+                                {0.6, 0.0, 0.2, 0.2},
+                                    {0.0, 0.6, 0.2, 0.2},
+        };
+        Double[][] occ1 = {{1.0, 0.2, 0.4, 0.0},
+                {0.2, 0.4, 0.0, 0.4},
+                {0.6, 0.0, 0.2, 0.2},
+                {0.0, 0.6, 0.2, 0.0},
+        };
+        Double[][] occ2 = {{0.0, 0.2},
+                {0.2, 0.0},
+        };
+        assertEquals(0.2, MatrixUtility.retrieveMinMaxDiagonal(occ)._1(),0.001);
+        assertEquals(0.4, MatrixUtility.retrieveMinMaxDiagonal(occ)._2(),0.001);
+
+        assertEquals(0.0, MatrixUtility.retrieveMinMaxDiagonal(occ1)._1(),0.001);
+        assertEquals(1.0, MatrixUtility.retrieveMinMaxDiagonal(occ1)._2(),0.001);
+
+        assertEquals(0.0, MatrixUtility.retrieveMinMaxDiagonal(occ2)._1(),0.001);
+        assertEquals(0.0, MatrixUtility.retrieveMinMaxDiagonal(occ2)._2(),0.001);
+
+
+    }
 }

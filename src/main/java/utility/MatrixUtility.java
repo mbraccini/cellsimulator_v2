@@ -79,6 +79,31 @@ public class MatrixUtility {
         return indices;
     }
 
+    /**
+     * Return the min and max of the matrix's diagonal
+     * @param m matrix
+     * @return
+     */
+    public static Tuple2<Double,Double> retrieveMinMaxDiagonal(Double[][] m){
+        double min = 10;
+        double max = -1;
+
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[i].length; j++) {
+                if (i==j){
+                    if (m[i][j] < min) {
+                        min = m[i][j];
+                    }
+                    if (m[i][j] > max) {
+                        max = m[i][j];
+                    }
+                }
+            }
+        }
+
+        return new Tuple2<>(min,max);
+    }
+
 
     public static double[][] fromNumberToDoubleMatrix(Number[][] m){
         double[][] newM = new double[m.length][];
