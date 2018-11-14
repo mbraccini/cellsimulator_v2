@@ -31,18 +31,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MainFrozenFromAttractorStates {
-    static BigInteger INITIAL_SAMPLES_STATES_NUMBER = BigInteger.valueOf(100000);
+    static BigInteger INITIAL_SAMPLES_STATES_NUMBER = BigInteger.valueOf(1000);
 
     public static void main(String args[]) {
 
-        System.out.println("MainFrozenFromAttractorStates_1000samples");
+        System.out.println("MainFrozenFromAttractorStates_100samples_RNDstates_1000InitialStates");
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
         int numNodes = 50;
         int k = 2;
         double bias = 0.5;
 
-        int SAMPLES = 1000;
+        int SAMPLES = 100;
 
         int[] frozenNodesConfigurations = new int[]{1, 2, 3, 5, 10, 20, 30, 40};
 
@@ -94,9 +94,14 @@ public class MainFrozenFromAttractorStates {
                         .from(dynWildType)
                         .decorate(dyn -> new FrozenNodesDynamicsDecorator(dyn, frozenIndices));
 
+                /****** generator from attractors' states *******/
+                //Set<BinaryState> newInitialStates = attrsWildType.getAttractors().stream().flatMap(a -> a.getStates().stream()).collect(Collectors.toSet());
+                //Generator<BinaryState> genFrozenType = new BagOfStatesGenerator<>(newInitialStates);
+                /****** RND generator ***************************/
+                Generator<BinaryState> genFrozenType = new UniformlyDistributedGenerator(INITIAL_SAMPLES_STATES_NUMBER, bn.getNodesNumber(), r);
+                /****** generator RND + 1 step for each state ***/
+                genFrozenType = new BagOfStatesGenerator<>(Stream.generate(genFrozenType::nextSample).limit(INITIAL_SAMPLES_STATES_NUMBER.intValue()).map(dynWildType::nextState).collect(Collectors.toList()));
 
-                Set<BinaryState> newInitialStates = attrsWildType.getAttractors().stream().flatMap(a -> a.getStates().stream()).collect(Collectors.toSet());
-                Generator<BinaryState> genFrozenType = new BagOfStatesGenerator<>(newInitialStates);
                 Attractors<BinaryState> attrsFrozenType = StaticAnalysisTES.attractors(genFrozenType, dynFrozenType);
                 //SAVING DATA ON DISK
                 resultOnDisk(bn, attrsWildType, attrsFrozenType, configurationPath, samples);

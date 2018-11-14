@@ -29,17 +29,17 @@ public class MainSelfLoopsStatisticsNumberOfAttractors {
 
 
     public static final int SAMPLES_NUMBER = 20000; //for each configuration
-    public static final int FROM_NUMBER_OF_SELFLOOPS = 0;
+    public static final int FROM_NUMBER_OF_SELFLOOPS = 15;
     public static final int TO_NUMBER_OF_SELFLOOPS = 15;
 
 
     public static void main(String[] args) {
-        System.out.println("v3.0");
+        System.out.println("v4.0 OR_K_plus_1");
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
         BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn = null;
 
 
-        for (BooleanNetworkFactory.WIRING_TYPE wiringType : BooleanNetworkFactory.WIRING_TYPE.values()) {
+        for (BooleanNetworkFactory.WIRING_TYPE wiringType : List.of(BooleanNetworkFactory.WIRING_TYPE.OR_K_plus_1)) {
             String directory = wiringType + Files.FILE_SEPARATOR;
             Files.createDirectories(directory);
             String subBNfolder = directory + "BNs" + Files.FILE_SEPARATOR;
@@ -81,7 +81,4 @@ public class MainSelfLoopsStatisticsNumberOfAttractors {
             Files.zip(subBNfolder, subBNfolder,true); //zip and delete
         }
     }
-
-
-
 }
