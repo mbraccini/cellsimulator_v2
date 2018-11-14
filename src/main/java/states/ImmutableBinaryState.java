@@ -75,18 +75,18 @@ public class ImmutableBinaryState implements BinaryState{
     /**
      * Creates a copy of the state and SET a node.
      */
-    private ImmutableBinaryState(ImmutableBinaryState binaryState, int bitsNumber, Integer indexToSet) {
+    private ImmutableBinaryState(ImmutableBinaryState binaryState, int bitsNumber, Boolean value, Integer indexToSet) {
         this(bitsNumber, binaryState);
-        this.state.set(indexToSet);
+        this.state.set(indexToSet, value);
     }
 
     /**
      * Creates a copy of the state and SET more than one nodes.
      */
-    private ImmutableBinaryState(ImmutableBinaryState binaryState, int bitsNumber, Integer... indicesToSet) {
+    private ImmutableBinaryState(ImmutableBinaryState binaryState, int bitsNumber, Boolean value, Integer... indicesToSet) {
         this(bitsNumber, binaryState);
         for (Integer index : indicesToSet) {
-            this.state.set(index);
+            this.state.set(index, value);
         }
     }
 
@@ -151,12 +151,22 @@ public class ImmutableBinaryState implements BinaryState{
 
     @Override
     public BinaryState setNodesValue(Integer index) {
-        return new ImmutableBinaryState(this, this.bitsNumber, index);
+        return new ImmutableBinaryState(this, this.bitsNumber, Boolean.TRUE, index);
     }
 
     @Override
     public BinaryState setNodesValues(Integer... indices) {
-        return new ImmutableBinaryState(this, this.bitsNumber, indices);
+        return new ImmutableBinaryState(this, this.bitsNumber, Boolean.TRUE, indices);
+    }
+
+    @Override
+    public BinaryState setNodesValue(Boolean value, Integer index) {
+        return new ImmutableBinaryState(this, this.bitsNumber, value, index);
+    }
+
+    @Override
+    public BinaryState setNodesValues(Boolean value, Integer... indices) {
+        return new ImmutableBinaryState(this, this.bitsNumber, value, indices);
     }
 
     /*@Override

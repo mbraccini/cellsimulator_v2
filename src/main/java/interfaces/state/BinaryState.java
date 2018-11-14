@@ -53,6 +53,21 @@ public interface BinaryState extends State {
      */
     BinaryState setNodesValues(Integer... indices);
 
+    /**
+     * Returns a new BinaryState with the specified node with value "value".
+     * @param index
+     * @return
+     */
+    BinaryState setNodesValue(Boolean value, Integer index);
+
+    /**
+     * Returns a new BinaryState with specified nodes with value "value".
+     * @param indices
+     * @return
+     */
+    BinaryState setNodesValues(Boolean value, Integer... indices);
+
+
 
 
     /**
