@@ -116,7 +116,7 @@ public class BooleanNetworkFactory {
      * @return
      */
     public static BNKBias<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> newRBN(BiasType biasType, SelfLoop selfLoop, int nodesNumber, int k, double bias,RandomGenerator r) {
-        Supplier<Table<BitSet, Boolean>> supplier;
+        /*Supplier<Table<BitSet, Boolean>> supplier;
 
         if (biasType == BiasType.EXACT) {
             List<Table<BitSet, Boolean>> list = UtilitiesBooleanNetwork.exactBiasNodesGenerator(nodesNumber, k, bias, r);
@@ -124,12 +124,20 @@ public class BooleanNetworkFactory {
             supplier = () -> iterator.next();
         } else {
             supplier = () -> new BiasedTable(k, bias, r);
+        }*/
+
+        TableSupplier<BitSet,Boolean> tableSupplier = null;
+        if (biasType == BiasType.EXACT) {
+            tableSupplier = new TableSupplierExactBias(nodesNumber, k, bias, r);
+        } else {
+            tableSupplier = new TableSupplierClassicalBias(k, bias, r);
         }
 
+
         if (selfLoop == SelfLoop.WITH) {
-            return new BNKBiasImpl(nodesNumber,  k,  bias,  r,  biasType, Boolean.TRUE);
+            return new BNKBiasImpl(nodesNumber,  r, Boolean.TRUE, tableSupplier);
         } else {
-            return new BNKBiasImpl(nodesNumber,  k,  bias,  r,  biasType, Boolean.FALSE);
+            return new BNKBiasImpl(nodesNumber,  r, Boolean.FALSE, tableSupplier);
         }
 
     }

@@ -51,7 +51,7 @@ public class BNForTest extends BNClassicImpl<BitSet,Boolean,NodeDeterministic<Bi
 		RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
 		BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> test = new BNForTest();
-		BNKBias<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> test2 = new BNKBiasImpl(3,2,0.5,r,BNKBias.BiasType.EXACT,false);
+		BNKBias<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> test2 = BooleanNetworkFactory.newRBN(BNKBias.BiasType.EXACT, BooleanNetworkFactory.SelfLoop.WITHOUT, 3, 2,0.5,r);
 		BNClassic<BitSet,Boolean,NodeDeterministic<BitSet,Boolean>> miRNA =
 									BooleanNetworkFactory.miRNANetworkInstance(test,2,2,0.5,1,r);
 

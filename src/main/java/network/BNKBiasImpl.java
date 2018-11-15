@@ -11,26 +11,27 @@ import java.util.stream.IntStream;
 
 
 public final class BNKBiasImpl
-            extends BNClassicImpl<BitSet,Boolean, NodeDeterministic<BitSet, Boolean>>
-            implements BNKBias<BitSet, Boolean,NodeDeterministic<BitSet, Boolean>>{
+        extends BNClassicImpl<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>>
+        implements BNKBias<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> {
 
     private RandomGenerator random;
-    private  int k;
-    private  double bias;
-    private  int nodesNumber;
+    private int k;
+    private double bias;
+    private int nodesNumber;
     private BiasType biasType;
     private boolean hasSelfLoop;
-    private  Supplier<Table<BitSet, Boolean>> tableSupplier;
+    private Supplier<Table<BitSet, Boolean>> tableSupplier;
 
-    public BNKBiasImpl(int nodesNumber, int k, double bias, RandomGenerator random, BiasType biasType, boolean hasSelfLoop) {
+    public BNKBiasImpl(int nodesNumber, RandomGenerator random, boolean hasSelfLoop, TableSupplier<BitSet, Boolean> tableSupplier) {
         super();
+        this.tableSupplier = tableSupplier;
         this.nodesNumber = nodesNumber;
-        this.k = k;
+        this.k = tableSupplier.getVariablesNumber();
         this.random = random;
-        this.biasType = biasType;
-        this.bias = bias;
+        this.biasType = tableSupplier.getBiasType();
+        this.bias = tableSupplier.getBias();
         this.hasSelfLoop = hasSelfLoop;
-        this.tableSupplier = UtilitiesBooleanNetwork.rndTableSupplier(biasType, nodesNumber, k, bias, random);
+        //this.tableSupplier = UtilitiesBooleanNetwork.rndTableSupplier(biasType, nodesNumber, k, bias, random);
 
         configure();
     }
@@ -46,10 +47,11 @@ public final class BNKBiasImpl
 
     /**
      * Invariant
+     *
      * @param hasSelfLoop
      */
     private final void checkNodesNumberInvariant(boolean hasSelfLoop) {
-        if (hasSelfLoop){ //SELFLOOP
+        if (hasSelfLoop) { //SELFLOOP
             if (this.k > this.nodesNumber) {
                 throw new InputConnectionsException("K must be less than #nodes!");
             }
@@ -60,7 +62,6 @@ public final class BNKBiasImpl
         }
 
     }
-
 
 
     protected void initNodes() {
@@ -80,7 +81,7 @@ public final class BNKBiasImpl
             do {
                 int candidate = random.nextInt(this.nodesNumber);
 
-                if (hasSelfLoop){ //SELFLOOP
+                if (hasSelfLoop) { //SELFLOOP
                     if (!list.stream().anyMatch(x -> x == candidate)) {
                         list.add(candidate);
                         nodesAdded++;
@@ -100,15 +101,13 @@ public final class BNKBiasImpl
     }
 
 
-
-
     @Override
     public String toString() {
         return super.toString()
-                    + "\n::K-BIAS-info::"
-                    + "\nk: "+ k
-                    + "\nbias " + bias
-                    + "\n::End K-BIAS-info::";
+                + "\n::K-BIAS-info::"
+                + "\nk: " + k
+                + "\nbias " + bias
+                + "\n::End K-BIAS-info::";
     }
 
     @Override
@@ -120,13 +119,6 @@ public final class BNKBiasImpl
     public BiasType getBiasType() {
         return biasType;
     }
-
-
-
-
-
-
-
 
 
     /**

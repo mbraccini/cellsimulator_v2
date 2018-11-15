@@ -12,6 +12,8 @@ import states.States;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class UtilitiesBooleanNetwork {
     private UtilitiesBooleanNetwork(){}
@@ -122,5 +124,25 @@ public class UtilitiesBooleanNetwork {
 
         Collections.shuffle(outcomeList, new RandomAdaptor(randomInstance));
         return outcomeList;
+    }
+
+
+
+    /**
+     * Utility method for generating Collection of table with k=2 (NON-CANALYZING FUNCTIONS)
+     * @return
+     */
+    public static Collection<Table<BitSet, Boolean>> nonCanalyzingFunctionK2() {
+        List<Table<BitSet, Boolean>> list = new ArrayList<>();
+        //12 configurations, avoiding 1111, 0000, 0110, 1001
+        for (Integer decimalNumber : List.of(1,2,3,4,5,7,8,10,11,12,13,14)) {
+            list.add(new ConfigurableTable(2, States.fromBitSetToBooleans(decimalNumber, 4)));
+        }
+        return list;
+    }
+
+
+    public static List<Boolean> generateRNDOutputTable(int length, RandomGenerator r) {
+        return Stream.generate(r::nextBoolean).limit(length).collect(Collectors.toList());
     }
 }

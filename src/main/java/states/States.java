@@ -1,6 +1,8 @@
 package states;
 
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 
 public class States {
     private States() {
@@ -58,4 +60,25 @@ public class States {
         return bits;
     }
 
+    public static List<Boolean> fromBitSetToBooleans(long value, int numBits){
+        List<Boolean> l = new ArrayList<>();
+        int index = 0;
+        while (value != 0L) {
+            if (value % 2L != 0) {
+                l.add(Boolean.TRUE);
+            } else {
+                l.add(Boolean.FALSE);
+            }
+            ++index;
+            value = value >>> 1;
+        }
+
+        if (l.size() < numBits) { //trailing zeros
+            int n = numBits - l.size();
+            for (int i = 0; i < n; i++) {
+                l.add(Boolean.FALSE);
+            }
+        }
+        return l;
+    }
 }
