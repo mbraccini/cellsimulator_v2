@@ -132,7 +132,7 @@ public class UtilitiesBooleanNetwork {
      * Utility method for generating Collection of table with k=2 (NON-CANALYZING FUNCTIONS)
      * @return
      */
-    public static Collection<Table<BitSet, Boolean>> nonCanalyzingFunctionK2() {
+    public static List<Table<BitSet, Boolean>> nonCanalyzingFunctionK2() {
         List<Table<BitSet, Boolean>> list = new ArrayList<>();
         //12 configurations, avoiding 1111, 0000, 0110, 1001
         for (Integer decimalNumber : List.of(1,2,3,4,5,7,8,10,11,12,13,14)) {

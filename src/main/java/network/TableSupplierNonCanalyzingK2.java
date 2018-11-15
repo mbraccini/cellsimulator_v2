@@ -6,14 +6,19 @@ import interfaces.network.TableSupplier;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TableSupplierNonCanalyzingK2 implements TableSupplier<BitSet,Boolean> {
 
     private final Iterator<Table<BitSet, Boolean>> iterator;
 
-    public TableSupplierNonCanalyzingK2() {
-        this.iterator = UtilitiesBooleanNetwork.nonCanalyzingFunctionK2().iterator();
+    public TableSupplierNonCanalyzingK2(int nodesNumber, RandomGenerator r) {
+        List<Table<BitSet, Boolean>> nonCanalyzing = UtilitiesBooleanNetwork.nonCanalyzingFunctionK2();
+        this.iterator = Stream.generate(() -> r.nextInt(nonCanalyzing.size())).limit(nodesNumber).map(nonCanalyzing::get).collect(Collectors.toList()).iterator();
     }
 
     @Override
