@@ -76,4 +76,9 @@ public class AttractorsImpl<T extends State> implements Attractors<T> {
 
         return sb.toString();
     }
+
+    @Override
+    public Iterator<ImmutableAttractor<T>> iterator() {
+        return attractors.iterator();
+    }
 }

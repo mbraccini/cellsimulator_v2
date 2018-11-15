@@ -4,7 +4,7 @@ import interfaces.state.State;
 
 import java.util.List;
 
-public interface Attractors<T extends State> {
+public interface Attractors<T extends State> extends Iterable<ImmutableAttractor<T>>{
 
     List<ImmutableAttractor<T>> getAttractors();
 
