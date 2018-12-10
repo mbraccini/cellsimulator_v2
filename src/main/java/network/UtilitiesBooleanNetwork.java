@@ -5,6 +5,7 @@ import interfaces.network.BNKBias.BiasType;
 import interfaces.network.Row;
 import interfaces.network.Table;
 import org.apache.commons.math3.random.JDKRandomGenerator;
+import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 import states.States;
@@ -129,13 +130,26 @@ public class UtilitiesBooleanNetwork {
 
 
     /**
-     * Utility method for generating Collection of table with k=2 (NON-CANALYZING FUNCTIONS)
+     * Utility method for generating Collection of table with k=2 (CANALYZING FUNCTIONS)
      * @return
      */
-    public static List<Table<BitSet, Boolean>> nonCanalyzingFunctionK2() {
+    public static List<Table<BitSet, Boolean>> canalizingFunctionK2() {
         List<Table<BitSet, Boolean>> list = new ArrayList<>();
         //12 configurations, avoiding 1111, 0000, 0110, 1001
         for (Integer decimalNumber : List.of(1,2,3,4,5,7,8,10,11,12,13,14)) {
+            list.add(new ConfigurableTable(2, States.fromBitSetToBooleans(decimalNumber, 4)));
+        }
+        return list;
+    }
+
+    /**
+     * Utility method for generating Collection of table with k=2 (NON CANALYZING FUNCTIONS)
+     * @return
+     */
+    public static List<Table<BitSet, Boolean>> nonCanalizingFunctionK2() {
+        List<Table<BitSet, Boolean>> list = new ArrayList<>();
+        //2 configurations: XOR -> 0110, EQ -> 1001
+        for (Integer decimalNumber : List.of(6, 9)) {
             list.add(new ConfigurableTable(2, States.fromBitSetToBooleans(decimalNumber, 4)));
         }
         return list;
