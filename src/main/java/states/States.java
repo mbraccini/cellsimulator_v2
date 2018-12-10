@@ -1,5 +1,7 @@
 package states;
 
+import javax.xml.bind.DatatypeConverter;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -60,6 +62,27 @@ public class States {
         return bits;
     }
 
+    /**
+     * Hexadecimal String representation from a BitSet
+     * @param bSet
+     * @return
+     */
+    public static String bitSetToHex(BitSet bSet){
+        return DatatypeConverter.printHexBinary(bSet.toByteArray());
+    }
+
+    /**
+     * BitSet from an hexadecimal String representation
+     * @param hex
+     * @return
+     */
+    public static BitSet hexToBitSet(String hex){
+        byte[] bArray = DatatypeConverter.parseHexBinary(hex);
+        return BitSet.valueOf(bArray);
+    }
+
+
+
     public static List<Boolean> fromBitSetToBooleans(long value, int numBits){
         List<Boolean> l = new ArrayList<>();
         int index = 0;
@@ -80,5 +103,24 @@ public class States {
             }
         }
         return l;
+    }
+
+
+    // https://stackoverflow.com/questions/29526985/java-from-biginteger-to-bitset-and-back
+    public static BitSet convertTo (BigInteger bi) {
+        byte[] bia = bi.toByteArray();
+        int l = bia.length;
+        byte[] bsa = new byte[l+1];
+        System.arraycopy(bia,0,bsa,0,l);
+        bsa[l] = 0x01;
+        return BitSet.valueOf(bsa);
+    }
+
+    public static BigInteger convertFrom (BitSet bs) {
+        byte[] bsa = bs.toByteArray();
+        int l = bsa.length-0x01;
+        byte[] bia = new byte[l];
+        System.arraycopy(bsa,0,bia,0,l);
+        return new BigInteger(bia);
     }
 }
