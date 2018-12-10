@@ -6,16 +6,24 @@ import interfaces.attractor.*;
 import interfaces.dynamic.Dynamics;
 import interfaces.pipeline.Pipe;
 import interfaces.sequences.Generator;
+import interfaces.simulator.AttractorFinderResult;
+import interfaces.simulator.ExperimentTraceability;
 import interfaces.state.State;
 import io.vavr.Function2;
 import io.vavr.Function4;
+import io.vavr.Function5;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
-public class AttractorsFinderService<T extends State> implements Function4<Generator<T>,Dynamics<T>,Boolean,Boolean,Attractors<T>> {
+public class AttractorsFinderService  {
+    private AttractorsFinderService(){}
     /* thread pool */
     //final ExecutorService executor;
     /*private Generator<T> generator;
@@ -35,24 +43,29 @@ public class AttractorsFinderService<T extends State> implements Function4<Gener
 
     }*/
 
-    @Override
-    public Attractors<T> apply(Generator<T> generator, Dynamics<T> dynamics, Boolean basin, Boolean transients) {
-        BigInteger combinations = generator.totalNumberOfSamplesToBeGenerated();
-        MyCountDownLatch latch = new MyCountDownLatch(combinations);
-        Collection<MutableAttractor<T>> mutableAttractors = new ArrayList<>();
+    public static Predicate<Integer> TRUE_TERMINATION = x -> true;
+    public static Function<Integer, Predicate<Integer>> CUT_OFF_PERCENTAGE_TERMINATION = nodesNumber -> (x -> (x < (nodesNumber * 20)));
 
+
+    public static <T extends State> Attractors<T> apply(Generator<T> generator, Dynamics<T> dynamics, Boolean basin, Boolean transients, Predicate<Integer> terminationCondition) {
+        BigInteger combinations = generator.totalNumberOfSamplesToBeGenerated();
+        //MyCountDownLatch latch = new MyCountDownLatch(combinations);
+        Collection<MutableAttractor<T>> mutableAttractors = new ArrayList<>();
+        AttractorFinderResult result;
+        int initialStatesCutOff = 0;
         T state = generator.nextSample();
         while (state != null) {
             try {
-                new AttractorFinderTask<>(state, dynamics, latch, mutableAttractors, basin, transients).call();
+                result = new AttractorFinderTask<>(state, dynamics, mutableAttractors, basin, transients, terminationCondition).findAttractor();
+                if (result != null && result.isCutOff()) initialStatesCutOff++;
             } catch (Exception e) {
                 e.printStackTrace();
             }
             state = generator.nextSample();
         }
-        latch.await();
+        //latch.await();
 
-        return new AttractorsImpl<>(mutableAttractors);
+        return new AttractorsImpl<>(mutableAttractors, new ExperimentTraceability(null, Map.of("initialStatesCutOff",initialStatesCutOff)));
     }
 
 

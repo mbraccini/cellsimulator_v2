@@ -1,10 +1,11 @@
 package interfaces.attractor;
 
+import interfaces.simulator.Result;
 import interfaces.state.State;
 
 import java.util.List;
 
-public interface Attractors<T extends State> extends Iterable<ImmutableAttractor<T>>{
+public interface Attractors<T extends State> extends Iterable<ImmutableAttractor<T>>, Result {
 
     List<ImmutableAttractor<T>> getAttractors();
 

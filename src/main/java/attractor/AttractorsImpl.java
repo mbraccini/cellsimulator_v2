@@ -3,6 +3,7 @@ package attractor;
 import interfaces.attractor.Attractors;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.MutableAttractor;
+import interfaces.simulator.ExperimentTraceabilityInfo;
 import interfaces.state.State;
 
 import java.util.*;
@@ -14,9 +15,10 @@ public class AttractorsImpl<T extends State> implements Attractors<T> {
 
     List<ImmutableAttractor<T>> attractors;
     ImmutableList.Builder<ImmutableAttractor<T>> builder = ImmutableList.builder();
+    private final ExperimentTraceabilityInfo experimentTraceabilityInfo;
 
-
-    public AttractorsImpl(final Collection<MutableAttractor<T>> infoCollection){
+    public AttractorsImpl(final Collection<MutableAttractor<T>> infoCollection, ExperimentTraceabilityInfo experimentTraceabilityInfo){
+        this.experimentTraceabilityInfo = experimentTraceabilityInfo;
         fromInfoToAttractors(infoCollection);
         attractors = builder.build();
     }
@@ -80,5 +82,10 @@ public class AttractorsImpl<T extends State> implements Attractors<T> {
     @Override
     public Iterator<ImmutableAttractor<T>> iterator() {
         return attractors.iterator();
+    }
+
+    @Override
+    public ExperimentTraceabilityInfo traceabilityInfo() {
+        return experimentTraceabilityInfo;
     }
 }

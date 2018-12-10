@@ -24,10 +24,11 @@ public class StaticAnalysisTES {
      * @return
      */
     public static Attractors<BinaryState> attractors(Generator<BinaryState> generator, Dynamics<BinaryState> dynamics){
-       return new AttractorsFinderService<BinaryState>().apply(generator,
-                                                                dynamics,
-                                                                Constant.BASIN_COMPUTATION_DEFAULT_VALUE,
-                                                                Constant.TRANSIENTS_COMPUTATION_DEFAULT_VALUE);
+       return AttractorsFinderService.apply(generator,
+                                            dynamics,
+                                            Constant.BASIN_COMPUTATION_DEFAULT_VALUE,
+                                            Constant.TRANSIENTS_COMPUTATION_DEFAULT_VALUE,
+                                            AttractorsFinderService.TRUE_TERMINATION);
     }
 
     /**

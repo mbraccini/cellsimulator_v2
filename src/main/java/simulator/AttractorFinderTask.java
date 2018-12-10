@@ -5,16 +5,18 @@ import attractor.MutableAttractorImpl;
 import attractor.TransientImpl;
 import interfaces.attractor.MutableAttractor;
 import interfaces.dynamic.Dynamics;
+import interfaces.simulator.AttractorFinderResult;
+import interfaces.simulator.ExperimentTraceabilityInfo;
 import interfaces.state.State;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 
-public class AttractorFinderTask<T extends State> implements Callable<Void> {
-
-    private final MyCountDownLatch latch;
+public class AttractorFinderTask<T extends State>{
+    //private final MyCountDownLatch latch;
     private final T initialState;
     private final Collection<MutableAttractor<T>> collectionMutableAttractor;
     private final Dynamics<T> dynamics;
@@ -22,40 +24,43 @@ public class AttractorFinderTask<T extends State> implements Callable<Void> {
     private final Boolean basinsComputation, transientsComputation;
     private List<T> transientList;
     private List<T> transientTemp;
+    private final Predicate<Integer> terminationCondition;
 
     public AttractorFinderTask(T initialState,
                                Dynamics<T> dynamics,
-                               MyCountDownLatch latch,
+                               //MyCountDownLatch latch,
                                Collection<MutableAttractor<T>> collectionMutableAttractor,
                                Boolean basinsComputation,
-                               Boolean transientsComputation) {
+                               Boolean transientsComputation,
+                               Predicate<Integer> terminationCondition) {
         this.initialState = initialState;
         this.dynamics = dynamics;
-        this.latch = latch;
+        //this.latch = latch;
         this.collectionMutableAttractor = collectionMutableAttractor;
         this.states = new ArrayList<>();
         this.basinsComputation = basinsComputation;
         this.transientsComputation = transientsComputation;
+        this.terminationCondition = terminationCondition;
     }
 
-    @Override
-    public Void call() throws Exception {
+    /*public Void call() throws Exception {
 
         findAttractor();
 
-        latch.countDown();
+        //latch.countDown();
         return null;
-    }
+    }*/
 
-    private void findAttractor() {
+    public AttractorFinderResult findAttractor() {
         T state = initialState;
 
-        while (true) {
+        int iter = 0;
+        while (terminationCondition.test(iter)) {
 
             if (checksIfAlreadyPresent(state)) {
                 transientList = states;
                 checkAndUpdateBasinAndTransient(state);
-                return; //se è presente esco!
+                return null; //se è presente esco!
             }
 
             if (this.states.contains(state)) {
@@ -66,14 +71,21 @@ public class AttractorFinderTask<T extends State> implements Callable<Void> {
                 collectionMutableAttractor.add(attractor);
                 updateItsBasin(attractor);
                 updateItsTransient(attractor);
-                return;
+                return null;
             }
 
             states.add(state);
             state = dynamics.nextState(state);
+
+            iter++;
         }
 
-
+        return new AttractorFinderResult(){
+            @Override
+            public Boolean isCutOff() {
+                return true;
+            }
+        };
     }
 
     protected boolean checksIfAlreadyPresent(T state) {

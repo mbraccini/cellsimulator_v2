@@ -62,7 +62,7 @@ public class TestAttractors {
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
 
         /** Sync AttractorsUtility Finder **/
-        Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics, true, true);
+        Attractors<BinaryState> attractors = AttractorsFinderService.apply(generator, dynamics, true, true, AttractorsFinderService.TRUE_TERMINATION);
 
 
         attractors.getAttractors().add(new ImmutableAttractorImpl<BinaryState>(new MutableAttractorImpl<>(List.of(ImmutableBinaryState.valueOf("0100"))),5));
