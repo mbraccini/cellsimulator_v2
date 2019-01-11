@@ -1,23 +1,19 @@
 package experiments.methylation;
 
-import dynamic.FrozenNodesDynamicsDecorator;
 import dynamic.KnockOutDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.BagOfStatesGenerator;
 import generator.UniformlyDistributedGenerator;
-import interfaces.attractor.Attractor;
 import interfaces.attractor.Attractors;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.dynamic.DecoratingDynamics;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BNClassic;
-import interfaces.network.BNKBias;
 import interfaces.network.NodeDeterministic;
 import interfaces.sequences.Generator;
 import interfaces.state.BinaryState;
 import network.BNKBiasImpl;
-import network.BooleanNetworkFactory;
-import network.TableSupplierNonCanalyzingK2;
+import network.TableSupplierCanalizingK2;
 import org.apache.commons.math3.random.RandomGenerator;
 import states.States;
 import tes.StaticAnalysisTES;
@@ -29,38 +25,43 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MainKnockOutTrees {
 
+
     static BigInteger INITIAL_SAMPLES_STATES_NUMBER = BigInteger.valueOf(10000);
+    static Integer NETWORK_NUMBER = 10;
 
     public static void main(String args[]) {
 
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
-        int numNodes = 50;
+        int numNodes = 100;
         int k = 2;
         double bias = 0.5;
 
-        int[] stepOfGenesKO = new int[]{2};
+        int[] stepOfGenesKO = new int[]{2, 5, 10};
+        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn;
 
-        for (int config : stepOfGenesKO) {
-            forEachConfiguration(config, numNodes, k, bias, r, config);
+        for (int i = 0; i < NETWORK_NUMBER; i++) {
+            bn = new BNKBiasImpl(numNodes, r, Boolean.FALSE, new TableSupplierCanalizingK2(numNodes, r));
+            //bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.EXACT, BooleanNetworkFactory.SelfLoop.WITHOUT,numNodes,k,  bias, r);
+            int id = r.nextInt(10000);
+            for (int config : stepOfGenesKO) {
+                forEachConfiguration(bn, id, numNodes, k, bias, r, config);
+            }
         }
 
     }
 
-    static private void forEachConfiguration(int numOfFrozenNodes,
+    static private void forEachConfiguration(BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn,
+                                             int bn_id,
                                              int numNodes,
                                              int k,
                                              double bias,
                                              RandomGenerator r,
                                              int stepOfGenesKO
     ) {
-
-
-        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn = new BNKBiasImpl(numNodes, r, Boolean.FALSE, new TableSupplierNonCanalyzingK2(numNodes, r));
 
 
         //BN (wild-type) ANALYSIS
@@ -70,11 +71,14 @@ public class MainKnockOutTrees {
 
 
         int numOfGenesToKO = stepOfGenesKO;
-        String parentDir = "bn_" + r.nextInt(100) + Files.FILE_SEPARATOR;
+        String parentDir = "bn_"+ bn_id +"_" + stepOfGenesKO + Files.FILE_SEPARATOR;
         Files.createDirectories(parentDir);
+        Files.writeBooleanNetworkToFile(bn, parentDir + "bn");
+
+
 
         for (ImmutableAttractor<BinaryState> att : attrsWildType) {
-            DFS(parentDir, att, numOfGenesToKO, stepOfGenesKO, numNodes, bn);
+            DFS_onDisk(parentDir, att, numOfGenesToKO, stepOfGenesKO, numNodes, bn);
         }
 
 
@@ -92,8 +96,8 @@ public class MainKnockOutTrees {
     }
 
 
-    public static void DFS(String path, ImmutableAttractor<BinaryState> father, int numOfGenesToKO, int stepOfGenesKO, int numNodes, BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn ) {
-        String myPath = path + States.convert(father.getFirstState().toBitSet()) + "_" + father.getLength() + Files.FILE_SEPARATOR;
+    public static void DFS_onDisk(String path, ImmutableAttractor<BinaryState> father, int numOfGenesToKO, int stepOfGenesKO, int numNodes, BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn ) {
+        String myPath = path + States.bitSetToHex(father.getFirstState().toBitSet()) + "_" + father.getLength() + Files.FILE_SEPARATOR;
         Files.createDirectories( myPath);
         if (numOfGenesToKO <= numNodes) {
             //indices of nodes to KO
@@ -112,8 +116,11 @@ public class MainKnockOutTrees {
                                                                                 .collect(Collectors.toSet()));
             Attractors<BinaryState> myAttrs = StaticAnalysisTES.attractors(genFromAttStates, dynamicsKO);
             for (ImmutableAttractor<BinaryState> att : myAttrs) {
-                DFS(myPath, att, numOfGenesToKO + stepOfGenesKO,stepOfGenesKO, numNodes, bn);
+                DFS_onDisk(myPath, att, numOfGenesToKO + stepOfGenesKO,stepOfGenesKO, numNodes, bn);
             }
         }
     }
+
+
+
 }

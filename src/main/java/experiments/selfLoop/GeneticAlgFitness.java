@@ -214,7 +214,7 @@ public class GeneticAlgFitness {
     public static Atm<BinaryState> simulateBN(BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn) {
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
-        Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics, true,false);
+        Attractors<BinaryState> attractors = AttractorsFinderService.apply(generator, dynamics, true,false, AttractorsFinderService.TRUE_TERMINATION);
         return new CompletePerturbations().apply(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
     }
 

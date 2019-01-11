@@ -1,12 +1,15 @@
 package attractor;
 
 import interfaces.attractor.Attractor;
+import interfaces.attractor.Attractors;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.MutableAttractor;
+import interfaces.state.BinaryState;
 import interfaces.state.State;
 import utility.GenericUtility;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class AttractorsUtility {
@@ -47,5 +50,66 @@ public class AttractorsUtility {
         }
         return Optional.empty();
     }
+
+
+    /**
+     * Compute nodes' indices of fixed nodes in attractors
+     * @param attrs
+     * @return
+     */
+    public static Set<Integer> fixedAttractors(Attractors<BinaryState> attrs){
+        List<ImmutableAttractor<BinaryState>> noFixedPoints = attrs.getAttractors().stream().filter(x -> x .getLength() > 1).collect(Collectors.toList());
+        Set<Integer> intersect = null;
+        for (int attIdx = 0; attIdx < noFixedPoints.size(); attIdx++) {
+            if (intersect == null) {
+                intersect = new HashSet<>(fixed(noFixedPoints.get(attIdx)));
+            } else {
+                intersect.retainAll(fixed(noFixedPoints.get(attIdx)));
+            }
+        }
+        return intersect;
+    }
+
+    public static Set<Integer> fixed(ImmutableAttractor<BinaryState> a) {
+        Set<Integer> indices = new HashSet<>();
+        Integer numNodes = a.getFirstState().getLength();
+        BinaryState prev, succ;
+        boolean first = true;
+        for (int state = 0; state < a.getLength() - 1; state++) {
+            prev = a.getStates().get(state);
+            succ = a.getStates().get(state + 1);
+
+            for (int i = 0; i < numNodes; i++) {
+                if (prev.getNodeValue(i) == succ.getNodeValue(i)){
+                    if (first) {
+                        indices.add(i);
+                    }
+                } else if (indices.contains(i)) {
+                    indices.remove(i);
+                }
+            }
+            first = false;
+        }
+        return indices;
+    }
+
+    /**
+     * Compute nodes' indices of blinking nodes in attractors
+     * @param attrs
+     * @return
+     */
+    public static Set<Integer> blinkingAttractors(Attractors<BinaryState> attrs) {
+        List<ImmutableAttractor<BinaryState>> noFixedPoints = attrs.getAttractors().stream().filter(x -> x .getLength() > 1).collect(Collectors.toList());
+        if (noFixedPoints.size() == 0) {
+            return null;
+        }
+
+        Set<Integer> total = IntStream.range(0, attrs.getAttractors().get(0).getFirstState().getLength()).boxed().collect(Collectors.toSet());
+        for (int attIdx = 0; attIdx < noFixedPoints.size(); attIdx++) {
+            total.removeAll(fixed(noFixedPoints.get(attIdx)));
+        }
+        return total;
+    }
+
 
 }

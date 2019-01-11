@@ -1,5 +1,6 @@
 package experiments.methylation;
 
+import attractor.AttractorsUtility;
 import dynamic.KnockOutDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.BagOfStatesGenerator;
@@ -14,8 +15,11 @@ import interfaces.network.NodeDeterministic;
 import interfaces.sequences.Generator;
 import interfaces.state.BinaryState;
 import io.vavr.Tuple2;
+import io.vavr.Tuple4;
+import io.vavr.Tuple5;
 import network.BNKBiasImpl;
 import network.BooleanNetworkFactory;
+import network.TableSupplierCanalizingK2;
 import network.TableSupplierNonCanalizingK2;
 import org.apache.commons.math3.random.RandomGenerator;
 import simulator.AttractorsFinderService;
@@ -36,7 +40,7 @@ import java.util.stream.Stream;
 public class MainFrozenCheckModelRSerra {
 
     static BigInteger INITIAL_SAMPLES_STATES_NUMBER = BigInteger.valueOf(1000);
-    static Integer BN_SAMPLES = 20;
+    static Integer BN_SAMPLES = 1000;
 
     public static void main(String args[]) {
 
@@ -52,19 +56,47 @@ public class MainFrozenCheckModelRSerra {
                 + " N:"+ numNodes);
 
         //M = phi * N
-        Integer[] M = new Integer[]{5,50,200};
+        Integer[] M = new Integer[]{0,25,125,250};
         //Header of csv STRING
         List<String> attsString = IntStream.range(0, M.length).mapToObj(x -> "Attrs").collect(Collectors.toList());
         List<String> pfString = IntStream.range(0, M.length).mapToObj(x -> "FixPoints").collect(Collectors.toList());
+        List<String> fixedFraction = IntStream.range(0, M.length).mapToObj(x -> "FixNodes").collect(Collectors.toList());
+        List<String> blinkingFraction = IntStream.range(0, M.length).mapToObj(x -> "blinkNodes").collect(Collectors.toList());
+        List<String> cutOff = IntStream.range(0, M.length).mapToObj(x -> "cutOff").collect(Collectors.toList());
+
         io.vavr.collection.Stream<Tuple2<Integer,String>> temp1 = io.vavr.collection.Stream.of(M).zip(io.vavr.collection.Stream.ofAll(attsString));
         io.vavr.collection.Stream<Tuple2<Integer,String>> temp2 = io.vavr.collection.Stream.of(M).zip(io.vavr.collection.Stream.ofAll(pfString));
-        List<Tuple2<Tuple2<Integer,String>,Tuple2<Integer,String>>> headerList = temp1.zip(temp2).toJavaList();
-        String header = headerList.stream().map(x -> x._1()._1() + "" + x._1()._2() + sep + x._2()._1() + "" + x._2()._2()).collect(Collectors.joining("" + sep));
-        //
+        io.vavr.collection.Stream<Tuple2<Integer,String>> temp3 = io.vavr.collection.Stream.of(M).zip(io.vavr.collection.Stream.ofAll(fixedFraction));
+        io.vavr.collection.Stream<Tuple2<Integer,String>> temp4 = io.vavr.collection.Stream.of(M).zip(io.vavr.collection.Stream.ofAll(blinkingFraction));
+        io.vavr.collection.Stream<Tuple2<Integer,String>> temp5 = io.vavr.collection.Stream.of(M).zip(io.vavr.collection.Stream.ofAll(cutOff));
 
+        List<Tuple2<Tuple2<Integer,String>,Tuple2<Integer,String>>> headerList = temp1.zip(temp2).toJavaList();
+        List<Tuple2<Tuple2<Integer,String>,Tuple2<Integer,String>>> headerList2 = temp3.zip(temp4).toJavaList();
+
+        List<String> header1 = headerList.stream().map(x -> x._1()._1() + "" + x._1()._2() + sep + x._2()._1() + "" + x._2()._2()).collect(Collectors.toList());
+        List<String> header2 = headerList2.stream().map(x -> x._1()._1() + "" + x._1()._2() + sep + x._2()._1() + "" + x._2()._2()).collect(Collectors.toList());
+        List<String> header3 = temp5.toStream().map(x -> x._1()+ "" + x._2()).collect(Collectors.toList());
+        int elementsPerList = 1;
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < header1.size();) {
+            for (int j = 0; j < elementsPerList && (i + j) <header1.size() ; j++) {
+                sb.append(header1.get(i + j));
+                sb.append(sep);
+                sb.append(header2.get(i + j));
+                sb.append(sep);
+                sb.append(header3.get(i + j));
+            }
+            if (i != header1.size() - 1){
+                sb.append(sep);
+            }
+            i += elementsPerList;
+        }
+        //
+        String header = sb.toString();
+        System.out.println(header);
         List<Tuple2<String, Supplier<BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>>>>> bnSuppliers =
-                   List.of(//new Tuple2<>("NON_CANALZING", () -> new BNKBiasImpl(numNodes, r, Boolean.FALSE, new TableSupplierNonCanalizingK2(numNodes, r))));
-                           //new Tuple2<>("ONLY_CANALZING", () -> new BNKBiasImpl(numNodes, r, Boolean.FALSE, new TableSupplierCanalizingK2(numNodes, r))),
+                   List.of(//new Tuple2<>("NON_CANALIZING", () -> new BNKBiasImpl(numNodes, r, Boolean.FALSE, new TableSupplierNonCanalizingK2(numNodes, r))),
+                           //new Tuple2<>("ONLY_CANALIZING", () -> new BNKBiasImpl(numNodes, r, Boolean.FALSE, new TableSupplierCanalizingK2(numNodes, r))),
                            new Tuple2<>("ALL", () -> BooleanNetworkFactory.newRBN(BNKBias.BiasType.EXACT, BooleanNetworkFactory.SelfLoop.WITHOUT, numNodes,k,  bias, r)));
 
         for (Tuple2<String, Supplier<BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>>>> supp : bnSuppliers) {
@@ -86,10 +118,17 @@ public class MainFrozenCheckModelRSerra {
                         int m = M[j];
                         String config_path = path_bn + "M_" + m + Files.FILE_SEPARATOR;
                         Files.createDirectories(config_path);
-                        Tuple2<Integer, Integer> NoAttrsNoFixedPoints = forEachConfiguration(bn, m, numNodes, k, bias, r, config_path);
+                        Tuple5<Integer, Integer, Double, Double, Integer> NoAttrsNoFixedPoints = forEachConfiguration(bn, m, numNodes, k, bias, r, config_path);
                         csv.append(NoAttrsNoFixedPoints._1().toString());
                         csv.append(sep);
                         csv.append(NoAttrsNoFixedPoints._2().toString());
+                        csv.append(sep);
+                        csv.append((NoAttrsNoFixedPoints._3() == null ? "NA": NoAttrsNoFixedPoints._3().toString()));
+                        csv.append(sep);
+                        csv.append((NoAttrsNoFixedPoints._4() == null ? "NA": NoAttrsNoFixedPoints._4().toString()));
+                        csv.append(sep);
+                        csv.append(NoAttrsNoFixedPoints._5().toString());
+
                         if (j == M.length - 1) {
                             csv.newLine();
                         } else {
@@ -105,13 +144,13 @@ public class MainFrozenCheckModelRSerra {
 
     }
 
-    static private Tuple2<Integer, Integer> forEachConfiguration(BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn,
-                                               int numOfFrozenNodes,
-                                               int numNodes,
-                                               int k,
-                                               double bias,
-                                               RandomGenerator r,
-                                               String path
+    static private Tuple5<Integer, Integer, Double, Double, Integer> forEachConfiguration(BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn,
+                                                                                          int numOfFrozenNodes,
+                                                                                          int numNodes,
+                                                                                          int k,
+                                                                                          double bias,
+                                                                                          RandomGenerator r,
+                                                                                          String path
     ) {
         //indices of nodes to KO
         List<Integer> indicesToKnockOut = new ArrayList<>();
@@ -139,46 +178,22 @@ public class MainFrozenCheckModelRSerra {
                                                                          AttractorsFinderService.CUT_OFF_PERCENTAGE_TERMINATION.apply(numNodes));
         //Attractors<BinaryState> atts = StaticAnalysisTES.attractors(genKO, dynamicsKO);
         //ON DISK
-        Files.writeAttractorsToReadableFile(atts, path + "atts");
+        //Files.writeAttractorsToReadableFile(atts, path + "atts");
         //
-        return new Tuple2<>(atts.numberOfAttractors(), atts.getNumberOfFixedPoints());
-    }
-
-
-    public static Set<Integer> fixedAttractors(Attractors<BinaryState> attrs){
-        List<ImmutableAttractor<BinaryState>> noFixedPoints = attrs.getAttractors().stream().filter(x -> x .getLength() > 1).collect(Collectors.toList());
-        Set<Integer> intersect = null;
-        for (int attIdx = 0; attIdx < noFixedPoints.size(); attIdx++) {
-            if (intersect == null) {
-                intersect = new HashSet<>(fixed(noFixedPoints.get(attIdx)));
-            } else {
-                intersect.retainAll(fixed(noFixedPoints.get(attIdx)));
-            }
+        Set<Integer> blink = AttractorsUtility.blinkingAttractors(atts);
+        Set<Integer> fixed = AttractorsUtility.fixedAttractors(atts);
+        Double blinkFraction, fixedFraction;
+        if (blink == null) {
+            blinkFraction = null;
+        } else {
+            blinkFraction = ((double)blink.size() / numNodes);
         }
-        return intersect;
-    }
-
-    public static Set<Integer> fixed(ImmutableAttractor<BinaryState> a) {
-        Set<Integer> indices = new HashSet<>();
-        Integer numNodes = a.getFirstState().getLength();
-        BinaryState prev, succ;
-        boolean first = true;
-        for (int state = 0; state < a.getLength() - 1; state++) {
-            prev = a.getStates().get(state);
-            succ = a.getStates().get(state + 1);
-
-            for (int i = 0; i < numNodes; i++) {
-                if (prev.getNodeValue(i) == succ.getNodeValue(i)){
-                    if (first) {
-                        indices.add(i);
-                    }
-                } else if (indices.contains(i)) {
-                    indices.remove(i);
-                }
-            }
-            first = false;
+        if (fixed == null) {
+            fixedFraction = null;
+        } else {
+            fixedFraction = ((double)fixed.size() / numNodes);
         }
-        return indices;
+        return new Tuple5<>(atts.numberOfAttractors(), atts.getNumberOfFixedPoints(),fixedFraction, blinkFraction, atts.traceabilityInfo().statistics().get("initialStatesCutOff").intValue());
     }
 
 

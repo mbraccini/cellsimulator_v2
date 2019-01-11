@@ -52,7 +52,7 @@ public class TestDifferentiationTree {
 		Generator<BinaryState> generator = new CompleteGenerator(read_bn.getNodesNumber());
 
 		/** Sync Attractors Finder **/
-		Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics, true, true);
+		Attractors<BinaryState> attractors = AttractorsFinderService.apply(generator, dynamics, true, true, AttractorsFinderService.TRUE_TERMINATION);
 
 		assertTrue("Dovrebbe trovare 4 attrattori", attractors.numberOfAttractors() == 4);
 

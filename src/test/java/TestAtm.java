@@ -80,7 +80,7 @@ public class TestAtm {
         BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn = BooleanNetworkFactory.newNetworkFromFile(bnFilename);
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
         Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
-        Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics, true, true);
+        Attractors<BinaryState> attractors = AttractorsFinderService.apply(generator, dynamics, true, true, AttractorsFinderService.TRUE_TERMINATION);
         System.out.println(attractors);
         Atm<BinaryState> atm = new CompletePerturbations().apply(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
         GenericUtility.printMatrix(atm.getMatrix());

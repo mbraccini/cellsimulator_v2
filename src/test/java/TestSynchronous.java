@@ -99,7 +99,7 @@ public class TestSynchronous {
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
 
         /** Sync AttractorsUtility Finder **/
-        Attractors<BinaryState> attractorsFound = new AttractorsFinderService<BinaryState>().apply(generator, dynamics, true,false);
+        Attractors<BinaryState> attractorsFound = AttractorsFinderService.apply(generator, dynamics, true,false, AttractorsFinderService.TRUE_TERMINATION);
 
         System.out.println(attractorsFound);
 
@@ -127,7 +127,7 @@ public class TestSynchronous {
                                                                         new MutableAttractorImpl<>(fixed_point_1),
                                                                         new MutableAttractorImpl<>(cyclic_attractor)
                                                                 ));
-        Attractors<BinaryState> manuallyDefinedAttractors = new AttractorsImpl<>(attInfo);
+        Attractors<BinaryState> manuallyDefinedAttractors = new AttractorsImpl<>(attInfo,null);
         
 
         /** Test 1 **/
@@ -224,7 +224,7 @@ public class TestSynchronous {
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
 
         /** Sync AttractorsUtility Finder **/
-        Attractors<BinaryState> attractorsFound = new AttractorsFinderService<BinaryState>().apply(generator, dynamics, true, true);
+        Attractors<BinaryState> attractorsFound = AttractorsFinderService.apply(generator, dynamics, true, true, AttractorsFinderService.TRUE_TERMINATION);
 
 
         attractorsFound.getAttractors().forEach(System.out::println);

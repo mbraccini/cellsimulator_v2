@@ -28,13 +28,13 @@ import java.util.stream.IntStream;
 public class MainSelfLoopsStatisticsNumberOfAttractors {
 
 
-    public static final int SAMPLES_NUMBER = 20000; //for each configuration
+    public static final int SAMPLES_NUMBER = 1000; //for each configuration
     public static final int FROM_NUMBER_OF_SELFLOOPS = 15;
     public static final int TO_NUMBER_OF_SELFLOOPS = 15;
 
 
     public static void main(String[] args) {
-        System.out.println("v4.0 OR_K_plus_1");
+        System.out.println("OR_K_plus_1 1000-samples");
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
         BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn = null;
 
@@ -55,25 +55,25 @@ public class MainSelfLoopsStatisticsNumberOfAttractors {
 
                     Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
                     Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
-                    Attractors<BinaryState> attractors = new AttractorsFinderService<BinaryState>().apply(generator, dynamics, true,false);
+                    Attractors<BinaryState> attractors = AttractorsFinderService.apply(generator, dynamics, true,false, AttractorsFinderService.TRUE_TERMINATION);
                     //ATM
                     Atm<BinaryState> atm = new CompletePerturbations().apply(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
                     Double[][] atmMtrx = atm.getMatrixCopy();
-                    Number[][] sorted = MatrixUtility.reorderByDiagonalValues(atmMtrx);
+                    /*Number[][] sorted = MatrixUtility.reorderByDiagonalValues(atmMtrx);
                     double[][] doubleSorted = MatrixUtility.fromNumberToDoubleMatrix(sorted);
                     List<Double> sortedDiagonalValues = IntStream.range(0, doubleSorted.length)
                             .mapToDouble(x -> doubleSorted[x][x])
                             .boxed()
-                            .collect(Collectors.toList());
-
+                            .collect(Collectors.toList());*/
+                    Tuple2<Double,Double> minMAX = MatrixUtility.retrieveMinMaxDiagonal(atmMtrx);
                     attrctrs.add(new String[]{attractors.numberOfAttractors().toString(),attractors.getNumberOfFixedPoints().toString()});
-                    minMaxDiagonalATM.add(new String[]{sortedDiagonalValues.get(0).toString(), sortedDiagonalValues.get(sortedDiagonalValues.size() - 1).toString()});
+                    minMaxDiagonalATM.add(new String[]{minMAX._1().toString(), minMAX._2().toString()});
 
                     Files.writeBooleanNetworkToFile(bn, subBNfolder + Files.FILE_SEPARATOR + "bn_sl_" + i + "#_" + j);
-                    Files.writeListToTxt(List.of(sortedDiagonalValues.stream().map(Object::toString)
+                    /*Files.writeListToTxt(List.of(sortedDiagonalValues.stream().map(Object::toString)
                                                 .collect(Collectors.joining(" "))),
                                                 subBNfolder + Files.FILE_SEPARATOR +  "bn_sl_" + i + "#_" + j + "_diag");
-
+                    */
                 }
                 Files.writeToCsv(minMaxDiagonalATM, directory + Files.FILE_SEPARATOR + i + "_minMAX");
                 Files.writeToCsv(attrctrs, directory + Files.FILE_SEPARATOR + i + "_attrs");
