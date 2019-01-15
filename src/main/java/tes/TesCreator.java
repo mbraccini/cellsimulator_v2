@@ -10,6 +10,7 @@ import interfaces.state.State;
 import interfaces.tes.*;
 import io.vavr.Function0;
 import org.apache.commons.math3.random.RandomGenerator;
+import utility.GenericUtility;
 
 public class TesCreator<T extends State> implements Function0<TESDifferentiationTree<T, Tes<T>>> {
 
@@ -35,10 +36,10 @@ public class TesCreator<T extends State> implements Function0<TESDifferentiation
 	public TesCreator(Atm<T> atm,RandomGenerator random) {
 		this.atm = atm;
 		this.attractorsList = this.atm.getAttractors().getAttractors();
-		this.nameGenerator = new UniqueNameGenerator(random);
+		this.nameGenerator = GenericUtility.newNameGenerator(random);
 	}
 
-	private UniqueNameGenerator nameGenerator;
+	private GenericUtility.UniqueNameGenerator nameGenerator;
 
 	public TESDifferentiationTree<T, Tes<T>> apply() {
 		if (this.thresholds == null) {
@@ -181,29 +182,7 @@ public class TesCreator<T extends State> implements Function0<TESDifferentiation
 	}
 
 
-	private class UniqueNameGenerator {
 
-		static final String Az_09 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-		static final String Az = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-		private RandomGenerator rnd;
-		public UniqueNameGenerator(RandomGenerator rnd) {
-			this.rnd = rnd;
-		}
-
-		public String randomAlphanumericString( int len ){
-			StringBuilder sb = new StringBuilder( len );
-			for( int i = 0; i < len; i++ )
-				sb.append( Az_09.charAt( rnd.nextInt(Az_09.length()) ) );
-			return sb.toString();
-		}
-
-		public String randomAlphabeticString( int len ){
-			StringBuilder sb = new StringBuilder( len );
-			for( int i = 0; i < len; i++ )
-				sb.append( Az.charAt( rnd.nextInt(Az.length()) ) );
-			return sb.toString();
-		}
-	}
 
 	/*@SuppressWarnings("unchecked")
 	public static <T> void main(String[] args) {

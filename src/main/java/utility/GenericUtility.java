@@ -3,11 +3,12 @@ package utility;
 import interfaces.network.Table;
 import interfaces.tes.DifferentiationTree;
 import network.NodeDeterministicImpl;
+import org.apache.commons.math3.random.RandomGenerator;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -161,6 +162,68 @@ public class GenericUtility {
         Integer levels = tree.getLevelsNumber();
         return IntStream.range(0, levels-1) //partono da 0, e giusto contarne uno in meno perché l'ultimo livello non ha figli
                 .mapToDouble(lvl -> tree.getLevel(lvl).get().stream().mapToDouble(y -> y.branchingFactor() * (1d/(lvl + 1))).sum()).sum();
+
+    }
+
+    /**
+     * Computes the difference without modifying the sets
+     * @param setOne
+     * @param setTwo
+     * @param <T>
+     * @return
+     */
+    public static <T> Set<T> setDifference(final Set<T> setOne, final Set<T> setTwo) {
+        Set<T> result = new HashSet<T>(setOne);
+        result.removeIf(setTwo::contains);
+        return result;
+    }
+
+    public static UniqueNameGenerator newNameGenerator(final RandomGenerator rnd){
+        return new UniqueNameGenerator(rnd);
+    }
+
+    public static class UniqueNameGenerator {
+
+        static final String Az_09 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        static final String Az = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+        private final RandomGenerator rnd;
+        private final Set<String> alreadyUsed = new HashSet<>();
+
+        public UniqueNameGenerator(RandomGenerator rnd) {
+            this.rnd = rnd;
+        }
+
+        public String randomAlphanumericString( int len ){
+            StringBuilder sb = new StringBuilder( len );
+            for( int i = 0; i < len; i++ )
+                sb.append( Az_09.charAt( rnd.nextInt(Az_09.length()) ) );
+            return sb.toString();
+        }
+
+        public String randomAlphabeticString( int len ){
+            StringBuilder sb = new StringBuilder( len );
+            for( int i = 0; i < len; i++ )
+                sb.append( Az.charAt( rnd.nextInt(Az.length()) ) );
+            return sb.toString();
+        }
+
+        public String generateRandomAlphanumericNotAlreadyUsed(int len ) {
+            return notDuplicate(() -> randomAlphanumericString(len));
+        }
+
+        public String generateRandomAlphabeticNotAlreadyUsed(int len ) {
+            return notDuplicate(() -> randomAlphabeticString(len));
+        }
+
+        private String name;
+        private String notDuplicate(Supplier<String> supp) {
+            do {
+                name = supp.get();
+            } while (alreadyUsed.stream().anyMatch(x -> x.equals(name)));
+            alreadyUsed.add(name);
+            return name;
+        }
 
     }
 

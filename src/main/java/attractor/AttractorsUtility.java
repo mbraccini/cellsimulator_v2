@@ -6,6 +6,7 @@ import interfaces.attractor.ImmutableAttractor;
 import interfaces.attractor.MutableAttractor;
 import interfaces.state.BinaryState;
 import interfaces.state.State;
+import states.ImmutableRealState;
 import utility.GenericUtility;
 
 import java.util.*;
@@ -112,4 +113,23 @@ public class AttractorsUtility {
     }
 
 
+    /**
+     * Compute the representative mean activation of the attractor
+     * @return
+     */
+    public static <T extends BinaryState>  ImmutableRealState attractorMeanRepresentativeState(Attractor<T> a){
+        List<T> states = a.getStates();
+        int statesNumber = a.getStates().size();
+        int stateLength = a.getStates().get(0).getLength();
+        double[] newState = new double[stateLength];
+        int sum;
+        for (int i = 0; i < stateLength; i++) {
+            sum = 0;
+            for (T state : states) {
+               sum += (state.getNodeValue(i) == Boolean.FALSE ? 0 : 1);
+            }
+            newState[stateLength - i -1] = ((double)sum/statesNumber);
+        }
+        return new ImmutableRealState(newState);
+    }
 }

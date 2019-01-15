@@ -8,4 +8,14 @@ public interface BasicAttractor {
      */
     Integer getLength();
 
+
+    /**
+     * If it is a fixed point
+     * @return
+     */
+    default boolean isFixedPoint() {
+        return getLength() == 1;
+    }
+
+
 }
