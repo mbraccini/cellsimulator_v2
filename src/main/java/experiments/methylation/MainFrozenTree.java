@@ -25,6 +25,7 @@ import states.ImmutableBinaryState;
 import tes.DifferentiationNodeImpl;
 import tes.DifferentiationTreeImpl;
 import tes.StaticAnalysisTES;
+import utility.Files;
 import utility.GenericUtility;
 import utility.RandomnessFactory;
 import visualization.DifferentiationTreeGraphViz;
@@ -53,11 +54,13 @@ public class MainFrozenTree {
 
         @Override
         protected String nodeInfo(DifferentiationNode<FrozenNode> DifferentiationNode) {
-            return 	"\"" +
-                    (DifferentiationNode.getWrappedElement().getAttractor().isFixedPoint() ? "FP" : "")
-                    + GraphViz.NEW_LINE_DOT_ESCAPE
+            return 	"\""
+                    + "p:"      + DifferentiationNode.getWrappedElement().getAttractor().getLength()
+                    + "lvl:"    + DifferentiationNode.getLevel()
+                    + "lbl:"    + (DifferentiationNode.getWrappedElement().getEquivalence())
+
+                    //+ GraphViz.NEW_LINE_DOT_ESCAPE
                     //AttractorsUtility.attractorMeanRepresentativeState(DifferentiationNode.getWrappedElement().getAttractor())
-                    + (DifferentiationNode.getWrappedElement().getEquivalence())
 
             + "\"";
 
@@ -156,12 +159,40 @@ public class MainFrozenTree {
     }
 
     public static void main(String args[]){
+        System.out.println("...MainFrozenTree...");
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
-        int numNodes = 60;
+        int numNodes = 100;
         int k = 2;
         double bias = 0.5;
+        final int[] numChildrenPerNode = new int[]{2,3,4,5};
+        final int numOfFrozenNodesPerStep = 5;
 
+
+
+        String sep = ",";
+        for (int b: numChildrenPerNode) {
+            //FILES
+            String pathFolder = "b_" + b  + Files.FILE_SEPARATOR;
+            Files.createDirectories(pathFolder);
+            try (BufferedWriter csv = new BufferedWriter(new FileWriter(pathFolder + b + "_stats.csv", true))) {
+                //header
+                csv.append("level");
+                csv.append(sep);
+                csv.append("r");
+                //
+                csv.append("\n");
+                for (int i = 0; i < 30; i++) {
+                    csv.append(forEachBN(numNodes, k, bias, r,  b, numOfFrozenNodesPerStep, i, sep, pathFolder));
+                }
+            } catch (IOException e) {
+               e.printStackTrace();
+            }
+
+        }
+    }
+
+    static private String forEachBN(final int numNodes, final int k, final double bias, final RandomGenerator r,final int times, final int numOfIndices, final int ID, String sep, String pathFolder){
         BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn;
         bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.EXACT, BooleanNetworkFactory.SelfLoop.WITHOUT, numNodes,k,  bias, r);
 
@@ -174,8 +205,7 @@ public class MainFrozenTree {
         root.setLevel(0);
         DifferentiationTree<FrozenNode> tree = new DifferentiationTreeImpl<>(List.of(root));
 
-        final int times = 3;
-        final int numOfIndices = 5;
+
         Set<Set<Integer>> sets = indicesSibling(numNodes, r,times, numOfIndices);
 
         //System.out.println(bigger);
@@ -189,10 +219,12 @@ public class MainFrozenTree {
         List<DifferentiationNode<FrozenNode>> nodes;
         final int codeLen = 2;
 
+        //System.out.println(tree.getTreeRepresentation());
+
         //ANALYZING THE TREE
         for (int i = 1; i < tree.getLevelsNumber() ; i++) {
             Optional<Set<DifferentiationNode<FrozenNode>>> lvl = tree.getLevel(i);
-            if (!lvl.isPresent() || !(lvl.get().size() == Math.pow(3,i))) {
+            if (!lvl.isPresent() || !(lvl.get().size() == Math.pow(times,i))) {
                 throw new IllegalStateException();
             } else {
                 nodes = new ArrayList<>(lvl.get());
@@ -216,28 +248,36 @@ public class MainFrozenTree {
             }
         }
 
+
+
+
+
+        Files.writeBooleanNetworkToFile(bn, pathFolder + ID + "_bn");
+        new DifferentiationFrozenTreeGraphViz(tree).saveOnDisk( pathFolder + ID + "_diffTree");
+        return treeStatsPerLevel(tree, pathFolder, ID, sep);
+
+    }
+
+    static private String treeStatsPerLevel(DifferentiationTree<FrozenNode> tree, String pathFolder, final int ID, String sep){
+        String s;
+        StringBuilder sb = new StringBuilder();
         // COUNT FRACTION OF DIFFERENT ATTRS PER LEVEL
-        try (BufferedWriter csv = new BufferedWriter(new FileWriter("stats.csv", true),10)) {
-            String sep = ",";
-            csv.write("level" + sep + "fraction");
-            csv.newLine();
+        //try (BufferedWriter csv = new BufferedWriter(new FileWriter(pathFolder + ID + "_stats.csv", true),10)) {
             for (int i = 1; i < tree.getLevelsNumber(); i++) {
                 Optional<Set<DifferentiationNode<FrozenNode>>> lvl = tree.getLevel(i);
                 if (lvl.isPresent()) {
                     double d = (double) lvl.get().stream()
                             .map(y -> y.getWrappedElement().getEquivalence()).distinct().count();
                     double tot = d / Math.pow(3, i);
-                    csv.write(i + sep + tot);
-                    csv.newLine();
+                    sb.append(i + sep + tot);
+                    sb.append("\n");
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        //} catch (IOException e) {
+         //   e.printStackTrace();
+        //}
 
-        System.out.println(tree.getTreeRepresentation());
-        new DifferentiationFrozenTreeGraphViz(tree).saveOnDisk( "diffTree");
-
+        return sb.toString();
     }
 
     static private Set<Set<Integer>> indicesSibling(final int numNodes, final RandomGenerator r, final int times, final int numOfIndices){
