@@ -163,26 +163,29 @@ public class MainFrozenTree {
     public static void main(String args[]){
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
-        int numNodes = Integer.valueOf(args[0]);
+        /*int numNodes = Integer.valueOf(args[0]);
         boolean treeFile = Boolean.valueOf(args[1]);
         int numOfFrozenNodesPerStep = Integer.valueOf(args[2]);
         int k = Integer.valueOf(args[3]);
         double bias = Double.valueOf(args[4]);
-
-        /*int numNodes = 40;
-        boolean treeFile = false;
+        int branching = Integer.valueOf(args[5]);*/
+        int numNodes = 10;
+        boolean treeFile = true;
         int k = 2;
         double bias = 0.5;
-        final int numOfFrozenNodesPerStep = 2;*/
+        final int numOfFrozenNodesPerStep = 1;
+        final int branching = 2;
 
-        final int[] numChildrenPerNode = new int[]{2, 4};
-        final int SAMPLES = 30;
+
+        final int[] numChildrenPerNode = new int[]{branching};
+        final int SAMPLES = 1;
         System.out.println("...MainFrozenTree...\n" +
                 "numNodes: " + numNodes + "\n" +
                 "treeFile: " + treeFile + "\n" +
                 "numOfFrozenNodesPerStep: " + numOfFrozenNodesPerStep + "\n" +
                 "k: " + k + "\n" +
-                "bias: " + bias
+                "bias: " + bias + "\n" +
+                "branching: " + branching
         );
 
         String sep = ",";
@@ -259,7 +262,7 @@ public class MainFrozenTree {
 
         //System.out.println(tree.getTreeRepresentation());
 
-
+        Set<DifferentiationNode<FrozenNode>> currentLevel;
         //ANALYZING THE TREE
         //PUTS label into nodes' tree
         for (int i = 1; i < tree.getLevelsNumber() ; i++) {
@@ -267,7 +270,8 @@ public class MainFrozenTree {
             if (!lvl.isPresent() || !(lvl.get().size() == Math.pow(times,i))) {
                 throw new IllegalStateException();
             } else {
-                lvl.get().stream().forEach(y -> y.getWrappedElement().setEQUALS(Boolean.FALSE)); //ABILITO EQUALS
+                currentLevel = lvl.get();
+                currentLevel.stream().forEach(y -> y.getWrappedElement().setEQUALS(Boolean.FALSE)); //ABILITO EQUALS
                 nodes = new ArrayList<>(lvl.get());
                 for (int j = 0; j < nodes.size(); j++) {
                     DifferentiationNode<FrozenNode> n = nodes.get(j);
@@ -286,6 +290,7 @@ public class MainFrozenTree {
                         }
                     }
                 }
+                currentLevel.stream().forEach(y -> y.getWrappedElement().setEQUALS(Boolean.TRUE)); //RI-DISABILITO EQUALS per produzione dell'albero graphviz corretto altrimenti non metterebbe i nodi uguali
             }
         }
 
