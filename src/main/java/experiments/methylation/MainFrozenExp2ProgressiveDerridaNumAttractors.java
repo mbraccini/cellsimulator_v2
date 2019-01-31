@@ -31,32 +31,41 @@ import java.util.stream.Stream;
 public class MainFrozenExp2ProgressiveDerridaNumAttractors {
 
     //ANALISI 2
-    static final int BN_SAMPLES = 1;
-    static final String STATES_SAMPLE_DERRIDA = "5";//"1000";
+    static final int BN_SAMPLES = 100;
+    static final String STATES_SAMPLE_DERRIDA = "1000";
     static final String CSV_SEPARATOR = ",";
-    static final String COMBINATIONS_FOR_COMPUTING_ATTRS = "4";//"100000";
+    static final String COMBINATIONS_FOR_COMPUTING_ATTRS = "100000";
 
 
     public static void main(String args[]){
 
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
-        /*int numNodes = Integer.valueOf(args[0]);
-        int k = Integer.valueOf(args[3]);
-        double bias = Double.valueOf(args[4]);
-        */
-        int numNodes = 10;
-        int k = 2;
-        double bias = 0.5;
+        int numNodes = Integer.valueOf(args[0]);
+        int k = Integer.valueOf(args[1]);
+        double bias = Double.valueOf(args[2]);
+
+        /*int numNodes = 10;
+        int k = 3 ;
+        double bias = 0.5;*/
+
+        System.out.println("...ANALISI 2...\n" +
+                "numNodes: " + numNodes + "\n" +
+                "k: " + k + "\n" +
+                "bias: " + bias + "\n" +
+                "STATES_SAMPLE_DERRIDA: " + STATES_SAMPLE_DERRIDA + "\n" +
+                "COMBINATIONS_FOR_COMPUTING_ATTRS: " + COMBINATIONS_FOR_COMPUTING_ATTRS
+        );
 
         String pathFolder = "FrozenAnalisi2"  + Files.FILE_SEPARATOR;
         Files.createDirectories(pathFolder);
-        try (BufferedWriter csv = new BufferedWriter(new FileWriter(pathFolder + "stats.csv", true))) {
+        String filename = "n" + numNodes + "k" + k + "p" + bias ;
+        try (BufferedWriter csv = new BufferedWriter(new FileWriter(pathFolder + filename + "_stats.csv", true))) {
             // HEADER
-            csv.append("id, wildAttr, wildDerrida, 5FrAttr, 5FrDerrida, 25FrAttr, 25FrDerrida\n" );
+            csv.append("wildAttr, wildDerrida, 5FrAttr, 5FrDerrida, 25FrAttr, 25FrDerrida\n" );
             // FINE HEADER
             for (int i = 0; i < BN_SAMPLES; i++) {
-                forEachBN(i, numNodes, k, bias, r, csv);
+                forEachBN( numNodes, k, bias, r, csv);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -65,15 +74,13 @@ public class MainFrozenExp2ProgressiveDerridaNumAttractors {
     }
 
 
-    static private void forEachBN(  final int id,
+    static private void forEachBN(
                                     final int numNodes,
                                     final int k,
                                     final double bias,
                                     final RandomGenerator r,
                                     final BufferedWriter stats) throws IOException {
         int [] percentagesToFreeze = new int[]{10,50};
-        // write ID
-        stats.append(id + CSV_SEPARATOR);
         /* PASSO 1 (WILD)
            #attrs
            Derrida caso semplice (solo stati a caso)
