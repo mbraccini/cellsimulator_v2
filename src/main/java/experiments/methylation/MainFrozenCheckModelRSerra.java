@@ -39,24 +39,42 @@ import java.util.stream.Stream;
 
 public class MainFrozenCheckModelRSerra {
 
-    static BigInteger INITIAL_SAMPLES_STATES_NUMBER = BigInteger.valueOf(1000);
-    static Integer BN_SAMPLES = 1000;
+    static BigInteger INITIAL_SAMPLES_STATES_NUMBER = BigInteger.valueOf(10000);
+    static Integer BN_SAMPLES = 100;//1000;
 
     public static void main(String args[]) {
 
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
-        int numNodes = 500;
+        /*int numNodes = 500;
         int k = 2;
         double bias = 0.5;
+        final int lastFrozenNode = 200;
+        final int frozenStep = 5;*/
+
+        final int numNodes = Integer.valueOf(args[0]);
+        final int k = Integer.valueOf(args[1]);
+        final double bias = Double.valueOf(args[2]);
+        final int lastFrozenNode = Integer.valueOf(args[3]);
+        final int frozenStep = Integer.valueOf(args[4]);
+
+
         char sep = ',';
 
         System.out.println("MainFrozenCheckModelRSerra, " +
-                "BN_SAMPLES "+ BN_SAMPLES + " INITIAL_SAMPLES_STATES_NUMBER " + INITIAL_SAMPLES_STATES_NUMBER
-                + " N:"+ numNodes);
+                "BN_SAMPLES "+ BN_SAMPLES + "\n" +
+                "INITIAL_SAMPLES_STATES_NUMBER " + INITIAL_SAMPLES_STATES_NUMBER + "\n" +
+                "N:"+ numNodes + "\n" +
+                "k:"+ k + "\n" +
+                "bias:"+ bias + "\n" +
+                "lastFrozenNode:"+ lastFrozenNode + "\n" +
+                "frozenStep: " + frozenStep);
 
         //M = phi * N
-        Integer[] M = new Integer[]{0,25,125,250};
+        final int ITERATIONS = (lastFrozenNode / frozenStep) + 1;
+        Integer[] M = IntStream.iterate(0, i -> i + frozenStep).limit(ITERATIONS).boxed().toArray(Integer[]::new);
+        System.out.println(Arrays.toString(M));
+        //Integer[] M = new Integer[]{0,5,10,15,20,25};
         //Header of csv STRING
         List<String> attsString = IntStream.range(0, M.length).mapToObj(x -> "Attrs").collect(Collectors.toList());
         List<String> pfString = IntStream.range(0, M.length).mapToObj(x -> "FixPoints").collect(Collectors.toList());
@@ -97,11 +115,11 @@ public class MainFrozenCheckModelRSerra {
         List<Tuple2<String, Supplier<BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>>>>> bnSuppliers =
                    List.of(//new Tuple2<>("NON_CANALIZING", () -> new BNKBiasImpl(numNodes, r, Boolean.FALSE, new TableSupplierNonCanalizingK2(numNodes, r))),
                            //new Tuple2<>("ONLY_CANALIZING", () -> new BNKBiasImpl(numNodes, r, Boolean.FALSE, new TableSupplierCanalizingK2(numNodes, r))),
-                           new Tuple2<>("ALL", () -> BooleanNetworkFactory.newRBN(BNKBias.BiasType.EXACT, BooleanNetworkFactory.SelfLoop.WITHOUT, numNodes,k,  bias, r)));
+                           new Tuple2<>("ALL_"+k+bias, () -> BooleanNetworkFactory.newRBN(BNKBias.BiasType.EXACT, BooleanNetworkFactory.SelfLoop.WITHOUT, numNodes,k,  bias, r)));
 
         for (Tuple2<String, Supplier<BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>>>> supp : bnSuppliers) {
             String rootPath = supp._1() + Files.FILE_SEPARATOR;
-            Files.createDirectories(rootPath);
+            //Files.createDirectories(rootPath);
             Supplier<BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>>> bnSupplier = supp._2();
 
             BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn;
@@ -112,12 +130,12 @@ public class MainFrozenCheckModelRSerra {
                 for (int i = 0; i < BN_SAMPLES; i++) {
                     bn = bnSupplier.get();
                     String path_bn = rootPath + "bn_" + i + Files.FILE_SEPARATOR;
-                    Files.createDirectories(path_bn);
-                    Files.writeBooleanNetworkToFile(bn, path_bn + "bn_" + i);
+                    //Files.createDirectories(path_bn);
+                    //Files.writeBooleanNetworkToFile(bn, path_bn + "bn_" + i);
                     for (int j = 0; j < M.length; j++) {
                         int m = M[j];
                         String config_path = path_bn + "M_" + m + Files.FILE_SEPARATOR;
-                        Files.createDirectories(config_path);
+                        //Files.createDirectories(config_path);
                         Tuple5<Integer, Integer, Double, Double, Integer> NoAttrsNoFixedPoints = forEachConfiguration(bn, m, numNodes, k, bias, r, config_path);
                         csv.append(NoAttrsNoFixedPoints._1().toString());
                         csv.append(sep);

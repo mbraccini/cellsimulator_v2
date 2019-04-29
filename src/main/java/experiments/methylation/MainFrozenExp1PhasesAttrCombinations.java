@@ -175,8 +175,13 @@ public class MainFrozenExp1PhasesAttrCombinations {
     private static List<Integer> rndIndices(final int bnNumOfNodes, final int alreadyFrozenMaxIndex, final int howMany, final RandomGenerator r){
         List<Integer> l = new ArrayList<>();
         int range = bnNumOfNodes - alreadyFrozenMaxIndex;
-        for (int i = 0; i < howMany; i++) {
-            l.add(r.nextInt(range) + alreadyFrozenMaxIndex);
+        int temp;
+        for (int i = 0; i < howMany;) {
+            temp = r.nextInt(range) + alreadyFrozenMaxIndex;
+            if (!l.contains(temp)){
+                l.add(temp);
+                i++;
+            }
         }
         return l;
     }

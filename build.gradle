@@ -27,7 +27,7 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: guavaVersion
     compile group: 'org.jgrapht', name: 'jgrapht-core', version: jgraphtVersion
     compile group: 'javax.xml.bind', name: 'jaxb-api', version: jaxbVersion
-
+    compile group: 'org.sbml.jsbml', name: 'jsbml', version: jsbmlVersion
 }
 
 test {

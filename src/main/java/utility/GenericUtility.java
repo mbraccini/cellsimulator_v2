@@ -4,7 +4,12 @@ import interfaces.network.Table;
 import interfaces.tes.DifferentiationTree;
 import network.NodeDeterministicImpl;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
 
+import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
@@ -225,6 +230,19 @@ public class GenericUtility {
             return name;
         }
 
+    }
+
+
+    public static void main(String args[]){
+        SBMLDocument doc = null;
+        try {
+            doc = SBMLReader.read(new File("prova.sbml"));
+        } catch (XMLStreamException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(doc.toString());
     }
 
 }

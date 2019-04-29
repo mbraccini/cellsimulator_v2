@@ -4,6 +4,11 @@ import interfaces.state.State;
 
 import java.util.function.Function;
 
+/**
+ * Highly inspired from these tutorials: https://blog.codefx.org/design/patterns/decorator-pattern-java-8/
+ * and https://codingjam.it/decorator-patten-corretto-lambda-con-java-8/
+ * @param <T>
+ */
 public interface DecoratingDynamics<T extends State> extends Dynamics<T> {
 
     static <T extends State> DecoratingDynamics<T> from(Dynamics<T> dyn){

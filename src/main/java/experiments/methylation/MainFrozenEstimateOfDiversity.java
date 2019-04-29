@@ -14,11 +14,10 @@ import interfaces.network.BNKBias;
 import interfaces.network.NodeDeterministic;
 import interfaces.sequences.Generator;
 import interfaces.state.BinaryState;
-import io.vavr.Tuple2;
 import network.BooleanNetworkFactory;
 import org.apache.commons.math3.random.RandomGenerator;
+import simulator.AttractorsFinderService;
 import states.ImmutableBinaryState;
-import tes.StaticAnalysisTES;
 import utility.Files;
 import utility.RandomnessFactory;
 
@@ -34,40 +33,57 @@ import java.util.stream.Stream;
 public class MainFrozenEstimateOfDiversity {
 
 
-    //ANALISI 2
     static final int BN_SAMPLES = 100;
     //static final String CSV_SEPARATOR = ",";
-    static final String COMBINATIONS_FOR_COMPUTING_ATTRS = "100000";
-    static final Integer HOW_MANY_PAIRS_OF_TRIPLET = 1000;
-
+    static final String COMBINATIONS_FOR_COMPUTING_ATTRS = "1"; //ne basta una di condizione random
+    static final Integer HOW_MANY_PAIRS_OF_TRIPLET = 100;
+    static final int[] PHENOTYPES_DIMENSION = new int[]{10,50,100};
     public static void main(String args[]) {
 
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
-        int numNodes = Integer.valueOf(args[0]);
-        int k = Integer.valueOf(args[1]);
-        double bias = Double.valueOf(args[2]);
+        final int numNodes = Integer.valueOf(args[0]);
+        final int k = Integer.valueOf(args[1]);
+        final double bias = Double.valueOf(args[2]);
+        final int lastFrozenNode = Integer.valueOf(args[3]);
+        final int frozenStep = Integer.valueOf(args[4]);
+        boolean tripletsBetweenOnes = Boolean.valueOf(args[5]);
 
+        //final int phenotypeDimension = Integer.valueOf(args[4]);
+        //final int phenotypeDimension = 10;
         /*
-        int numNodes = 50;
-        int k = 2;
-        double bias = 0.5;
+        final int numNodes = 200;
+        final int k = 2;
+        final double bias = 0.5;
+        final int lastFrozenNode = 20;
+        final int frozenStep = 5;
+        final boolean tripletsBetweenOnes = true;
         */
+
 
         System.out.println("...PAIRS_OF_TRIPLET...\n" +
                 "numNodes: " + numNodes + "\n" +
                 "k: " + k + "\n" +
                 "bias: " + bias + "\n" +
+                "lastFrozenNode: " + lastFrozenNode + "\n" +
                 "HOW_MANY_PAIRS_OF_TRIPLET: " + HOW_MANY_PAIRS_OF_TRIPLET + "\n" +
-                "COMBINATIONS_FOR_COMPUTING_ATTRS: " + COMBINATIONS_FOR_COMPUTING_ATTRS
+                "COMBINATIONS_FOR_COMPUTING_ATTRS: " + COMBINATIONS_FOR_COMPUTING_ATTRS + "\n" +
+                "tripletsBetweenOnes: " + tripletsBetweenOnes + "\n" +
+                "frozenStep: " + frozenStep
         );
 
         String pathFolder = "pOt_" + k + bias + Files.FILE_SEPARATOR;
         Files.createDirectories(pathFolder);
         String filename = "n" + numNodes + "k" + k + "p" + bias;
         try (BufferedWriter csv = new BufferedWriter(new FileWriter(pathFolder + filename + "_stats.csv", true))) {
-            for (int i = 0; i < BN_SAMPLES; i++) {
-                forEachBN(i, numNodes, k, bias, r, csv);
+            for (int i = 0; i < BN_SAMPLES; ) {
+                System.out.print("sample #" + i);
+                if (forEachBN(i, numNodes, k, bias, r, csv, lastFrozenNode, frozenStep, tripletsBetweenOnes)){
+                    i++;
+                    System.out.println(" DONE");
+                } else {
+                    System.out.println(" FAILED");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -75,18 +91,23 @@ public class MainFrozenEstimateOfDiversity {
 
     }
 
-    static private void forEachBN(final int id,
+    static private boolean forEachBN(final int id,
                                   final int numNodes,
                                   final int k,
                                   final double bias,
                                   final RandomGenerator r,
-                                  final BufferedWriter stats) throws IOException {
-        final int LAST_FROZEN_NODE = 20;
+                                  final BufferedWriter stats,
+                                  final int LAST_FROZEN_NODE,
+                                  final int FROZEN_STEP,
+                                  final Boolean tripletsBetweenOnes ) throws IOException {
         // GENERATE BN
         BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn;
         bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.EXACT, BooleanNetworkFactory.SelfLoop.WITHOUT, numNodes, k, bias, r);
         // FOR EACH INITIAL NUMBER OF NODES FROZEN
-        for (Integer frozenNodesNumber : IntStream.range(0, LAST_FROZEN_NODE + 1).boxed().collect(Collectors.toList())) {
+        //for (Integer frozenNodesNumber : IntStream.range(0, LAST_FROZEN_NODE + 1).boxed().collect(Collectors.toList())) {
+        final int ITERATIONS = (LAST_FROZEN_NODE / FROZEN_STEP) + 1;
+        StringBuilder sb = new StringBuilder();
+        for (Integer frozenNodesNumber : IntStream.iterate(0, i -> i + FROZEN_STEP).limit(ITERATIONS).boxed().collect(Collectors.toList())) {
             //FREEZE
             List<Integer> indicesToFreeze = IntStream.range(0, frozenNodesNumber).boxed().collect(Collectors.toList());
             //KNOCK OUT DYNAMICS
@@ -102,48 +123,102 @@ public class MainFrozenEstimateOfDiversity {
                     .map(sample -> sample.setNodesValues(Boolean.FALSE, indicesToFreeze.toArray(new Integer[0])))
                     .collect(Collectors.toList()));
 
-            Attractors<BinaryState> attrs = StaticAnalysisTES.attractors(generator, dynamics);
+            //Attractors<BinaryState> attrs = StaticAnalysisTES.attractors(generator, dynamics);
+
+            //ATTRACTORS
+            Attractors<BinaryState> attrs = AttractorsFinderService.apply(generator,
+                    dynamics,
+                    false,
+                    false,
+                    AttractorsFinderService.CUT_OFF_PERCENTAGE_TERMINATION.apply(numNodes));
+
 
             // WE CHOOSE A RND ATTRACTOR
             int numAttrs = attrs.numberOfAttractors();
-            ImmutableAttractor<BinaryState> attr = attrs.getAttractors().get(r.nextInt(numAttrs));
+            if (numAttrs != 1){
+                return false;
+            }
+
+            ImmutableAttractor<BinaryState> attr = attrs.getAttractors().get(0);
 
             // THE FIRST PHASE
             BinaryState initialState = attr.getFirstState();
+            //System.out.println("initialState: " + initialState);
 
-
+            List<Integer> onesInInitialState = getIndicesOfNodesWithOneAsValue(initialState);
+            if (onesInInitialState.size() < 3) {
+                //dato che devo prendere almeno delle triplette
+                return false;
+            }
+            //System.out.println("onesInInitialState: " + onesInInitialState);
             // GENERATE PHENOTYPE
-            List<Integer> phenotype = phenotype(10, numNodes, r);
+            List<List<Integer>> phenotypes = new ArrayList<>();
+            List<Set<List<BinaryState>>> phenotypesSET = new ArrayList<>();
+            for (int x = 0 ; x < PHENOTYPES_DIMENSION.length; x++) {
+                phenotypes.add(phenotype(PHENOTYPES_DIMENSION[x], numNodes, r));
+                phenotypesSET.add(new HashSet<>());
+            }
+            //System.out.println(phenotypes);
             // STATISTICS VALUES
             int countDifferentAttractorsTriplets = 0;
-            int countDifferentAttractorsPhenotype = 0;
+            List<Integer> countDifferentAttractorsPhenotypes = new ArrayList<>(Collections.nCopies(PHENOTYPES_DIMENSION.length, 0));
+            int countDifferentAttractorsAllEnnuple = 0;
+
+            Set<ImmutableAttractor<BinaryState>> allEnnupleSET = new HashSet<>();
+
+            int numberOfActualTriplets = 0;
+
             //GENERATE TRIPLETS
             for (int i = 0; i < HOW_MANY_PAIRS_OF_TRIPLET; i++) {
                 // WE GENERATE 2 RND TRIPLET FROM THE FREE NODES (NOT FROZEN)
-                List<List<Integer>> triplets = new ArrayList<>();
-                for (int j = 0; j < 2; j++) {
-                    List<Integer> triplet = new ArrayList<>();
-                    triplet.add(r.nextInt(numNodes - frozenNodesNumber) + frozenNodesNumber);
-                    do {
-                        int temp = r.nextInt(numNodes - frozenNodesNumber) + frozenNodesNumber;
-                        if (!triplet.contains(temp)) {
-                            triplet.add(temp);
-                        }
-                    } while (triplet.size() < 3);
-                    triplets.add(triplet);
+                // BUT WE CHOOSE ONLY BETWEEN THE 1's
+                List<List<Integer>> triplets;
+                if (tripletsBetweenOnes) {
+                    triplets = twoONEStriplets(onesInInitialState, r);
+                } else {
+                    triplets = twoRNDtriplets(numNodes, frozenNodesNumber, r);
                 }
+                //System.out.println("triplets: " + triplets);
+
                 // WE FREEZE THE TRIPLETS AND CHECK IF THE 2 REACHED ATTRACTORS ARE EQUAL FOR THE REMAINING (FREE) PARTS
+                //System.out.println("triplets: " + triplets);
                 List<ImmutableAttractor<BinaryState>> pairsOfAttrs = new ArrayList<>();
                 for (int j = 0; j < 2; j++) {
+                    //System.out.println("chosen triplet: " + triplets.get(j));
+
                     List<Integer> idxs = new ArrayList<>(indicesToFreeze);
-                    indicesToFreeze.addAll(triplets.get(j));
-                    pairsOfAttrs.add(freezeAndComputeAttractor(bn, initialState, idxs));
+                    idxs.addAll(triplets.get(j));
+                    ImmutableAttractor<BinaryState> a = freezeAndComputeAttractor(bn, initialState, idxs);
+                    if (a != null) {
+                        pairsOfAttrs.add(a);
+                    }
+                }
+                if (pairsOfAttrs.size() != 2) {
+                    continue;
                 }
 
+                numberOfActualTriplets++;
 
                 //System.out.println("0: " +pairsOfAttrs.get(0));
                 //System.out.println("1: " +pairsOfAttrs.get(1));
 
+                // ALL ENNUPLE
+                allEnnupleSET.add(pairsOfAttrs.get(0));
+                allEnnupleSET.add(pairsOfAttrs.get(1));
+
+                // ALL PHENOTYPE
+                for (int x = 0 ; x < PHENOTYPES_DIMENSION.length; x++) {
+                    phenotypesSET.get(x).add(constructNewAttractor(pairsOfAttrs.get(0), phenotypes.get(x)));
+                    phenotypesSET.get(x).add(constructNewAttractor(pairsOfAttrs.get(1), phenotypes.get(x)));
+                }
+
+
+                // ALL ENNUPLE PAIR CHECK
+                if (pairsOfAttrs.get(0).equals(pairsOfAttrs.get(1))){
+                    countDifferentAttractorsAllEnnuple++;
+                }
+
+                // PAIR OF TRIPLET CHECK AND PHENOTYPE
                 if (pairsOfAttrs.get(0).getLength().intValue() == pairsOfAttrs.get(1).getLength().intValue()) {
                     Set<Integer> all = IntStream.range(0, numNodes).boxed().collect(Collectors.toSet()); //all indices
                     Set<Integer> alreadyFrozen = new HashSet<>(indicesToFreeze);
@@ -158,21 +233,82 @@ public class MainFrozenEstimateOfDiversity {
                     //System.out.println("indicesToMaintainList: " +indicesToMaintainList);
 
                     // TRIPLETS
+                    //System.out.println("BEFORE");
                     if (checkIfEqual(pairsOfAttrs.get(0), pairsOfAttrs.get(1), indicesToMaintainList)) {
                         countDifferentAttractorsTriplets++;
                     }
-                    if (checkIfEqual(pairsOfAttrs.get(0), pairsOfAttrs.get(1), phenotype)) {
-                        countDifferentAttractorsPhenotype++;
+                    //System.out.println("AFTER");
+                    for (int x = 0 ; x < PHENOTYPES_DIMENSION.length; x++) {
+                        if (checkIfEqual(pairsOfAttrs.get(0), pairsOfAttrs.get(1), phenotypes.get(x))) {
+                            countDifferentAttractorsPhenotypes.set(x, countDifferentAttractorsPhenotypes.get(x) + 1);
+                        }
                     }
                 }
             }
-            stats.append(countDifferentAttractorsTriplets + ", " + countDifferentAttractorsPhenotype);
+
+            sb.append(countDifferentAttractorsTriplets + "," + countDifferentAttractorsPhenotypes.stream().map(x -> x + "").collect(Collectors.joining(",")) + "," + countDifferentAttractorsAllEnnuple + "," + allEnnupleSET.size() + "," + phenotypesSET.stream().map(x -> x.size() + "").collect(Collectors.joining(",")) + "," + numberOfActualTriplets);
             if (frozenNodesNumber == LAST_FROZEN_NODE){
-                stats.append("\n");
+                sb.append("\n");
             } else {
-                stats.append(",");
+                sb.append(",");
             }
         }
+        stats.append(sb.toString());
+        return true;
+    }
+
+    private static List<Integer> getIndicesOfNodesWithOneAsValue(BinaryState initialState) {
+        List<Integer> idxs = new ArrayList<>();
+        for (int i = 0; i < initialState.getLength(); i++) {
+            if (initialState.getNodeValue(i)){
+                idxs.add(i);
+            }
+        }
+        return idxs;
+    }
+
+    /**
+     * 2 coppie di triplette con nodi scelti tra quelli con valore 1 nello stato specificato di partenza
+     * @param ones
+     * @return
+     */
+    private static List<List<Integer>> twoONEStriplets(List<Integer> ones, RandomGenerator r) {
+        List<List<Integer>> triplets = new ArrayList<>();
+        for (int j = 0; j < 2; j++) {
+            List<Integer> triplet = new ArrayList<>();
+            triplet.add(ones.get(r.nextInt(ones.size())));
+            do {
+                int temp = ones.get(r.nextInt(ones.size()));
+                if (!triplet.contains(temp)) {
+                    triplet.add(temp);
+                }
+            } while (triplet.size() < 3);
+            triplets.add(triplet);
+        }
+        return triplets;
+    }
+
+    /**
+     * 2 coppie di triplette Random con indici scelti tra i nodi NON CONGELATI
+     * @param numNodes
+     * @param frozenNodesNumber
+     * @param r
+     * @return
+     */
+    private static List<List<Integer>> twoRNDtriplets(int numNodes, int frozenNodesNumber, RandomGenerator r) {
+        List<List<Integer>> triplets = new ArrayList<>();
+        for (int j = 0; j < 2; j++) {
+            List<Integer> triplet = new ArrayList<>();
+            triplet.add(r.nextInt(numNodes - frozenNodesNumber) + frozenNodesNumber);
+            do {
+                int temp = r.nextInt(numNodes - frozenNodesNumber) + frozenNodesNumber;
+                if (!triplet.contains(temp)) {
+                    triplet.add(temp);
+                }
+            } while (triplet.size() < 3);
+            triplets.add(triplet);
+        }
+        return triplets;
     }
 
     private static Boolean checkIfEqual(Attractor<BinaryState> att1, Attractor<BinaryState> att2, List<Integer> indicesToMaintainList){
@@ -197,11 +333,13 @@ public class MainFrozenEstimateOfDiversity {
             if (!phenotype.contains(val)){
                 phenotype.add(val);
             }
-        } while(phenotype.size() < 10);
+        } while(phenotype.size() < numOfIndices);
         return phenotype;
     }
 
     private static List<BinaryState> constructNewAttractor(Attractor<BinaryState> oldAttractor, List<Integer> indicesToMaintainList){
+        //System.out.println("indicesToMaintainList: " + indicesToMaintainList);
+
         List<BinaryState> thisAttractor = new ArrayList<>();
 
         for (BinaryState state: oldAttractor.getStates()) {
@@ -222,6 +360,7 @@ public class MainFrozenEstimateOfDiversity {
                                                   BinaryState initialState,
                                                   List<Integer> indicesToFreeze) {
 
+        //System.out.println("indicesToFreeze: " + indicesToFreeze);
 
 
         //KNOCK OUT DYNAMICS
@@ -238,9 +377,16 @@ public class MainFrozenEstimateOfDiversity {
                 .map(sample -> sample.setNodesValues(Boolean.FALSE, indicesToFreeze.toArray(new Integer[0])))
                 .collect(Collectors.toList()));
         //ATTRACTORS
-        Attractors<BinaryState> atts = StaticAnalysisTES.attractors(genKO, dynamicsKO);
+        //Attractors<BinaryState> atts = StaticAnalysisTES.attractors(genKO, dynamicsKO);
+        Attractors<BinaryState> atts = AttractorsFinderService.apply(genKO,
+                dynamicsKO,
+                false,
+                false,
+                AttractorsFinderService.CUT_OFF_PERCENTAGE_TERMINATION.apply(bn.getNodesNumber()));
+
         if (atts.numberOfAttractors() != 1) {
-            throw new IllegalStateException("Not Admissible number of attractors starting from one intial state");
+            //throw new IllegalStateException("Not Admissible number of attractors starting from one intial state");
+            return null;
         }
         return atts.getAttractors().get(0);
     }
