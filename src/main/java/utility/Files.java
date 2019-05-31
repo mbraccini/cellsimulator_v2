@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Files {
     /**
@@ -229,16 +230,27 @@ public class Files {
         }
     }
 
-    public static void writeMatrixToCsv(int[][] matrix, String filename) {
+
+
+    public static void writeMatrixToCsv(int[][] matrix, String filename, String[] header) {
         List<String[]> s = Arrays.stream(matrix).map(x -> Arrays.stream(x).mapToObj(String::valueOf).toArray(String[]::new)).collect(Collectors.toList());
+        if (header!=null){
+            s.add(0, header);
+        }
         writeToCsv(s, filename);
     }
-    public static void writeMatrixToCsv(double[][] matrix, String filename) {
+    public static void writeMatrixToCsv(double[][] matrix, String filename,String[] header) {
         List<String[]> s = Arrays.stream(matrix).map(x -> Arrays.stream(x).mapToObj(String::valueOf).toArray(String[]::new)).collect(Collectors.toList());
+        if (header!=null){
+            s.add(0, header);
+        }
         writeToCsv(s, filename);
     }
-    public static <T> void writeMatrixToCsv(T[][] matrix, String filename) {
+    public static <T> void writeMatrixToCsv(T[][] matrix, String filename, String[] header) {
         List<String[]> s = Arrays.stream(matrix).map(x -> Arrays.stream(x).map(Object::toString).toArray(String[]::new)).collect(Collectors.toList());
+        if (header!=null){
+            s.add(0, header);
+        }
         writeToCsv(s, filename);
     }
     public static void writeListsToCsv(List<List<?>> list, String filename) {

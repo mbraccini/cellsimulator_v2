@@ -139,7 +139,7 @@ public class Main_miRNA2 {
         Files.writeStringToFileUTF8(path + "bn", BNClassic.getBNFileRepresentation(bn));
 
         /* atm */
-        Files.writeMatrixToCsv(atm.getMatrixCopy(), path + "atm");
+        Files.writeMatrixToCsv(atm.getMatrixCopy(), path + "atm",null);
 
         /* attractors */
         Files.writeAttractorsToReadableFile(attractors.getAttractors(), path + "attractors");

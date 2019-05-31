@@ -100,6 +100,7 @@ import dynamic.FrozenNodesDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import interfaces.attractor.Attractors;
+import interfaces.attractor.ImmutableAttractor;
 import interfaces.dynamic.DecoratingDynamics;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BNClassic;
@@ -115,7 +116,9 @@ import utility.Files;
 import utility.RandomnessFactory;
 
 import java.util.BitSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Main {
     public static void main (String [] args) {
@@ -131,7 +134,15 @@ public class Main {
 
         Dynamics<BinaryState> dynamics2 = new SynchronousDynamicsImpl(bn);
         Attractors<BinaryState> a = StaticAnalysisTES.attractors(generator,dynamics2);
-        System.out.print(a);
+
+
+        Set<ImmutableAttractor> set = new HashSet<>();
+        set.add(a.getAttractors().get(0));
+        set.add(a.getAttractors().get(0));
+
+        System.out.println(set);
+        System.out.println(set.size());
+
         Files.writeAttractorsToReadableFile(a, "pluto");
 
     }

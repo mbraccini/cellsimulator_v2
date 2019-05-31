@@ -25,10 +25,10 @@ public class MainSimpleRandomSampling {
         Number[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
         double[][] doubleSorted = MatrixUtility.fromNumberToDoubleMatrix(sorted);
 
-        return new Tuple5<>(GeneticAlgFitness.f1_robustness_min(doubleSorted),
-                GeneticAlgFitness.f2_equallyDistributed(doubleSorted),
-                GeneticAlgFitness.f3_triangleDifference(doubleSorted),
-                GeneticAlgFitness.f4_robustness_max(doubleSorted),
+        return new Tuple5<>(MatrixUtility.f1_robustness_min(doubleSorted),
+        MatrixUtility.f2_equallyDistributed(doubleSorted),
+                MatrixUtility.f3_triangleDifference(doubleSorted),
+                MatrixUtility.f4_robustness_max(doubleSorted),
                 atm.length
         );
     }

@@ -1,11 +1,15 @@
 package utility;
 
+import interfaces.attractor.Attractors;
+import interfaces.state.State;
 import interfaces.tes.Atm;
 import io.vavr.Tuple2;
+import tes.AtmImpl;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -141,5 +145,62 @@ public class MatrixUtility {
 
         double[] newSum = Arrays.stream(sum).map(a ->  Math.round(a * 100.0) / 100.0).toArray();
         return newSum;
+    }
+
+
+    public static double f1_robustness_min(double[][] m) {
+        /*double sum = 0.0;
+        if(m.length > 0) {
+            sum = m[0][0];
+            for (int j = 1; j < m[0].length; j++) {
+                sum -= m[0][j];
+            }
+        }*/
+        return Math.round(m[0][0] * 100.0) / 100.0;
+    }
+
+    public static double f4_robustness_max(double[][] m) {
+        return Math.round(m[m.length - 1][m.length - 1] * 100.0) / 100.0;
+    }
+
+
+    public static double f2_equallyDistributed(double[][] m) {
+        //int attractorsNumber = m.length;
+        double sum = 0;
+        Double previous = null;
+        for (int i = m.length - 1 ; i >= 0; i--) {
+            for (int j = m[i].length - 1; j >= 0; j--) {
+                if (i == j) {
+                    if (Objects.nonNull(previous)) {
+                        sum += previous - m[i][j];
+                    }
+                    previous = m[i][j];
+                }
+            }
+        }
+        //return Math.round((sum * attractorsNumber) * 100.0) / 100.0;
+        return Math.round(sum * 100.0) / 100.0;
+
+    }
+
+    public static double f3_triangleDifference(double[][] m) {
+        double[] trianglesSums = summingLowerAndUpperTriangle(m);
+        double lower = trianglesSums[0];
+        double upper = trianglesSums[1];
+        return Math.round((upper - lower) * 100.0) / 100.0;
+    }
+
+    static double[] summingLowerAndUpperTriangle(double[][] m) {
+        double[] sum = new double[2]; //lower, upper
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[i].length; j++) {
+                if (i > j) {
+                    sum[0] += m[i][j];
+                } else if (j > i) {
+                    sum[1] += m[i][j];
+                }
+            }
+        }
+        return sum;
     }
 }

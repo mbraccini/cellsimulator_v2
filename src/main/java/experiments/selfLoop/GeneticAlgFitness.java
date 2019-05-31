@@ -108,9 +108,9 @@ public class GeneticAlgFitness {
         Number[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
         double[][] doubleSorted = MatrixUtility.fromNumberToDoubleMatrix(sorted);
         //return f1_robustness(doubleSorted) + f2_equallyDistributed(doubleSorted) + f3_triangleDifference(doubleSorted);
-        return new Tuple3Extended(  f1_robustness_min(doubleSorted),
-                f2_equallyDistributed(doubleSorted),
-                f3_triangleDifference(doubleSorted));
+        return new Tuple3Extended(  MatrixUtility.f1_robustness_min(doubleSorted),
+                MatrixUtility.f2_equallyDistributed(doubleSorted),
+                MatrixUtility.f3_triangleDifference(doubleSorted));
     }
 
     public static Vec<double[]> evalMultiObjective(Genotype<IntegerGene> gt) {
@@ -122,53 +122,14 @@ public class GeneticAlgFitness {
         Number[][] sorted = MatrixUtility.reorderByDiagonalValues(atm);
         double[][] doubleSorted = MatrixUtility.fromNumberToDoubleMatrix(sorted);
         //return f1_robustness(doubleSorted) + f2_equallyDistributed(doubleSorted) + f3_triangleDifference(doubleSorted);
-        return Vec.of(f1_robustness_min(doubleSorted),
-                f2_equallyDistributed(doubleSorted),
-                f3_triangleDifference(doubleSorted));
+        return Vec.of(MatrixUtility.f1_robustness_min(doubleSorted),
+                MatrixUtility.f2_equallyDistributed(doubleSorted),
+                MatrixUtility.f3_triangleDifference(doubleSorted));
     }
 
 
-    public static double f1_robustness_min(double[][] m) {
-        /*double sum = 0.0;
-        if(m.length > 0) {
-            sum = m[0][0];
-            for (int j = 1; j < m[0].length; j++) {
-                sum -= m[0][j];
-            }
-        }*/
-        return Math.round(m[0][0] * 100.0) / 100.0;
-    }
-
-    public static double f4_robustness_max(double[][] m) {
-        return Math.round(m[m.length - 1][m.length - 1] * 100.0) / 100.0;
-    }
 
 
-    public static double f2_equallyDistributed(double[][] m) {
-        //int attractorsNumber = m.length;
-        double sum = 0;
-        Double previous = null;
-        for (int i = m.length - 1 ; i >= 0; i--) {
-            for (int j = m[i].length - 1; j >= 0; j--) {
-                if (i == j) {
-                    if (Objects.nonNull(previous)) {
-                        sum += previous - m[i][j];
-                    }
-                    previous = m[i][j];
-                }
-            }
-        }
-        //return Math.round((sum * attractorsNumber) * 100.0) / 100.0;
-        return Math.round(sum * 100.0) / 100.0;
-
-    }
-
-    public static double f3_triangleDifference(double[][] m) {
-        double[] trianglesSums = summingLowerAndUpperTriangle(m);
-        double lower = trianglesSums[0];
-        double upper = trianglesSums[1];
-        return Math.round((upper - lower) * 100.0) / 100.0;
-    }
 
     public static BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> fromGenotypeToBN(Genotype<IntegerGene> gt, int k) {
         final int BINARY_DIGIT_NUMBER = (int) Math.round(Math.pow(2, k));
@@ -222,19 +183,7 @@ public class GeneticAlgFitness {
 
 
 
-    static double[] summingLowerAndUpperTriangle(double[][] m) {
-        double[] sum = new double[2]; //lower, upper
-        for (int i = 0; i < m.length; i++) {
-            for (int j = 0; j < m[i].length; j++) {
-                if (i > j) {
-                    sum[0] += m[i][j];
-                } else if (j > i) {
-                    sum[1] += m[i][j];
-                }
-            }
-        }
-        return sum;
-    }
+
 
 
 
@@ -274,8 +223,8 @@ public class GeneticAlgFitness {
             String path_res = path  +  Files.FILE_SEPARATOR + "GeneticAlg" + Files.FILE_SEPARATOR ;
             Files.createDirectories(path);
 
-            Files.writeMatrixToCsv(atm.getMatrixCopy(), path_res + "originalATM");
-            Files.writeMatrixToCsv(MatrixUtility.reorderByDiagonalValues(atm.getMatrixCopy()), path_res + "sortedATM");
+            Files.writeMatrixToCsv(atm.getMatrixCopy(), path_res + "originalATM",null);
+            Files.writeMatrixToCsv(MatrixUtility.reorderByDiagonalValues(atm.getMatrixCopy()), path_res + "sortedATM",null);
 
             //new AtmGraphViz(atm, path_res + "atm").generateDotFile().generateImg("jpg");
             new BNGraphViz<>(bn).saveOnDisk( path_res + "bn");

@@ -28,6 +28,8 @@ dependencies {
     compile group: 'org.jgrapht', name: 'jgrapht-core', version: jgraphtVersion
     compile group: 'javax.xml.bind', name: 'jaxb-api', version: jaxbVersion
     compile group: 'org.sbml.jsbml', name: 'jsbml', version: jsbmlVersion
+    compile group: 'com.github.dpaukov', name: 'combinatoricslib3', version: combinatoricslibVersion
+    
 }
 
 test {
