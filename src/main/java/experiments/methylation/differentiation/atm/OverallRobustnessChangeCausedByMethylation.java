@@ -5,7 +5,6 @@ import dynamic.FrozenNodesDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.BagOfStatesGenerator;
 import generator.CompleteGenerator;
-import interfaces.attractor.Attractor;
 import interfaces.attractor.Attractors;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.dynamic.DecoratingDynamics;
@@ -18,7 +17,6 @@ import interfaces.state.BinaryState;
 import interfaces.tes.Atm;
 import io.jenetics.util.IntRange;
 import io.vavr.Tuple2;
-import network.BNClassicBuilder;
 import network.BooleanNetworkFactory;
 import noise.CompletePerturbations;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -30,7 +28,6 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class OverallRobustnessChangeCausedByMethylation {
@@ -80,7 +77,7 @@ public class OverallRobustnessChangeCausedByMethylation {
                             final double bias,
                             final BooleanNetworkFactory.WIRING_TYPE wiringType,
                             final int Kcombinations){
-        String dir = parentDirectory + selfLoop + Files.FILE_SEPARATOR;
+        String dir = parentDirectory + "sl_" +selfLoop + Files.FILE_SEPARATOR + "froz_" +Kcombinations + Files.FILE_SEPARATOR;
         Files.createDirectories(dir);
         int count = 0;
         BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn;
@@ -101,7 +98,7 @@ public class OverallRobustnessChangeCausedByMethylation {
             String[] sortedHeader = a._2(); //Arrays.stream(a._2()).map(Integer::valueOf).collect(Collectors.toList());
             ImmutableAttractor<BinaryState> pluripotent = attractors.getAttractorById(Integer.valueOf(sortedHeader[0]));
             Set<Integer> ones = retrieveIndicesOfFixedOnes(pluripotent);
-            if (ones.size() > 1) {
+            if (ones.size() >= Kcombinations) {
                 count++; //valid network
             } else {
                 continue;
@@ -113,8 +110,9 @@ public class OverallRobustnessChangeCausedByMethylation {
             System.out.println(sortedHeader);
             System.out.println(pluripotent);*/
 
-            double startingf2 = MatrixUtility.f2_equallyDistributed(sortedATM) / attractors.numberOfAttractors();
-            double startingf3 = MatrixUtility.f3_triangleDifference(sortedATM) / attractors.numberOfAttractors();
+            double startingf2 = MatrixUtility.f2_equallyDistributed(sortedATM);
+            double startingf3 = MatrixUtility.f3_triangleDifference(sortedATM);
+            double startingf3_divided = startingf3 / attractors.numberOfAttractors();
 
 
             List<List<Integer>> combinations = org.paukov.combinatorics3.Generator.combination(ones)
@@ -125,6 +123,8 @@ public class OverallRobustnessChangeCausedByMethylation {
             frozenf2list.add(startingf2);
             List<Double> frozenf3list = new ArrayList<>();
             frozenf3list.add(startingf3);
+            List<Double> frozenf3dividedlist = new ArrayList<>();
+            frozenf3dividedlist.add(startingf3_divided);
 
             for (List<Integer> combFrozenIndices : combinations) {
                 //List<Integer> combFrozenIndices = combinations.get(0);
@@ -140,6 +140,7 @@ public class OverallRobustnessChangeCausedByMethylation {
                         .limit((long) Math.floor(Math.pow(2, nodesNumber)))
                         .map(sample -> sample.setNodesValues(Boolean.FALSE, combFrozenIndices.toArray(new Integer[0])))
                         .collect(Collectors.toSet()));
+                //System.out.println(Stream.generate(genFrozen::nextSample).limit(((long)Math.pow(2, nodesNumber - Kcombinations))).collect(Collectors.toList()));
                 if (genFrozen.totalNumberOfSamplesToBeGenerated().longValue() != (long) Math.floor(Math.pow(2, nodesNumber - Kcombinations))) {
                     throw new RuntimeException("Mismatch in number of initial states!");
                 }
@@ -147,13 +148,17 @@ public class OverallRobustnessChangeCausedByMethylation {
                 Atm<BinaryState> atmFrozen = new CompletePerturbations().apply(attsFrozen, dynFrozen, Constant.PERTURBATIONS_CUTOFF, combFrozenIndices);
                 Tuple2<Number[][], String[]> frozenSorted = MatrixUtility.reorderByDiagonalValuesATM(atmFrozen);
                 double[][] sortedFrozenATM = MatrixUtility.fromNumberToDoubleMatrix(frozenSorted._1());
-                double frozenf2 = MatrixUtility.f2_equallyDistributed(sortedFrozenATM) / attsFrozen.numberOfAttractors();
-                double frozenf3 = MatrixUtility.f3_triangleDifference(sortedFrozenATM) / attsFrozen.numberOfAttractors();
+                double frozenf2 = MatrixUtility.f2_equallyDistributed(sortedFrozenATM);
+                double frozenf3 = MatrixUtility.f3_triangleDifference(sortedFrozenATM);
+                double frozenf3_divided = frozenf3 / attsFrozen.numberOfAttractors();
+
                 //System.out.println(frozenf2);
                 //System.out.println(frozenf3);
                 //GenericUtility.printMatrix(sortedFrozenATM);
                 frozenf2list.add(frozenf2);
                 frozenf3list.add(frozenf3);
+                frozenf3dividedlist.add(frozenf3_divided);
+
                 // TO FILES
                 String combFrozenIndicesString =  combFrozenIndices.stream().map(String::valueOf).collect(Collectors.joining("_"));
                 Files.writeAttractorsToReadableFile(attsFrozen,
@@ -167,6 +172,8 @@ public class OverallRobustnessChangeCausedByMethylation {
             Files.writeMatrixToCsv(sortedATM,               dir + count + "_atm_start", sortedHeader);
             Files.writeListsToCsv(List.of(frozenf2list.stream().map(x -> df.format(x)).collect(Collectors.toList())), dir + count + "_f2.csv");
             Files.writeListsToCsv(List.of(frozenf3list.stream().map(x -> df.format(x)).collect(Collectors.toList())), dir + count + "_f3.csv");
+            Files.writeListsToCsv(List.of(frozenf3dividedlist.stream().map(x -> df.format(x)).collect(Collectors.toList())), dir + count + "_f3_divided.csv");
+
         }
     }
 
@@ -177,10 +184,11 @@ public class OverallRobustnessChangeCausedByMethylation {
         final int k = 2;
         final double bias = 0.5;
         final BooleanNetworkFactory.WIRING_TYPE wiringType = BooleanNetworkFactory.WIRING_TYPE.OR_K_FIXED;
-        final int Kcombinations = 2;
-        final int howManyNetworks = 50;
+        final int howManyNetworks = 100;
         String parentDirectory = "differentiationByMethylation" + Files.FILE_SEPARATOR;
         Files.createDirectories(parentDirectory);
-        List.of(0,3,6).forEach(selfloopNumber -> experiment(parentDirectory,howManyNetworks,selfloopNumber,r,nodesNumber,k,bias,wiringType,Kcombinations));
+        org.paukov.combinatorics3.Generator.cartesianProduct( List.of(0,3,6,9), List.of(2,4,6))
+                    .stream()
+                    .forEach((List<Integer> comb) -> experiment(parentDirectory,howManyNetworks,comb.get(0),r,nodesNumber,k,bias,wiringType,comb.get(1)));
     }
 }
