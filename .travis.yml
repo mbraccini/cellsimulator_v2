@@ -4,12 +4,13 @@ language: java
 #  - oraclejdk9
 
 jdk:
+  - openjdk8
+  - oraclejdk8
   - oraclejdk9
-matrix:
-  allow_failures:
-    - jdk: oraclejdk9
 
-addons:
-  apt:
-    packages:
-      - oracle-java9-installer
+matrix:
+  include:
+    - jdk: openjdk9
+      before_install:
+        - rm "${JAVA_HOME}/lib/security/cacerts"
+        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
