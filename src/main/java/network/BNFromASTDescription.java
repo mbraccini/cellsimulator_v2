@@ -3,11 +3,9 @@ package network;
 import exceptions.SemanticException;
 import exceptions.SyntaxParserException;
 import interfaces.network.BNClassic;
-import interfaces.network.Node;
 import interfaces.network.NodeDeterministic;
 import interfaces.network.Table;
 import interfaces.networkdescription.*;
-import javafx.util.Builder;
 import states.States;
 
 import java.util.*;
