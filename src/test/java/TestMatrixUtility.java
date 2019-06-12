@@ -50,12 +50,12 @@ public class TestMatrixUtility {
 
         double[][] M = MatrixUtility.fromNumberToDoubleMatrix(m);
 
-        List.of(GeneticAlgFitness.f1_robustness_min(M),GeneticAlgFitness.f2_equallyDistributed(M),GeneticAlgFitness.f3_triangleDifference(M),GeneticAlgFitness.f4_robustness_max(M)).forEach(System.out::println);
+        List.of(MatrixUtility.f1_robustness_min(M),MatrixUtility.f2_equallyDistributed(M),MatrixUtility.f3_triangleDifference(M),MatrixUtility.f4_robustness_max(M)).forEach(System.out::println);
 
-        assertTrue("Diagonal Min Not Correct, " , GeneticAlgFitness.f1_robustness_min(M) == 0.1);
-        assertTrue("Equally Distributed Not Correct, " , GeneticAlgFitness.f2_equallyDistributed(M) == 0.6);
-        assertTrue("Triangle Difference Not Correct, " , GeneticAlgFitness.f3_triangleDifference(M) == 0.2);
-        assertTrue("Diagonal Max Not Correct, " , GeneticAlgFitness.f4_robustness_max(M) == 0.7);
+        assertTrue("Diagonal Min Not Correct, " , MatrixUtility.f1_robustness_min(M) == 0.1);
+        assertTrue("Equally Distributed Not Correct, " , MatrixUtility.f2_equallyDistributed(M) == 0.6);
+        assertTrue("Triangle Difference Not Correct, " , MatrixUtility.f3_triangleDifference(M) == 0.2);
+        assertTrue("Diagonal Max Not Correct, " , MatrixUtility.f4_robustness_max(M) == 0.7);
 
     }
 
@@ -101,12 +101,12 @@ public class TestMatrixUtility {
 
         double[][] M = MatrixUtility.fromNumberToDoubleMatrix(m);
 
-        List.of(GeneticAlgFitness.f1_robustness_min(M),GeneticAlgFitness.f2_equallyDistributed(M),GeneticAlgFitness.f3_triangleDifference(M),GeneticAlgFitness.f4_robustness_max(M)).forEach(System.out::println);
+        List.of(MatrixUtility.f1_robustness_min(M),MatrixUtility.f2_equallyDistributed(M),MatrixUtility.f3_triangleDifference(M),MatrixUtility.f4_robustness_max(M)).forEach(System.out::println);
 
-        assertTrue("Diagonal Min Not Correct, " , GeneticAlgFitness.f1_robustness_min(M) == 0.1);
-        assertTrue("Equally Distributed Not Correct, " , GeneticAlgFitness.f2_equallyDistributed(M) == 0.4);
-        assertTrue("Triangle Difference Not Correct, " , GeneticAlgFitness.f3_triangleDifference(M) == 0.8);
-        assertTrue("Diagonal Max Not Correct, " , GeneticAlgFitness.f4_robustness_max(M) == 0.5);
+        assertTrue("Diagonal Min Not Correct, " , MatrixUtility.f1_robustness_min(M) == 0.1);
+        assertTrue("Equally Distributed Not Correct, " , MatrixUtility.f2_equallyDistributed(M) == 0.4);
+        assertTrue("Triangle Difference Not Correct, " , MatrixUtility.f3_triangleDifference(M) == 0.8);
+        assertTrue("Diagonal Max Not Correct, " , MatrixUtility.f4_robustness_max(M) == 0.5);
 
 
     }
