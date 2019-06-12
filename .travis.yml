@@ -4,8 +4,8 @@ language: java
 #  - oraclejdk9
 
 jdk:
-  - openjdk8
-  - oraclejdk8
+  #- openjdk8
+  #- oraclejdk8
   - oraclejdk9
 
 matrix:
