@@ -11,7 +11,7 @@ import io.vavr.Function3;
 import tes.AtmImpl;
 import java.util.List;
 
-public class CompletePerturbations implements Function3<Attractors<BinaryState>, Dynamics<BinaryState>, Integer, Atm<BinaryState>> {
+public class CompletePerturbations {
 
     public Atm<BinaryState> apply(Attractors<BinaryState> attractors, Dynamics<BinaryState> dynamics, Integer cutoff) {
         if (attractors.numberOfAttractors() == 0) {

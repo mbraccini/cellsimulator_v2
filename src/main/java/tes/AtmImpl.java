@@ -103,8 +103,11 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 			return this.doubleAtm;
 		}
 		this.normalize();
-		this.roundAndCheckInvariant();
-		this.checkAsserts();
+        if (Arrays.stream(this.perturbationsNumberPerAttractor).noneMatch(x -> x == 0)){
+			this.roundAndCheckInvariant();
+			this.checkAsserts();
+		}
+
 		this.initializeDoubleAtm();
 		return this.doubleAtm;
 	}
@@ -123,8 +126,12 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 		this.atm = new BigDecimal[intMatrix.length][intMatrix.length];
 		for (int i = 0; i < atm.length; i++) {
 			for (int j = 0; j < atm.length; j++) {
-				atm[i][j] = BigDecimal.valueOf(intMatrix[i][j])
-						.divide(BigDecimal.valueOf(this.perturbationsNumberPerAttractor[i]), 2, RoundingMode.HALF_EVEN);
+				if (this.perturbationsNumberPerAttractor[i] != 0){
+					atm[i][j] = BigDecimal.valueOf(intMatrix[i][j])
+							.divide(BigDecimal.valueOf(this.perturbationsNumberPerAttractor[i]), 2, RoundingMode.HALF_EVEN);
+				} else {
+					atm[i][j] = BigDecimal.valueOf(intMatrix[i][j]);
+				}
 			}
 		}
 	}
