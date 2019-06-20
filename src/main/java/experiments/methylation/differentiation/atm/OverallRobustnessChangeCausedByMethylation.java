@@ -90,15 +90,26 @@ public class OverallRobustnessChangeCausedByMethylation {
         while (count < howManyNetworks) {
             bn = generateNet(nodesNumber, k, bias, wiringType, selfLoop, r);
 
+            // GENERATOR
+            // esaustivo
+            Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
+            // campionato
+            //Generator<BinaryState> generator = new UniformlyDistributedGenerator( BigInteger.valueOf(numOfInitialStates),nodesNumber,r);
             // DYNAMICS
-            Generator<BinaryState> generator = new UniformlyDistributedGenerator( BigInteger.valueOf(numOfInitialStates),nodesNumber,r);//new CompleteGenerator(bn.getNodesNumber());
             Dynamics<BinaryState> dynamics = new SynchronousDynamicsImpl(bn);
-            Attractors<BinaryState> attractors = AttractorsFinderService.apply(generator, dynamics, true, false, AttractorsFinderService.CUT_OFF_PERCENTAGE_TERMINATION.apply(nodesNumber));
+            // ATTRACTORS
+            //esaustivo
+            Attractors<BinaryState> attractors = AttractorsFinderService.apply(generator, dynamics, true, false, AttractorsFinderService.TRUE_TERMINATION);
+            //campionato
+            //Attractors<BinaryState> attractors = AttractorsFinderService.apply(generator, dynamics, true, false, AttractorsFinderService.CUT_OFF_PERCENTAGE_TERMINATION.apply(nodesNumber));
             if (attractors.numberOfAttractors() <= 1) {
                 continue; // vogliamo almeno 2 attrattori
             }
             // ATM
-            Atm<BinaryState> atm = new IncompletePerturbations().apply(attractors, dynamics,numberOfPerturbations, Constant.PERTURBATIONS_CUTOFF, r, List.of());
+            //esaustivo
+            Atm<BinaryState> atm = new CompletePerturbations().apply(attractors, dynamics, Constant.PERTURBATIONS_CUTOFF);
+            //campionato
+            //Atm<BinaryState> atm = new IncompletePerturbations().apply(attractors, dynamics,numberOfPerturbations, Constant.PERTURBATIONS_CUTOFF, r, List.of());
 
             Tuple2<Number[][], String[]> a = MatrixUtility.reorderByDiagonalValuesATM(atm);
             double[][] sortedATM = MatrixUtility.fromNumberToDoubleMatrix(a._1());
@@ -140,26 +151,45 @@ public class OverallRobustnessChangeCausedByMethylation {
             //for (List<Integer> combFrozenIndices : combinations) {
                 //List<Integer> combFrozenIndices = combinations.get(0);
                 //System.out.println(combFrozenIndices);
-                Dynamics<BinaryState> dynFrozen = DecoratingDynamics
+            Dynamics<BinaryState> dynFrozen = DecoratingDynamics
                         .from(dynamics)
                         .decorate(dyn -> new FrozenNodesDynamicsDecorator(dyn, combFrozenIndices));
 
-                //GENERATOR
-                Generator<BinaryState> genComplete = new UniformlyDistributedGenerator( BigInteger.valueOf(numOfInitialStates),nodesNumber,r);//new CompleteGenerator(bn.getNodesNumber());//new CompleteGenerator(bn.getNodesNumber());
+            //GENERATOR
+            // esaustivo
+            Generator<BinaryState> genComplete = new CompleteGenerator(bn.getNodesNumber());//new CompleteGenerator(bn.getNodesNumber());
+            Generator<BinaryState> genFrozen = new BagOfStatesGenerator<>(Stream.generate(genComplete::nextSample)
+                    .limit((long) Math.floor(Math.pow(2, nodesNumber)))
+                    .map(sample -> sample.setNodesValues(Boolean.FALSE, combFrozenIndices.toArray(new Integer[0])))
+                    .collect(Collectors.toSet())); //esaustivo richiede il Set (per non avere replicati)
+            //System.out.println(Stream.generate(genFrozen::nextSample).limit(((long)Math.pow(2, nodesNumber - Kcombinations))).collect(Collectors.toList()).size());
+            if (genFrozen.totalNumberOfSamplesToBeGenerated().longValue() != (long) Math.floor(Math.pow(2, nodesNumber - Kcombinations))) {
+                    System.out.println("stati: " +genFrozen.totalNumberOfSamplesToBeGenerated().longValue());
+                   System.out.println("da generare: " +(long) Math.floor(Math.pow(2, nodesNumber - Kcombinations)));
+                    System.out.println("comb: " + Kcombinations);
+                throw new RuntimeException("Mismatch in number of initial states!");
+            }
+            //campionato
+            //Generator<BinaryState> genComplete = new UniformlyDistributedGenerator( BigInteger.valueOf(numOfInitialStates),nodesNumber,r);
+            //Generator<BinaryState> genFrozen = new BagOfStatesGenerator<>(Stream.generate(genComplete::nextSample)
+            //            .limit(numOfInitialStates)
+            //            .map(sample -> sample.setNodesValues(Boolean.FALSE, combFrozenIndices.toArray(new Integer[0])))
+            //            .collect(Collectors.toList())); //mentre qui non ci preoccupiamo che ci siano replicati o meno (quindi usiamo una list)
 
-                Generator<BinaryState> genFrozen = new BagOfStatesGenerator<>(Stream.generate(genComplete::nextSample)
-                        .limit(numOfInitialStates) //.limit((long) Math.floor(Math.pow(2, nodesNumber)))
-                        .map(sample -> sample.setNodesValues(Boolean.FALSE, combFrozenIndices.toArray(new Integer[0])))
-                        .collect(Collectors.toList()));
-                //System.out.println(Stream.generate(genFrozen::nextSample).limit(((long)Math.pow(2, nodesNumber - Kcombinations))).collect(Collectors.toList()));
-                /*if (genFrozen.totalNumberOfSamplesToBeGenerated().longValue() != (long) Math.floor(Math.pow(2, nodesNumber - Kcombinations))) {
-                    throw new RuntimeException("Mismatch in number of initial states!");
-                }*/
-                Attractors<BinaryState> attsFrozen = AttractorsFinderService.apply(genFrozen, dynFrozen, true, false,  AttractorsFinderService.CUT_OFF_PERCENTAGE_TERMINATION.apply(nodesNumber - Kcombinations));
-                Atm<BinaryState> atmFrozen = new IncompletePerturbations().apply(attsFrozen, dynFrozen, numberOfPerturbations, Constant.PERTURBATIONS_CUTOFF, r, combFrozenIndices);
+            // ATTRACTORS
+            //esaustivo
+            Attractors<BinaryState> attsFrozen = AttractorsFinderService.apply(genFrozen, dynFrozen, true, false,  AttractorsFinderService.TRUE_TERMINATION);
+            //campionato
+            //Attractors<BinaryState> attsFrozen = AttractorsFinderService.apply(genFrozen, dynFrozen, true, false,  AttractorsFinderService.CUT_OFF_PERCENTAGE_TERMINATION.apply(nodesNumber - Kcombinations));
 
-                Tuple2<Number[][], String[]> frozenSorted = MatrixUtility.reorderByDiagonalValuesATM(atmFrozen);
-                double[][] sortedFrozenATM = MatrixUtility.fromNumberToDoubleMatrix(frozenSorted._1());
+            // ATM
+            //esaustivo
+            Atm<BinaryState> atmFrozen = new CompletePerturbations().apply(attsFrozen, dynFrozen, Constant.PERTURBATIONS_CUTOFF, combFrozenIndices);
+            //campionato
+            //Atm<BinaryState> atmFrozen = new IncompletePerturbations().apply(attsFrozen, dynFrozen, numberOfPerturbations, Constant.PERTURBATIONS_CUTOFF, r, combFrozenIndices);
+
+            Tuple2<Number[][], String[]> frozenSorted = MatrixUtility.reorderByDiagonalValuesATM(atmFrozen);
+            double[][] sortedFrozenATM = MatrixUtility.fromNumberToDoubleMatrix(frozenSorted._1());
                 /*
                 double frozenf2 = MatrixUtility.f2_equallyDistributed(sortedFrozenATM);
                 double frozenf3 = MatrixUtility.f3_triangleDifference(sortedFrozenATM);
@@ -193,18 +223,18 @@ public class OverallRobustnessChangeCausedByMethylation {
     }
 
     public static void main(String[] args) {
-        System.out.println("OverallRobustnessChangeCausedByMethylation-v3");
+        System.out.println("OverallRobustnessChangeCausedByMethylation-v3-esaustivo");
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
         final int numOfPerturbations = 100;
         final int numOfInitialStates = 1000;
-        final int nodesNumber = 50;
+        final int nodesNumber = 15;
         final int k = 2;
         final double bias = 0.5;
         final BooleanNetworkFactory.WIRING_TYPE wiringType = BooleanNetworkFactory.WIRING_TYPE.OR_K_FIXED;
         final int howManyNetworks = 1000;
         String parentDirectory = "differentiationByMethylation" + Files.FILE_SEPARATOR;
         Files.createDirectories(parentDirectory);
-        org.paukov.combinatorics3.Generator.cartesianProduct( List.of(0,5,10,15,20,30,40), List.of(0,5,10,15,20,30,40))
+        org.paukov.combinatorics3.Generator.cartesianProduct( List.of(0,3,6,9), List.of(3,6,9))  //lista numero autoanelli, lista numero nodi frozen
                     .stream()
                     .forEach((List<Integer> comb) -> experiment(parentDirectory,howManyNetworks,comb.get(0),r,nodesNumber,k,bias,wiringType,comb.get(1),numOfInitialStates,numOfPerturbations));
     }
