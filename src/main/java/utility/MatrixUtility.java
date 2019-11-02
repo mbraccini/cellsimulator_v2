@@ -69,12 +69,8 @@ public class MatrixUtility {
         Number[][] temp = new Number[m.length][2];
 
         for (int i = 0; i < m.length; i++) {
-            for (int j = 0; j < m[i].length; j++) {
-                if (i == j) {
-                    temp[i][0] = m[i][j];           //elemento su cui fare il sort
-                    temp[i][1] = i; // indice di riga
-                }
-            }
+            temp[i][0] = m[i][i];           //elemento su cui fare il sort
+            temp[i][1] = i; // indice di riga
         }
         Arrays.sort(temp, Comparator.comparingDouble(arr -> arr[0].doubleValue()));
 

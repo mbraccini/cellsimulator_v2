@@ -96,6 +96,7 @@
 //}
 
 
+import com.google.common.collect.ImmutableBiMap;
 import dynamic.FrozenNodesDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
@@ -111,20 +112,66 @@ import interfaces.state.BinaryState;
 import io.vavr.Tuple2;
 import network.BooleanNetworkFactory;
 import org.apache.commons.math3.random.RandomGenerator;
+import states.ImmutableBinaryState;
 import tes.StaticAnalysisTES;
 import utility.Files;
 import utility.RandomnessFactory;
 
-import java.util.BitSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Main {
     public static void main (String [] args) {
         RandomGenerator r = RandomnessFactory.newPseudoRandomGenerator(2);
         BNClassic<BitSet, Boolean, NodeDeterministic<BitSet,Boolean>> bn =
-                BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL,BooleanNetworkFactory.SelfLoop.WITHOUT,10, 2, 0.5, r);
+                //BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL,BooleanNetworkFactory.SelfLoop.WITHOUT,10, 2, 0.5, r);
+                bn = BooleanNetworkFactory.newBNwithSelfLoop(2, 0.5, 10, r, 1, BooleanNetworkFactory.WIRING_TYPE.OR_K_FIXED);
+
+        System.out.println(bn.getIncomingNodes(bn.getNodeById(0)));
+        System.out.println(bn.getIncomingNodes(bn.getNodeById(1)));
+        Dynamics<BinaryState> d = new SynchronousDynamicsImpl(bn);
+        BinaryState i = ImmutableBinaryState.valueOf("0000000011");
+        System.out.println(i);
+        System.out.println(d.nextState(i));
+
+
+        List<Integer> combFrozenIndices = IntStream.range(0,0).boxed().collect(Collectors.toList());
+        System.out.println(combFrozenIndices);
+
+        Dynamics<BinaryState> dynFrozen = DecoratingDynamics
+                .from(d)
+                .decorate(dyn -> new FrozenNodesDynamicsDecorator(dyn, combFrozenIndices));
+
+        int n = 0;
+        BinaryState ta = new ImmutableBinaryState(i.getLength(),i.toBitSet());
+        BinaryState tb = new ImmutableBinaryState(i.getLength(),i.toBitSet());
+        System.out.println("ta" + ta);
+        System.out.println("tb" + tb);
+        System.out.println("eq" + ta.equals(tb));
+        System.out.println("==" + (ta == tb));
+
+        List<BinaryState> a = new ArrayList<>();
+        List<BinaryState> b = new ArrayList<>();
+
+        while(n < 10){
+            ta = d.nextState(ta);
+            a.add(ta);
+            tb = dynFrozen.nextState(tb);
+            b.add(tb);
+            n++;
+        }
+
+        System.out.println("eq list" + a.equals(b));
+        System.out.println(a);
+        System.out.println(b);
+
+        BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bbb = null;
+        bbb = BooleanNetworkFactory.newBNwithSelfLoop(2, 1, 10, r, 2,  BooleanNetworkFactory.WIRING_TYPE.RND_K_FIXED);
+        Files.writeBooleanNetworkToFile(bbb, "chicco");
+
+        /***/
+        System.exit(1);
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
 
         Dynamics<BinaryState> dynamics = DecoratingDynamics
@@ -133,17 +180,17 @@ public class Main {
                                                     List.of(0,1)));
 
         Dynamics<BinaryState> dynamics2 = new SynchronousDynamicsImpl(bn);
-        Attractors<BinaryState> a = StaticAnalysisTES.attractors(generator,dynamics2);
+        Attractors<BinaryState> att = StaticAnalysisTES.attractors(generator,dynamics2);
 
 
         Set<ImmutableAttractor> set = new HashSet<>();
-        set.add(a.getAttractors().get(0));
-        set.add(a.getAttractors().get(0));
+        set.add(att.getAttractors().get(0));
+        set.add(att.getAttractors().get(0));
 
         System.out.println(set);
         System.out.println(set.size());
 
-        Files.writeAttractorsToReadableFile(a, "pluto");
+        Files.writeAttractorsToReadableFile(att, "pluto");
 
     }
 }

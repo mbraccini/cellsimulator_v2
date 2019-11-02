@@ -144,7 +144,7 @@ public class BooleanNetworkFactory {
 
 
     public enum WIRING_TYPE {
-        RND_K_FIXED, RND_K_plus_1, OR_K_FIXED, OR_K_plus_1
+        RND_K_FIXED, RND_K_plus_1, OR_K_FIXED, OR_K_plus_1, AND_K_FIXED
     }
 
     /**
@@ -170,10 +170,16 @@ public class BooleanNetworkFactory {
             while (selfloopsToAdd < selfLoopNumber) {
                 NodeDeterministic<BitSet, Boolean> node = current_bn.getNodeById(selfloopsToAdd);
                 switch (wiringType) {
+                    case AND_K_FIXED:
+                        current_bn = new BNClassicBuilder<>(current_bn)
+                                .reconfigureIncomingEdge(node.getId(), node.getId(), current_bn.getIncomingNodes(node).get(0).getId())
+                                .replaceNode(node, new NodeDeterministicImpl<>("r_and_" + node.getName(), node.getId(), new AndTable(node.getFunction().getVariablesNumber())))
+                                .build();
+                        break;
                     case OR_K_FIXED:
                         current_bn = new BNClassicBuilder<>(current_bn)
                                 .reconfigureIncomingEdge(node.getId(), node.getId(), current_bn.getIncomingNodes(node).get(0).getId())
-                                .replaceNode(node, new NodeDeterministicImpl<>("r_" + node.getName(), node.getId(), new OrTable(node.getFunction().getVariablesNumber())))
+                                .replaceNode(node, new NodeDeterministicImpl<>("r_or_" + node.getName(), node.getId(), new OrTable(node.getFunction().getVariablesNumber())))
                                 .build();
                         break;
                     case RND_K_FIXED:
@@ -185,17 +191,16 @@ public class BooleanNetworkFactory {
                         current_bn = new BNClassicBuilder<>(current_bn)
                                 .addIncomingNode(node.getId(), node.getId()) //selfloop
                                 .replaceNode(node,
-                                        new NodeDeterministicImpl<>("r_" + node.getName(),
+                                        new NodeDeterministicImpl<>("r_or_plus_1_" + node.getName(),
                                                 node.getId(),
                                                 UtilitiesBooleanNetwork.extendTable(node.getFunction(), 1, () -> true)))
                                 .build();
                         break;
                     case RND_K_plus_1:
-
                         current_bn = new BNClassicBuilder<>(current_bn)
                                 .addIncomingNode(node.getId(), node.getId()) //selfloop
                                 .replaceNode(node,
-                                        new NodeDeterministicImpl<>("r_" + node.getName(),
+                                        new NodeDeterministicImpl<>("r_rnd_plus_1_" + node.getName(),
                                                 node.getId(),
                                                 UtilitiesBooleanNetwork.extendTable(node.getFunction(), 1, () -> r.nextBoolean())))
                                 .build();

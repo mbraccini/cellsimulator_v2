@@ -59,4 +59,10 @@ public class ImmutableRealState implements RealState {
     public String toString() {
         return getStringRepresentation() ;
     }
+
+    @Override
+    public Double getNodeValue(Integer index) {
+        //l'indice 0 è a destra!
+        return state[state.length - 1 - index];
+    }
 }
