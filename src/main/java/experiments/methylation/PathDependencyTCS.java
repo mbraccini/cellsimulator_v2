@@ -18,6 +18,7 @@ import network.BooleanNetworkFactory;
 import org.apache.commons.math3.random.RandomGenerator;
 import simulator.AttractorsFinderService;
 import states.ImmutableBinaryState;
+import utility.Files;
 import utility.RandomnessFactory;
 
 import java.math.BigInteger;
@@ -85,14 +86,14 @@ public class PathDependencyTCS {
         ImmutableAttractor<BinaryState> A = att.getAttractors().get(0);
         */
         ImmutableAttractor<BinaryState> A = getFrozenAttractor(sample,bn,indicesToKnockOut);
-        System.out.println("Starting Attractor (A)");
-        System.out.println(A);
+        //System.out.println("Starting Attractor (A)");
+        //System.out.println(A);
 
         int maxFrozenIndex = indicesToKnockOut.stream().mapToInt(x -> x).max().getAsInt();
 
         List<Integer> nodesIndices = IntStream.range(maxFrozenIndex + 1, bn.getNodesNumber() - numNodesProjection).boxed().collect(Collectors.toList());
-        System.out.println("nodesIndices");
-        System.out.println(nodesIndices);
+        //System.out.println("nodesIndices");
+        //System.out.println(nodesIndices);
 
         Collections.shuffle(nodesIndices);
 
@@ -105,28 +106,28 @@ public class PathDependencyTCS {
         List<Integer> seq_2 =  new ArrayList<>(nodesIndices.subList(sizeOfFrozenSequences,  (sizeOfFrozenSequences*  2)));
 
 
-        System.out.println(getProjection(A, numNodesProjection, bn.getNodesNumber()));
-        System.out.println(seq_1 + "\n" + seq_2);
+        //System.out.println(getProjection(A, numNodesProjection, bn.getNodesNumber()));
+        //System.out.println(seq_1 + "\n" + seq_2);
 
         Set<List<BinaryState>> setAttractorsProjections = new HashSet<>();
-        setAttractorsProjections.add(getProjection(A,numNodesProjection,bn.getNodesNumber()));
+        //setAttractorsProjections.add(getProjection(A,numNodesProjection,bn.getNodesNumber()));
 
         //PROVIAMO LE DUE SEQUENZE seq_1 + seq_2 e seq_2 + seq_1
         List<List<BinaryState>> resFirstFreezingSequence = tryFreezingSequence(A.getFirstState(), bn, numNodesProjection, indicesToKnockOut, seq_1, seq_2);
         List<List<BinaryState>> resSecondFreezingSequence = tryFreezingSequence(A.getFirstState(), bn, numNodesProjection, indicesToKnockOut, seq_2, seq_1); //sequenza invertita
 
 
-        setAttractorsProjections.add(resFirstFreezingSequence.get(0));
-        setAttractorsProjections.add(resSecondFreezingSequence.get(0));
+        //setAttractorsProjections.add(resFirstFreezingSequence.get(0));
+        //setAttractorsProjections.add(resSecondFreezingSequence.get(0));
         /**
          *          setAttractorsProjections contiene i seguenti nodi dell'albero:
          *              A
          *             / \
          *            B'  B''
          */
-        if (setAttractorsProjections.size() != 3){
-            return 0;
-        }
+        //if (setAttractorsProjections.size() != 3){
+        //    return 0;
+        //}
 
         setAttractorsProjections.add(resFirstFreezingSequence.get(1));
         setAttractorsProjections.add(resSecondFreezingSequence.get(1));
@@ -139,13 +140,11 @@ public class PathDependencyTCS {
          *           /     \
          *          C'      C''
          */
-        System.out.println("setAttractorsProjections");
-        System.out.println(setAttractorsProjections);
+        //System.out.println("setAttractorsProjections");
+        //System.out.println(setAttractorsProjections);
 
-        if (setAttractorsProjections.size() == 4){
+        if (setAttractorsProjections.size() == 2){
             return 1;
-        } else if (setAttractorsProjections.size() == 5){
-            return 2;
         }
         return 0;
 
@@ -184,6 +183,7 @@ public class PathDependencyTCS {
         //Set<List<BinaryState>> set = new HashSet<>();
         //set.add(b);
         //set.add(c);
+        //System.out.println(List.of(b,c));
         return List.of(b,c);
     }
 
@@ -208,7 +208,8 @@ public class PathDependencyTCS {
 
 
 
-    public static void investigatePathDependecyProperty(final int nodesNumber,
+    public static void investigatePathDependecyProperty(final String nameDir,
+                                                    final int nodesNumber,
                                                     final int k,
                                                     final double bias,
                                                     final int howManyNetworks,
@@ -223,6 +224,7 @@ public class PathDependencyTCS {
             BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn;
             bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
 
+            List<List<?>> resPerFreezingLevel = new ArrayList<>();
             for(Double frozenFraction : freezingLevelFraction){
                 int numberOfFrozenStartingNodes = (int)Math.ceil(frozenFraction * (1-phenotypeFraction) * nodesNumber);
                 List<Integer> indicesToKnockOut = IntStream.range(0, numberOfFrozenStartingNodes).boxed().collect(Collectors.toList());
@@ -230,29 +232,50 @@ public class PathDependencyTCS {
                 Generator<BinaryState> samples
                         = new FrozenGenerator(BigInteger.valueOf(howManySamplesPerFrozenLevel), bn.getNodesNumber(), r, indicesToKnockOut,true);
 
-                Stream.generate(samples::nextSample)
+
+                List<Integer> res = new ArrayList<>();
+                for (int j = 0; j < samples.totalNumberOfSamplesToBeGenerated().intValue(); j++) {
+
+                    res.add(tryPairOfFreezing(samples.nextSample(),
+                                        bn,
+                                        indicesToKnockOut,
+                                        (int)Math.ceil(phenotypeFraction * nodesNumber),
+                                        sizeOfFreezingSequences));
+                }
+                resPerFreezingLevel.add(res);
+
+                /*Stream.generate(samples::nextSample)
                         .limit(samples.totalNumberOfSamplesToBeGenerated().intValue())
                         .forEach((BinaryState sample)-> tryPairOfFreezing(sample,
                                                                           bn,
                                                                           indicesToKnockOut,
                                                                           (int)Math.ceil(phenotypeFraction * nodesNumber),
-                                                                          sizeOfFreezingSequences));
-
+                                                                          sizeOfFreezingSequences));*/
             }
+            Files.createDirectories(nameDir);
+            Files.writeListsToCsv(resPerFreezingLevel, nameDir +  Files.FILE_SEPARATOR + i  + "");
+
         }
 
 
     }
 
+
+
     public static void main(String args[]){
+        System.out.println("PathDependecy");
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
-        final int nodesNumber = 10;
+        final int nodesNumber = 100;
         List<Integer> list_indices = IntStream.range(0,nodesNumber).boxed().collect(Collectors.toList());
 
         final int k = 2;
         final double bias = 0.5;
-        final int howManyNetworks = 1;
-        final int howManySamplesForEachFrozenLevel = 1;
-        investigatePathDependecyProperty(nodesNumber,k,bias,howManyNetworks,howManySamplesForEachFrozenLevel,List.of(0.1,0.4), 0.3 ,2,r);
+        final int howManyNetworks = 1000;
+        final int howManySamplesForEachFrozenLevel = 1000;
+
+
+        List.of(0.1,0.4,0.7).forEach( proj ->
+        investigatePathDependecyProperty("frac_of_freezable_" + proj + Files.FILE_SEPARATOR,nodesNumber,k,bias,howManyNetworks,howManySamplesForEachFrozenLevel, List.of(0.1,0.4,0.7), proj,3,r)
+        );
     }
 }
