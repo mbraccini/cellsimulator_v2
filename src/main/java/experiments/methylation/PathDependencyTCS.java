@@ -271,7 +271,7 @@ public class PathDependencyTCS {
         final int k = 2;
         final double bias = 0.5;
         final int howManyNetworks = 1000;
-        final int howManySamplesForEachFrozenLevel = 1000;
+        final int howManySamplesForEachFrozenLevel = 100;
 
 
         List.of(0.1,0.4,0.7).forEach( proj ->
