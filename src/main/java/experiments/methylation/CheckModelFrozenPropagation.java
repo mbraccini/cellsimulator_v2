@@ -15,6 +15,7 @@ import interfaces.network.NodeDeterministic;
 import interfaces.sequences.Generator;
 import interfaces.state.BinaryState;
 import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import network.BooleanNetworkFactory;
 import org.apache.commons.math3.random.RandomGenerator;
 import simulator.AttractorsFinderService;
@@ -23,9 +24,7 @@ import utility.Files;
 import utility.RandomnessFactory;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -51,16 +50,18 @@ public class CheckModelFrozenPropagation {
         return list_indices;
     }
 
-    public static void experiment(final double percentageToFreeze,
-                                  final int howManyNetworks,
-                                  final RandomGenerator r){
+    public static List<Double> experiment(final int nodesNumber,
+                                          final int k,
+                                          final double bias,
+                                          final double percentageToFreeze,
+                                          final int howManyNetworks,
+                                          final RandomGenerator r){
 
-        final int nodesNumber = 10;
         List<Integer> list_indices = IntStream.range(0,nodesNumber).boxed().collect(toList());
-        final int k = 2;
-        final double bias = 0.5;
+
         int nodesToFreeze = (int)Math.ceil(percentageToFreeze * nodesNumber);
         //System.out.println("nodesToFreeze: \n" + nodesToFreeze);
+        List<Double> results = new ArrayList<>();
         BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn;
         int net = 0;
         do {
@@ -75,20 +76,21 @@ public class CheckModelFrozenPropagation {
             }
             BinaryState sample = startingAttr.getStates().get(startingAttr.getStates().size() - 1); //PRENDIAMO L'ULTIMO IN ORDINE LESSICOGRAFICO COSì DOVREBBE AVERE PIU' NODI A 1
             List<Integer> actualNodesToFreeze = notZeroIndices.subList(0,nodesToFreeze);
-            followStory(sample,bn,actualNodesToFreeze);
+            results.add(followStory(sample,bn,actualNodesToFreeze));
             net++;
         } while(net < howManyNetworks);
 
+        return results;
     }
 
-    public static ImmutableAttractor<BinaryState> followStory(final BinaryState sampleNotFrozen,
+    public static double followStory(final BinaryState sampleNotFrozen,
                                                                      final BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn,
                                                                      final List<Integer> indicesToKnockOut){
 
-        System.out.println("sampleNO \n" +sampleNotFrozen);
+        //System.out.println("sampleNO \n" +sampleNotFrozen);
 
         BinaryState sample = sampleNotFrozen.setNodesValues(Boolean.FALSE, indicesToKnockOut.toArray(new Integer[0]));
-        System.out.println("sample \n" +sample);
+        //System.out.println("sample \n" +sample);
 
         Dynamics<BinaryState> dynKO = DecoratingDynamics
                 .from(new SynchronousDynamicsImpl(bn))
@@ -100,21 +102,77 @@ public class CheckModelFrozenPropagation {
                 false,
                 AttractorsFinderService.TRUE_TERMINATION);
         ImmutableAttractor<BinaryState> reachedAttractor = att.getAttractors().get(0);
+        //System.out.println(att);
 
-        System.out.println(att);
+        Set<Integer> toOnes = new HashSet<>();
+        Set<Integer> toZeros = new HashSet<>();
+        List<Integer> toOnesSizeHistory = new ArrayList<>();
+        List<Integer> toZerosSizeHistory = new ArrayList<>();
 
         BinaryState previousState = sample;
         BinaryState nextState = previousState;
         diff(previousState,nextState);
-        System.out.println("sample \n" +sample);
+
+        //System.out.println("sample \n" +sample);
         while(!belongToAttractor(nextState,reachedAttractor)){
             nextState = dynKO.nextState(previousState);
-            diff(previousState,nextState);
+
+            Tuple2<List<Integer>,List<Integer>> a = diff(previousState, nextState);
+            toOnes.addAll(a._1());
+            toZeros.addAll(a._2());
+            //System.out.println("toOnes \n" +toOnes);
+            //System.out.println("toZeros \n" +toZeros);
+
+            toOnesSizeHistory.add(toOnes.size());
+            toZerosSizeHistory.add(toZeros.size());
+
             previousState=nextState;
         }
-        return att.getAttractors().get(0);
+        navigateReachedAttractorStates(nextState, reachedAttractor, dynKO,toOnes,toZeros, toOnesSizeHistory, toZerosSizeHistory);//va navigato anche l'attrattore perché potrebbero cambiare anche qui i valori dei nodi
+        Set<Integer> set = new HashSet<>();
+        set.addAll(toOnes);
+        set.addAll(toZeros);
+
+
+
+        System.out.println("ones");
+        System.out.println(toOnesSizeHistory);
+        System.out.println("zeros");
+        System.out.println(toZerosSizeHistory);
+        System.out.println(
+                IntStream.range(0,toOnesSizeHistory.size())
+                        .boxed()
+                        .map(x -> ((double)(toOnesSizeHistory.get(x) + toZerosSizeHistory.get(x))) )
+                        .collect(Collectors.toList())
+        );
+
+        return ((double)(bn.getNodesNumber() - indicesToKnockOut.size() - set.size()))/(bn.getNodesNumber() - indicesToKnockOut.size());
+
     }
-    public static Tuple diff(BinaryState prev, BinaryState next){
+
+    public static void navigateReachedAttractorStates(BinaryState s,
+                                                      ImmutableAttractor<BinaryState> att,
+                                                      Dynamics<BinaryState> dynKO,
+                                                      Set<Integer> toOnes,
+                                                      Set<Integer> toZeros,
+                                                      List<Integer> toOnesSizeHistory,
+                                                      List<Integer> toZerosSizeHistory){
+        int length = att.getLength();
+        BinaryState previousState = s;
+        BinaryState nextState = s;
+
+        for (int i = 0; i < length; i++) {
+            nextState = dynKO.nextState(previousState);
+            Tuple2<List<Integer>,List<Integer>> a = diff(previousState, nextState);
+            toOnes.addAll(a._1());
+            toZeros.addAll(a._2());
+            toOnesSizeHistory.add(toOnes.size());
+            toZerosSizeHistory.add(toZeros.size());
+            previousState=nextState;
+        }
+    }
+
+    public static Tuple2<List<Integer>,List<Integer>> diff(BinaryState prev, BinaryState next){
         //guardiamo quali nodi che assumevano il valore 0 si trasformano in 1, e viceversa.
         int l = prev.getLength();
         List<Integer> toOnes = new ArrayList<>();
@@ -127,10 +185,11 @@ public class CheckModelFrozenPropagation {
                 toOnes.add(i);
             }
         }
-        System.out.println("prev:\n"+prev);
+        /*System.out.println("prev:\n"+prev);
         System.out.println("next:\n"+next);
         System.out.println("toOnes:\n"+toOnes);
-        System.out.println("toZeros:\n"+toZeros);
+        System.out.println("toZeros:\n"+toZeros);*/
+
 
         return Tuple.of(toOnes,toZeros);
     }
@@ -144,10 +203,15 @@ public class CheckModelFrozenPropagation {
         System.out.println("Frozen Propagation");
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
-        final int howManyNetworks = 1;
+        final int howManyNetworks = 2 ;
+        final int nodesNumber = 100;
+        final int k = 2;
+        final double bias = 0.5;
+        String dir = "frozenPropagation" + Files.FILE_SEPARATOR;
+        Files.createDirectories(dir);
 
-        List.of(0.2).forEach( toFreeze ->
-                experiment(toFreeze, howManyNetworks,r)
-        );
+        List<List<?>> res = List.of(0.03).stream().map(  toFreeze ->
+                experiment(nodesNumber,k,bias,toFreeze, howManyNetworks,r)).collect(Collectors.toList());
+        Files.writeListsToCsv(res, dir + "res");
     }
 }
