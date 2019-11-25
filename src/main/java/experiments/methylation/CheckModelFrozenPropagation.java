@@ -24,6 +24,10 @@ import utility.Files;
 import utility.RandomnessFactory;
 
 import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -104,9 +108,9 @@ public class CheckModelFrozenPropagation {
         ImmutableAttractor<BinaryState> reachedAttractor = att.getAttractors().get(0);
         //System.out.println(att);
 
-        Set<Integer> toOnes = new HashSet<>();
+        Set<Integer> toOnes = new HashSet<>();//con questo tengo traccia degli indici dei nodi che sono cambiati almeno una volta da 0 a 1 nel corso della traiettoria da t>0 al successivo attrattore
         Set<Integer> toZeros = new HashSet<>();
-        List<Integer> toOnesSizeHistory = new ArrayList<>();
+        List<Integer> toOnesSizeHistory = new ArrayList<>(); //con questo tengo traccia del numero di nodi che cambiano valore durante la traiettoria
         List<Integer> toZerosSizeHistory = new ArrayList<>();
 
         BinaryState previousState = sample;
@@ -123,8 +127,8 @@ public class CheckModelFrozenPropagation {
             //System.out.println("toOnes \n" +toOnes);
             //System.out.println("toZeros \n" +toZeros);
 
-            toOnesSizeHistory.add(toOnes.size());
-            toZerosSizeHistory.add(toZeros.size());
+            toOnesSizeHistory.add(a._1().size());
+            toZerosSizeHistory.add(a._2().size());
 
             previousState=nextState;
         }
@@ -135,19 +139,20 @@ public class CheckModelFrozenPropagation {
 
 
 
-        System.out.println("ones");
+        /*System.out.println("ones");
         System.out.println(toOnesSizeHistory);
         System.out.println("zeros");
         System.out.println(toZerosSizeHistory);
-        System.out.println(
+        System.out.println("SET");
+        System.out.println(set);*/
+        /*System.out.println(
                 IntStream.range(0,toOnesSizeHistory.size())
                         .boxed()
                         .map(x -> ((double)(toOnesSizeHistory.get(x) + toZerosSizeHistory.get(x))) )
                         .collect(Collectors.toList())
-        );
+        );*/
 
-        return ((double)(bn.getNodesNumber() - indicesToKnockOut.size() - set.size()))/(bn.getNodesNumber() - indicesToKnockOut.size());
-
+        return (((double)(bn.getNodesNumber() - indicesToKnockOut.size() - set.size()))/(bn.getNodesNumber() - indicesToKnockOut.size()));
     }
 
     public static void navigateReachedAttractorStates(BinaryState s,
@@ -166,8 +171,8 @@ public class CheckModelFrozenPropagation {
             Tuple2<List<Integer>,List<Integer>> a = diff(previousState, nextState);
             toOnes.addAll(a._1());
             toZeros.addAll(a._2());
-            toOnesSizeHistory.add(toOnes.size());
-            toZerosSizeHistory.add(toZeros.size());
+            toOnesSizeHistory.add(a._1().size());
+            toZerosSizeHistory.add(a._2().size());
             previousState=nextState;
         }
     }
@@ -203,15 +208,20 @@ public class CheckModelFrozenPropagation {
         System.out.println("Frozen Propagation");
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
 
-        final int howManyNetworks = 2 ;
+        final int howManyNetworks = 100;
         final int nodesNumber = 100;
         final int k = 2;
         final double bias = 0.5;
-        String dir = "frozenPropagation" + Files.FILE_SEPARATOR;
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        System.out.println();
+
+        String dir = "frozenPropagation" + dtf.format(now) + Files.FILE_SEPARATOR;
         Files.createDirectories(dir);
 
-        List<List<?>> res = List.of(0.03).stream().map(  toFreeze ->
-                experiment(nodesNumber,k,bias,toFreeze, howManyNetworks,r)).collect(Collectors.toList());
+        List<List<?>> res = List.of(0.03, 0.07, 0.15, 0.2, 0.3, 0.4, 0.5,0.6,0.7,0.8).stream().map(  toFreeze ->
+                experiment(nodesNumber, k, bias, toFreeze, howManyNetworks, r)).collect(Collectors.toList());
         Files.writeListsToCsv(res, dir + "res");
     }
 }
