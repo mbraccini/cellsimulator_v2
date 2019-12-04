@@ -37,13 +37,13 @@ import static java.util.stream.Collectors.toList;
 public class CheckModelFrozenPropagation {
 
 
-    public static ImmutableAttractor<BinaryState> retrieveSignificantAttractor(final BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn,
+    public static Optional<ImmutableAttractor<BinaryState>> retrieveSignificantAttractor(final BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn,
                                                                                final RandomGenerator r){
 
         Generator<BinaryState> gen = new UniformlyDistributedGenerator(BigInteger.valueOf(1000), bn.getNodesNumber(),r);
         Dynamics<BinaryState> dyn = new SynchronousDynamicsImpl(bn);
         Attractors<BinaryState> atts = AttractorsFinderService.apply(gen,dyn,true,true,AttractorsFinderService.CUT_OFF_PERCENTAGE_TERMINATION.apply(bn.getNodesNumber()));
-        return atts.getAttractors().stream().findFirst().get();
+        return atts.getAttractors().stream().findFirst();
     }
 
     public static List<Integer> nodesWithExpressionValueStrictlyGreaterThanZero(ImmutableRealState a){
@@ -71,7 +71,11 @@ public class CheckModelFrozenPropagation {
         do {
             //System.out.println("net: \n" + net);
             bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
-            ImmutableAttractor<BinaryState> startingAttr = retrieveSignificantAttractor(bn, r);
+            Optional<ImmutableAttractor<BinaryState>> aaaa = retrieveSignificantAttractor(bn, r);
+            if( !aaaa.isPresent()){
+                continue;
+            }
+            ImmutableAttractor<BinaryState>startingAttr = aaaa.get();
             ImmutableRealState meanAttr = AttractorsUtility.attractorMeanRepresentativeState(startingAttr);
             List<Integer> notZeroIndices = nodesWithExpressionValueStrictlyGreaterThanZero(meanAttr);
             if (notZeroIndices.size() < nodesToFreeze) {
@@ -152,7 +156,8 @@ public class CheckModelFrozenPropagation {
                         .collect(Collectors.toList())
         );*/
 
-        return (((double)(bn.getNodesNumber() - indicesToKnockOut.size() - set.size()))/(bn.getNodesNumber() - indicesToKnockOut.size()));
+        //return (((double)(bn.getNodesNumber() - indicesToKnockOut.size() - set.size()))/(bn.getNodesNumber() - indicesToKnockOut.size()));
+        return ((double) set.size());
     }
 
     public static void navigateReachedAttractorStates(BinaryState s,
@@ -217,10 +222,10 @@ public class CheckModelFrozenPropagation {
         LocalDateTime now = LocalDateTime.now();
         System.out.println();
 
-        String dir = "frozenPropagation" + dtf.format(now) + Files.FILE_SEPARATOR;
+        String dir = "frozenPropagationVALUE" + dtf.format(now) + Files.FILE_SEPARATOR;
         Files.createDirectories(dir);
 
-        List<List<?>> res = List.of(0.03, 0.07, 0.15, 0.2, 0.3, 0.4, 0.5,0.6,0.7,0.8).stream().map(  toFreeze ->
+        List<List<Double>> res = List.of(0.03, 0.07, 0.15, 0.2, 0.3, 0.4, 0.5,0.6,0.7,0.8).stream().map(  toFreeze ->
                 experiment(nodesNumber, k, bias, toFreeze, howManyNetworks, r)).collect(Collectors.toList());
         Files.writeListsToCsv(res, dir + "res");
     }
