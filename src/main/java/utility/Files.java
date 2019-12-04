@@ -253,7 +253,7 @@ public class Files {
         }
         writeToCsv(s, filename);
     }
-    public static void writeListsToCsv(List<List<?>> list, String filename) {
+    public static <T> void writeListsToCsv(List<List<T>> list, String filename) {
         List<String[]> s = list.stream().map(x -> x.stream().map(Object::toString).toArray(String[]::new)).collect(Collectors.toList());
         writeToCsv(s, filename);
     }

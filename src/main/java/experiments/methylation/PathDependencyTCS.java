@@ -89,7 +89,7 @@ public class PathDependencyTCS {
         //System.out.println("Starting Attractor (A)");
         //System.out.println(A);
 
-        int maxFrozenIndex = indicesToKnockOut.stream().mapToInt(x -> x).max().getAsInt();
+        int maxFrozenIndex = indicesToKnockOut.stream().mapToInt(x -> x).max().orElseGet(() -> 0);
 
         List<Integer> nodesIndices = IntStream.range(maxFrozenIndex + 1, bn.getNodesNumber() - numNodesProjection).boxed().collect(Collectors.toList());
         //System.out.println("nodesIndices");
@@ -174,9 +174,10 @@ public class PathDependencyTCS {
 
         BinaryState newSampleFromReachedAttractor = B.getFirstState();
         //ORA DEVO RIPARTIRE DALLO STATO DELL'ATTRATTORE APPENA TROVATO !!!!
-
+        //System.out.println(temp_1);
         List<Integer> temp_2 = temp_1;
         temp_2.addAll(seq_2);
+        //System.out.println(temp_1);
 
         List<BinaryState> c = getProjection(getFrozenAttractor(newSampleFromReachedAttractor.setNodesValues(Boolean.FALSE, seq_2.toArray(new Integer[0])),bn,temp_2), numNodesProjection, bn.getNodesNumber());
 
@@ -224,9 +225,10 @@ public class PathDependencyTCS {
             BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn;
             bn = BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
 
-            List<List<?>> resPerFreezingLevel = new ArrayList<>();
+            List<List<Integer>> resPerFreezingLevel = new ArrayList<>();
             for(Double frozenFraction : freezingLevelFraction){
                 int numberOfFrozenStartingNodes = (int)Math.ceil(frozenFraction * (1-phenotypeFraction) * nodesNumber);
+                //System.out.println("numberOfFrozenStartingNodes \n" + numberOfFrozenStartingNodes);
                 List<Integer> indicesToKnockOut = IntStream.range(0, numberOfFrozenStartingNodes).boxed().collect(Collectors.toList());
 
                 Generator<BinaryState> samples
@@ -235,6 +237,7 @@ public class PathDependencyTCS {
 
                 List<Integer> res = new ArrayList<>();
                 for (int j = 0; j < samples.totalNumberOfSamplesToBeGenerated().intValue(); j++) {
+                    //System.out.println("proj \n" +  (int)Math.ceil(phenotypeFraction * nodesNumber));
 
                     res.add(tryPairOfFreezing(samples.nextSample(),
                                         bn,
@@ -263,7 +266,7 @@ public class PathDependencyTCS {
 
 
     public static void main(String args[]){
-        System.out.println("PathDependecy");
+        System.out.println("PathDependecy2");
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
         final int nodesNumber = 100;
         List<Integer> list_indices = IntStream.range(0,nodesNumber).boxed().collect(Collectors.toList());
@@ -275,7 +278,7 @@ public class PathDependencyTCS {
 
 
         List.of(0.1,0.4,0.7).forEach( proj ->
-        investigatePathDependecyProperty("frac_of_freezable_" + proj + Files.FILE_SEPARATOR,nodesNumber,k,bias,howManyNetworks,howManySamplesForEachFrozenLevel, List.of(0.1,0.4,0.7), proj,3,r)
+        investigatePathDependecyProperty("frac_of_proj_" + proj + Files.FILE_SEPARATOR,nodesNumber,k,bias,howManyNetworks,howManySamplesForEachFrozenLevel, List.of(0.0, 0.1, 0.4, 0.7), proj,3,r)
         );
     }
 }
