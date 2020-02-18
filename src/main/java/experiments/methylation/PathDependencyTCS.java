@@ -266,7 +266,7 @@ public class PathDependencyTCS {
 
 
     public static void main(String args[]){
-        System.out.println("PathDependecy2");
+        System.out.println("PathDependecy2- freezing 0ne NOde ");
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
         final int nodesNumber = 100;
         List<Integer> list_indices = IntStream.range(0,nodesNumber).boxed().collect(Collectors.toList());
@@ -278,7 +278,7 @@ public class PathDependencyTCS {
 
 
         List.of(0.1,0.4,0.7).forEach( proj ->
-        investigatePathDependecyProperty("frac_of_proj_" + proj + Files.FILE_SEPARATOR,nodesNumber,k,bias,howManyNetworks,howManySamplesForEachFrozenLevel, List.of(0.0, 0.1, 0.4, 0.7), proj,3,r)
+        investigatePathDependecyProperty("frac_of_proj_" + proj + Files.FILE_SEPARATOR,nodesNumber,k,bias,howManyNetworks,howManySamplesForEachFrozenLevel, List.of(0.0, 0.1, 0.4, 0.7), proj,1,r)
         );
     }
 }

@@ -64,7 +64,7 @@ public class CheckRobertoModelFixedNodes {
 
         List<Integer> list_indices = IntStream.range(0,l)
                                             .boxed()
-                                            .peek(x -> System.out.println(a.getNodeValue(x)))
+                                            //.peek(x -> System.out.println(a.getNodeValue(x)))
                                             .filter(x -> a.getNodeValue(x).equals(0.0) || a.getNodeValue(x).equals(1.0))
 
                                             .collect(Collectors.toList());
