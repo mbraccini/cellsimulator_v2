@@ -52,6 +52,58 @@ public class AttractorsUtility {
         return Optional.empty();
     }
 
+    /**
+     * The method put all attractors' states in a list and find the fixed nodes (nodes with the same values along all attractors)
+     * @param attrs
+     * @return
+     */
+    public static Set<Integer> fixedNodesAllAttractors(Attractors<BinaryState> attrs){
+        if (attrs.numberOfAttractors() == 0){
+            return null;
+        }
+        Integer numNodes = attrs.getAttractors().get(0).getFirstState().getLength();
+        List<BinaryState> l = attrs.getAttractors().stream().map(x -> x.getStates()).flatMap(x -> x.stream()).collect(Collectors.toList());
+        if (l.size() == 1){ //se ho un solo stato sono, per definizione, tutti fissi!
+            return IntStream.range(0, numNodes).boxed().collect(Collectors.toSet());
+        }
+
+        Set<Integer> indices = new HashSet<>();
+        BinaryState prev, succ;
+        boolean first = true;
+        for (int state = 0; state < l.size() - 1; state++) {
+            prev = l.get(state);
+            succ = l.get(state + 1);
+
+            for (int i = 0; i < numNodes; i++) {
+                if (prev.getNodeValue(i) == succ.getNodeValue(i)){
+                    if (first) {
+                        indices.add(i);
+                    }
+                } else if (indices.contains(i)) {
+                    indices.remove(i);
+                }
+            }
+            first = false;
+        }
+        return indices;
+    }
+
+    /**
+     * Blinking nodes, considering all aattractors' states at once.
+     * @param attrs
+     * @return
+     */
+    public static Set<Integer> blinkingNodesAllAttractors(Attractors<BinaryState> attrs){
+        if (attrs.numberOfAttractors() == 0){
+            return null;
+        }
+        Integer numNodes = attrs.getAttractors().get(0).getFirstState().getLength();
+
+        Set<Integer> allIndices = IntStream.range(0, numNodes).boxed().collect(Collectors.toSet());
+        allIndices.removeAll(Objects.requireNonNull(fixedNodesAllAttractors(attrs))); //we subtract the fixed nodes.
+
+        return allIndices;
+    }
 
     /**
      * Compute nodes' indices of fixed nodes in attractors
