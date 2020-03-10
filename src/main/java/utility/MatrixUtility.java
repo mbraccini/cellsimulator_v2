@@ -199,4 +199,17 @@ public class MatrixUtility {
         }
         return sum;
     }
+
+    /***
+     * Retreive main diagonal
+     * @param atm
+     * @return
+     */
+    public static double[] mainDiagonal(Double[][] atm){
+        double[] diagonal = new double[atm.length];
+        for (int i = 0; i < atm.length; i++) {
+            diagonal[i] = atm[i][i];
+        }
+        return diagonal;
+    }
 }
