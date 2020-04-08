@@ -6,8 +6,10 @@ import org.apache.commons.math3.random.RandomGenerator;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class FrozenGenerator implements Generator<BinaryState> {
@@ -16,22 +18,13 @@ public class FrozenGenerator implements Generator<BinaryState> {
     public FrozenGenerator(BigInteger samples,
                            int nodesNumber,
                            RandomGenerator randomInstance,
-                           Collection<Integer> indicesToKnockOut,
-                           boolean withReplacement){
-        Collector<BinaryState, ?, ? extends Collection<BinaryState>> myCollectors;
-        if (withReplacement) {
-            myCollectors = Collectors.toList();
-        } else {
-            myCollectors = Collectors.toSet();
-        }
+                           List<Integer> indicesToKnockOut){
 
-        Generator<BinaryState> gen =
-                new UniformlyDistributedGenerator(samples, nodesNumber,randomInstance);
-
-        this.internalGenerator = new BagOfStatesGenerator<BinaryState>(Stream.generate(gen::nextSample)
-                .limit(samples.intValue())
-                .map(sample -> sample.setNodesValues(Boolean.FALSE, indicesToKnockOut.toArray(new Integer[0])))
-                .collect(myCollectors));
+        internalGenerator = new FixedNodesGenerator(samples,
+                nodesNumber,
+                randomInstance,
+                indicesToKnockOut,
+                IntStream.range(0, indicesToKnockOut.size()).mapToObj(i -> Boolean.FALSE).collect(Collectors.toList()));
     }
 
     @Override
