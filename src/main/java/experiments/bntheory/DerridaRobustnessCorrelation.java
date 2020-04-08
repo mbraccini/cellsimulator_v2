@@ -26,17 +26,19 @@ import java.util.stream.IntStream;
 
 public class DerridaRobustnessCorrelation {
     private static final int CUT_OFF = 10000;
-    private static final int NUM_OF_BNS = 1;
+    private static final int NUM_OF_BNS = 1000;
     static final String COMBINATIONS_FOR_COMPUTING_ATTRS = "100000";
 
     public static void main(String args[]){
-        rbn();
+        rbn(args);
     }
-    private static void rbn(){
+    private static void rbn(String args[]){
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
         final int nodesNumber = 100;
         final int k = 2;
-        final double bias = 0.5;
+        final double bias = Double.parseDouble(args[0]);
+        System.out.println("DerridaRobustnessCorrelation - bias: " + bias);
+
         String folder = "DerridaRobustness_n"+nodesNumber+"_k_"+k+"_p_"+bias + Files.FILE_SEPARATOR;
         Files.createDirectories(folder);
         Set<Integer> allIndices = IntStream.range(0,nodesNumber).boxed().collect(Collectors.toSet());

@@ -44,8 +44,8 @@ public class TwinklingIslandsByPerturbation {
 
     public static void main(String [] args){
         System.out.println("TWINK-Perturbations");
-        randomBN();
-        //cellcollective();
+        //randomBN();
+        cellcollective();
 
        /* String str = "/cellcollective/bbb.txt";
         Pattern p = Pattern.compile("\\/cellcollective\\/(.*?).txt");
@@ -59,20 +59,21 @@ public class TwinklingIslandsByPerturbation {
 
     public static void randomBN(){
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
-        String folder = "twinkling" + Files.FILE_SEPARATOR;
+        String folder = "twinkling_rbn" + Files.FILE_SEPARATOR;
         Files.createDirectories(folder);
         final int nodesNumber = 100;
         final int k = 2;
         final double bias = 0.5;
         IntStream.range(0, NUM_OF_BNS).forEach(
                 idBN -> { BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn =
+                        //BooleanNetworkFactory.newBNwithSelfLoop(k,bias,nodesNumber,r,20, BooleanNetworkFactory.WIRING_TYPE.RND_K_FIXED);
                         BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
                     analiseNet(bn,folder, idBN, r, Boolean.FALSE);});
     }
     public static void cellcollective(){
         Pattern p = Pattern.compile("\\/cellcollective\\/(.*?)_v1.txt");
         RandomGenerator r = RandomnessFactory.getPureRandomGenerator();
-        String folder = "twinkling_cellcollective" + Files.FILE_SEPARATOR;
+        String folder = "twinkling_cellcollective_v2" + Files.FILE_SEPARATOR;
         Files.createDirectories(folder);
         try (Stream<Path> paths = java.nio.file.Files.walk(Paths.get("./cellcollective/"))) {
             paths
@@ -95,7 +96,7 @@ public class TwinklingIslandsByPerturbation {
                                     final int idBN,
                                     final RandomGenerator r,
                                     final Boolean completeExploration){
-
+        System.out.println("SL: "+bn.numberOfNodeWithSelfloops());
         Attractors<BinaryState> atts = getAttractors(bn,
                                                 completeExploration,
                                                 r);
@@ -113,7 +114,8 @@ public class TwinklingIslandsByPerturbation {
         Files.writeAttractorsToReadableFile(atts, folder + idBN + "_attrs");
         new BNGraphViz<>(bn).saveOnDisk(folder + idBN +  "_bn_dot");
         Files.writeListsToCsv(List.of(new ArrayList<>(blink)), folder + idBN +  "_blinking.csv");
-        perturb(folder, idBN,bn, atts, blink, r);
+        Files.writeListsToCsv(List.of(List.of(bn.numberOfNodeWithSelfloops())),folder + idBN + "_no_self_loop.csv");
+        //perturb(folder, idBN,bn, atts, blink, r);
     }
 
     private static void perturb( final String folder,

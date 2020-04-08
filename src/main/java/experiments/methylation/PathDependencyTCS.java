@@ -232,7 +232,7 @@ public class PathDependencyTCS {
                 List<Integer> indicesToKnockOut = IntStream.range(0, numberOfFrozenStartingNodes).boxed().collect(Collectors.toList());
 
                 Generator<BinaryState> samples
-                        = new FrozenGenerator(BigInteger.valueOf(howManySamplesPerFrozenLevel), bn.getNodesNumber(), r, indicesToKnockOut,true);
+                        = new FrozenGenerator(BigInteger.valueOf(howManySamplesPerFrozenLevel), bn.getNodesNumber(), r, indicesToKnockOut);
 
 
                 List<Integer> res = new ArrayList<>();
