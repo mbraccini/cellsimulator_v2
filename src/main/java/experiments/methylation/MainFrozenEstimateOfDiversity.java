@@ -1,6 +1,6 @@
 package experiments.methylation;
 
-import dynamic.KnockOutDynamicsDecorator;
+import dynamic.KnockOutKnockInDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.BagOfStatesGenerator;
 import generator.UniformlyDistributedGenerator;
@@ -113,7 +113,7 @@ public class MainFrozenEstimateOfDiversity {
             //KNOCK OUT DYNAMICS
             Dynamics<BinaryState> dynamics = DecoratingDynamics
                     .from(new SynchronousDynamicsImpl(bn))
-                    .decorate(dyn -> new KnockOutDynamicsDecorator(dyn, indicesToFreeze));
+                    .decorate(dyn -> new KnockOutKnockInDynamicsDecorator(dyn, indicesToFreeze, List.of()));
 
             Generator<BinaryState> samples
                     = new UniformlyDistributedGenerator(new BigInteger(COMBINATIONS_FOR_COMPUTING_ATTRS), numNodes, r);
@@ -366,7 +366,7 @@ public class MainFrozenEstimateOfDiversity {
         //KNOCK OUT DYNAMICS
         Dynamics<BinaryState> dynamicsKO = DecoratingDynamics
                 .from(new SynchronousDynamicsImpl(bn))
-                .decorate(dyn -> new KnockOutDynamicsDecorator(dyn, indicesToFreeze));
+                .decorate(dyn -> new KnockOutKnockInDynamicsDecorator(dyn, indicesToFreeze,List.of()));
 
         //GENERATOR
         Generator<BinaryState> genStartingState =

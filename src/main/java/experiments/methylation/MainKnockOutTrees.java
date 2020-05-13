@@ -1,6 +1,6 @@
 package experiments.methylation;
 
-import dynamic.KnockOutDynamicsDecorator;
+import dynamic.KnockOutKnockInDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.BagOfStatesGenerator;
 import generator.UniformlyDistributedGenerator;
@@ -108,7 +108,7 @@ public class MainKnockOutTrees {
             //KNOCK OUT DYNAMICS
             Dynamics<BinaryState> dynamicsKO = DecoratingDynamics
                     .from(new SynchronousDynamicsImpl(bn))
-                    .decorate(dyn -> new KnockOutDynamicsDecorator(dyn, indicesToKnockOut));
+                    .decorate(dyn -> new KnockOutKnockInDynamicsDecorator(dyn, indicesToKnockOut,List.of()));
             //FOR EACH ATTRACTOR
             Generator<BinaryState> genFromAttStates = new BagOfStatesGenerator<>(father.getStates()
                                                                                 .stream()

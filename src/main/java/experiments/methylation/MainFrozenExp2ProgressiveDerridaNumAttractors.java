@@ -1,10 +1,9 @@
 package experiments.methylation;
 
-import dynamic.KnockOutDynamicsDecorator;
+import dynamic.KnockOutKnockInDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.BagOfStatesGenerator;
 import generator.UniformlyDistributedGenerator;
-import interfaces.attractor.Attractors;
 import interfaces.dynamic.DecoratingDynamics;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BNClassic;
@@ -15,7 +14,6 @@ import interfaces.state.BinaryState;
 import network.BooleanNetworkFactory;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.text.similarity.HammingDistance;
-import tes.StaticAnalysisTES;
 import utility.Files;
 import utility.RandomnessFactory;
 
@@ -116,7 +114,7 @@ public class MainFrozenExp2ProgressiveDerridaNumAttractors {
 
             Dynamics<BinaryState> dynamicsKO = DecoratingDynamics
                     .from(new SynchronousDynamicsImpl(bn))
-                    .decorate(dyn -> new KnockOutDynamicsDecorator(dyn, indicesToFreeze));
+                    .decorate(dyn -> new KnockOutKnockInDynamicsDecorator(dyn, indicesToFreeze, List.of()));
             /*
             Generator<BinaryState> samplesKO
                     = new UniformlyDistributedGenerator(new BigInteger(COMBINATIONS_FOR_COMPUTING_ATTRS), numNodes, r);

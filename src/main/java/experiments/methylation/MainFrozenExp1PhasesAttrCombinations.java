@@ -1,6 +1,6 @@
 package experiments.methylation;
 
-import dynamic.KnockOutDynamicsDecorator;
+import dynamic.KnockOutKnockInDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.BagOfStatesGenerator;
 import generator.UniformlyDistributedGenerator;
@@ -97,7 +97,7 @@ public class MainFrozenExp1PhasesAttrCombinations {
         //KNOCK OUT DYNAMICS
         Dynamics<BinaryState> dynamics = DecoratingDynamics
                 .from(new SynchronousDynamicsImpl(bn))
-                .decorate(dyn -> new KnockOutDynamicsDecorator(dyn, indicesToFreeze));
+                .decorate(dyn -> new KnockOutKnockInDynamicsDecorator(dyn, indicesToFreeze, List.of()));
 
         Generator<BinaryState> samples
                 = new UniformlyDistributedGenerator(new BigInteger(COMBINATIONS_FOR_COMPUTING_ATTRS), numNodes, r);
@@ -133,7 +133,7 @@ public class MainFrozenExp1PhasesAttrCombinations {
             //KNOCK OUT DYNAMICS
             Dynamics<BinaryState> dynamicSinglePhase = DecoratingDynamics
                         .from(new SynchronousDynamicsImpl(bn))
-                        .decorate(dyn -> new KnockOutDynamicsDecorator(dyn, indicesToFreezeForPhases));
+                        .decorate(dyn -> new KnockOutKnockInDynamicsDecorator(dyn, indicesToFreezeForPhases, List.of()));
 
                 //GENERATOR
             Generator<BinaryState> sampleSinglePhase =

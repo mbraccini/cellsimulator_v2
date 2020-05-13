@@ -17,22 +17,22 @@ public class FixedNodesGenerator implements Generator<BinaryState>  {
     public FixedNodesGenerator(BigInteger samples,
                                int nodesNumber,
                                RandomGenerator randomInstance,
-                               List<Integer> indicesToKnockOut,
+                               List<Integer> indicesToKnock,
                                List<Boolean> relatedValues
                                ){
 
-        if (indicesToKnockOut.size() != relatedValues.size()){
+        if (indicesToKnock.size() != relatedValues.size()){
             throw new GeneratorException.FixedGeneratorException.IndicesValuesDimensionsMismatch();
         }
 
         List<Integer> zeros = IntStream.range(0,relatedValues.size())
                 .filter(idx -> relatedValues.get(idx) == Boolean.FALSE)
-                .map(idx -> indicesToKnockOut.get(idx))
+                .map(idx -> indicesToKnock.get(idx))
                 .boxed()
                 .collect(Collectors.toList());
         List<Integer> ones = IntStream.range(0,relatedValues.size())
                 .filter(idx -> relatedValues.get(idx) == Boolean.TRUE)
-                .map(idx -> indicesToKnockOut.get(idx))
+                .map(idx -> indicesToKnock.get(idx))
                 .boxed()
                 .collect(Collectors.toList());
 

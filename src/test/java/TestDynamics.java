@@ -1,5 +1,5 @@
 import dynamic.FrozenNodesDynamicsDecorator;
-import dynamic.KnockOutDynamicsDecorator;
+import dynamic.KnockOutKnockInDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.CompleteGenerator;
 import interfaces.dynamic.DecoratingDynamics;
@@ -14,12 +14,11 @@ import network.BooleanNetworkFactory;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import states.ImmutableBinaryState;
 import utility.RandomnessFactory;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -121,20 +120,26 @@ public class TestDynamics {
 
         Generator<BinaryState> generator = new CompleteGenerator(bn.getNodesNumber());
 
-        List<Integer> indicesToKnockOut = List.of(randomInstance.nextInt(nodesNumber),
-                                                    randomInstance.nextInt(nodesNumber),
-                                                    randomInstance.nextInt(nodesNumber));
+        List<Integer> indices = IntStream.range(0, bn.getNodesNumber()).boxed().collect(Collectors.toList());
+        Collections.shuffle(indices);
+        List<Integer> indicesToKnockOut = indices.subList(0,3);
+        List<Integer> indicesToKnockIn = indices.subList(3,6);
+
         Integer[] indicesToKnockOutArray = indicesToKnockOut.toArray(new Integer[0]);
+        Integer[] indicesToKnockInArray = indicesToKnockIn.toArray(new Integer[0]);
 
         System.out.println("indicesToKnockOut");
         System.out.println(indicesToKnockOut);
+        System.out.println("indicesToKnockIn");
+        System.out.println(indicesToKnockIn);
+
         Dynamics<BinaryState> onlySynchronousUpdate = new SynchronousDynamicsImpl(bn);
 
         Dynamics<BinaryState> dynamics = DecoratingDynamics
                 .from(new SynchronousDynamicsImpl(bn))
-                .decorate(dyn -> new KnockOutDynamicsDecorator(dyn, indicesToKnockOut));
+                .decorate(dyn -> new KnockOutKnockInDynamicsDecorator(dyn, indicesToKnockOut,indicesToKnockIn));
 
-        List<Tuple2<Integer,Boolean>> nodesNOTToKnockOutCheck;
+        List<Tuple2<Integer,Boolean>> nodesNOTToKnockOutOrInCheck;
 
         BinaryState stateTemp;
         //TEST FOR 50 SAMPLES (INTIAL STATES)
@@ -142,6 +147,8 @@ public class TestDynamics {
             BinaryState sample = generator.nextSample();
             //PUT TO ZERO THE indicesToKnockOut
             sample = sample.setNodesValues(Boolean.FALSE, indicesToKnockOutArray);
+            sample = sample.setNodesValues(Boolean.TRUE, indicesToKnockInArray);
+
             //100 STEPS OF UPDATING FOR EACH INITIAL STATE
             /*System.out.println("SAMPLE");
             System.out.println(sample);*/
@@ -154,10 +161,10 @@ public class TestDynamics {
                 /*System.out.println("sample (AfterUpdateDECORATED)");
                 System.out.println(sample);*/
                 //read nodes that must not freeze
-                nodesNOTToKnockOutCheck = new ArrayList<>();//in every step we must check the nodes that will not be frozen
+                nodesNOTToKnockOutOrInCheck = new ArrayList<>();//in every step we must check the nodes that will not be frozen
                 for (int x = 0; x < sample.getLength(); x++) {
-                    if (!indicesToKnockOut.contains(x)){
-                        nodesNOTToKnockOutCheck.add(new Tuple2<>(x, sample.getNodeValue(x)));
+                    if (!indicesToKnockOut.contains(x) && !indicesToKnockIn.contains(x)){
+                        nodesNOTToKnockOutOrInCheck.add(new Tuple2<>(x, sample.getNodeValue(x)));
                     }
                 }
                 /*System.out.println("nodesNOTToKnockOutCheck");
@@ -166,12 +173,15 @@ public class TestDynamics {
                 for (Integer idx : indicesToKnockOut) {
                     assertEquals("Nodes specified by means of the list indicesToKnockOut MUST BE KO (FALSE)",Boolean.FALSE, sample.getNodeValue(idx));
                 }
+                for (Integer idx : indicesToKnockIn) {
+                    assertEquals("Nodes specified by means of the list indicesToKnockIn MUST BE IN (TRUE)",Boolean.TRUE, sample.getNodeValue(idx));
+                }
 
                 stateTemp = onlySynchronousUpdate.nextState(stateTemp);
                 /*System.out.println("stateTemp (AfterUpdateSync)");
                 System.out.println(stateTemp);*/
                 //Check if other nodes (not knocked-out) remain the same as the sync update
-                for (Tuple2<Integer,Boolean> notKO : nodesNOTToKnockOutCheck) {
+                for (Tuple2<Integer,Boolean> notKO : nodesNOTToKnockOutOrInCheck) {
                     assertEquals("Nodes NOT KO must be the same with the 2 different updating schemes",notKO._2(), stateTemp.getNodeValue(notKO._1()));
                 }
             }

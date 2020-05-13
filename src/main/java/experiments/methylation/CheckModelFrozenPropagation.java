@@ -1,7 +1,7 @@
 package experiments.methylation;
 
 import attractor.AttractorsUtility;
-import dynamic.KnockOutDynamicsDecorator;
+import dynamic.KnockOutKnockInDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.BagOfStatesGenerator;
 import generator.UniformlyDistributedGenerator;
@@ -24,8 +24,6 @@ import utility.Files;
 import utility.RandomnessFactory;
 
 import java.math.BigInteger;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -102,7 +100,7 @@ public class CheckModelFrozenPropagation {
 
         Dynamics<BinaryState> dynKO = DecoratingDynamics
                 .from(new SynchronousDynamicsImpl(bn))
-                .decorate(dyn -> new KnockOutDynamicsDecorator(dyn, indicesToKnockOut));
+                .decorate(dyn -> new KnockOutKnockInDynamicsDecorator(dyn, indicesToKnockOut, List.of()));
 
         Attractors<BinaryState> att = AttractorsFinderService.apply(new BagOfStatesGenerator<>(List.of(sample)),
                 dynKO,

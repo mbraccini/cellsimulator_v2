@@ -1,12 +1,11 @@
 package experiments.methylation;
 
 import attractor.AttractorsUtility;
-import dynamic.KnockOutDynamicsDecorator;
+import dynamic.KnockOutKnockInDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.BagOfStatesGenerator;
 import generator.UniformlyDistributedGenerator;
 import interfaces.attractor.Attractors;
-import interfaces.attractor.ImmutableAttractor;
 import interfaces.dynamic.DecoratingDynamics;
 import interfaces.dynamic.Dynamics;
 import interfaces.network.BNClassic;
@@ -15,15 +14,10 @@ import interfaces.network.NodeDeterministic;
 import interfaces.sequences.Generator;
 import interfaces.state.BinaryState;
 import io.vavr.Tuple2;
-import io.vavr.Tuple4;
 import io.vavr.Tuple5;
-import network.BNKBiasImpl;
 import network.BooleanNetworkFactory;
-import network.TableSupplierCanalizingK2;
-import network.TableSupplierNonCanalizingK2;
 import org.apache.commons.math3.random.RandomGenerator;
 import simulator.AttractorsFinderService;
-import tes.StaticAnalysisTES;
 import utility.Files;
 import utility.RandomnessFactory;
 
@@ -178,7 +172,7 @@ public class MainFrozenCheckModelRSerra {
         //KNOCK OUT DYNAMICS
         Dynamics<BinaryState> dynamicsKO = DecoratingDynamics
                 .from(new SynchronousDynamicsImpl(bn))
-                .decorate(dyn -> new KnockOutDynamicsDecorator(dyn, indicesToKnockOut));
+                .decorate(dyn -> new KnockOutKnockInDynamicsDecorator(dyn, indicesToKnockOut,List.of()));
         //GENERATOR
         Generator<BinaryState> genUnif =
                 new UniformlyDistributedGenerator(INITIAL_SAMPLES_STATES_NUMBER, numNodes,r);

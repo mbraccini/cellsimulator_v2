@@ -1,7 +1,7 @@
 package experiments.methylation;
 
 import attractor.AttractorsUtility;
-import dynamic.KnockOutDynamicsDecorator;
+import dynamic.KnockOutKnockInDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.BagOfStatesGenerator;
 import generator.UniformlyDistributedGenerator;
@@ -14,9 +14,7 @@ import interfaces.network.BNKBias;
 import interfaces.network.NodeDeterministic;
 import interfaces.sequences.Generator;
 import interfaces.state.BinaryState;
-import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import io.vavr.Tuple3;
 import network.BooleanNetworkFactory;
 import org.apache.commons.math3.random.RandomGenerator;
 import simulator.AttractorsFinderService;
@@ -25,11 +23,7 @@ import utility.Files;
 import utility.RandomnessFactory;
 
 import java.math.BigInteger;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -173,7 +167,7 @@ public class CheckRobertoModelFixedNodes {
 
         Dynamics<BinaryState> dynKO = DecoratingDynamics
                 .from(new SynchronousDynamicsImpl(bn))
-                .decorate(dyn -> new KnockOutDynamicsDecorator(dyn, indicesToKnockOut));
+                .decorate(dyn -> new KnockOutKnockInDynamicsDecorator(dyn, indicesToKnockOut, List.of()));
 
         List<BinaryState> trajectory = new ArrayList<>();
 
@@ -199,7 +193,7 @@ public class CheckRobertoModelFixedNodes {
 
         Dynamics<BinaryState> dynamicsKO = DecoratingDynamics
                 .from(new SynchronousDynamicsImpl(bn))
-                .decorate(dyn -> new KnockOutDynamicsDecorator(dyn, indicesToKnockOut));
+                .decorate(dyn -> new KnockOutKnockInDynamicsDecorator(dyn, indicesToKnockOut, List.of()));
 
         Attractors<BinaryState> att = AttractorsFinderService.apply(new BagOfStatesGenerator<>(List.of(sample)),
                 dynamicsKO,

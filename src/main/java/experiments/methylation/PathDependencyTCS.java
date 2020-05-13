@@ -1,10 +1,9 @@
 package experiments.methylation;
 
-import dynamic.KnockOutDynamicsDecorator;
+import dynamic.KnockOutKnockInDynamicsDecorator;
 import dynamic.SynchronousDynamicsImpl;
 import generator.BagOfStatesGenerator;
 import generator.FrozenGenerator;
-import generator.UniformlyDistributedGenerator;
 import interfaces.attractor.Attractors;
 import interfaces.attractor.ImmutableAttractor;
 import interfaces.dynamic.DecoratingDynamics;
@@ -25,7 +24,6 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class PathDependencyTCS {
     /**                                  |
@@ -195,7 +193,7 @@ public class PathDependencyTCS {
 
         Dynamics<BinaryState> dynamicsKO = DecoratingDynamics
                 .from(new SynchronousDynamicsImpl(bn))
-                .decorate(dyn -> new KnockOutDynamicsDecorator(dyn, indicesToKnockOut));
+                .decorate(dyn -> new KnockOutKnockInDynamicsDecorator(dyn, indicesToKnockOut,List.of()));
 
         Attractors<BinaryState> att = AttractorsFinderService.apply(new BagOfStatesGenerator<>(List.of(sample)),
                 dynamicsKO,
