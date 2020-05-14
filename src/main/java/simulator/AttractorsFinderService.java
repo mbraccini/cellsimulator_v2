@@ -51,13 +51,19 @@ public class AttractorsFinderService  {
         BigInteger combinations = generator.totalNumberOfSamplesToBeGenerated();
         //MyCountDownLatch latch = new MyCountDownLatch(combinations);
         Collection<MutableAttractor<T>> mutableAttractors = new ArrayList<>();
-        AttractorFinderResult result;
+        AttractorFinderResult<T> result;
         int initialStatesCutOff = 0;
         T state = generator.nextSample();
         while (state != null) {
             try {
                 result = new AttractorFinderTask<>(state, dynamics, mutableAttractors, basin, transients, terminationCondition).findAttractor();
-                if (result != null && result.isCutOff()) initialStatesCutOff++;
+                if (result.isCutOff()) {
+                    //se ha raggiunto il limite di passi (cutoff) senza aver trovato un attrattore incremento il contatore.
+                    initialStatesCutOff++;
+                } else if (!result.wasAlreadyPresent()){
+                    //se non era già presente, lo aggiungo
+                    mutableAttractors.add(result.attractorFound());
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

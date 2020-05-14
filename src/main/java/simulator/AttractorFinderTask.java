@@ -60,7 +60,23 @@ public class AttractorFinderTask<T extends State>{
             if (checksIfAlreadyPresent(state)) {
                 transientList = states;
                 checkAndUpdateBasinAndTransient(state);
-                return null; //se è presente esco!
+                //return null; //se è presente esco!
+                return new AttractorFinderResult(){
+                    @Override
+                    public MutableAttractor attractorFound() {
+                        return null;
+                    }
+
+                    @Override
+                    public Boolean isCutOff() {
+                        return Boolean.FALSE;
+                    }
+
+                    @Override
+                    public Boolean wasAlreadyPresent() {
+                        return Boolean.TRUE;
+                    }
+                };
             }
 
             if (this.states.contains(state)) {
@@ -68,10 +84,25 @@ public class AttractorFinderTask<T extends State>{
                 transientList = new ArrayList<>(transientTemp);
                 transientTemp.clear(); //rimuovo gli stati da quello trovato (escluso) all'indietro
                 MutableAttractor<T> attractor = new MutableAttractorImpl<>(states);
-                collectionMutableAttractor.add(attractor);
+                //collectionMutableAttractor.add(attractor);
                 updateItsBasin(attractor);
                 updateItsTransient(attractor);
-                return null;
+                return new AttractorFinderResult(){
+                    @Override
+                    public MutableAttractor attractorFound() {
+                        return attractor;
+                    }
+
+                    @Override
+                    public Boolean isCutOff() {
+                        return Boolean.FALSE;
+                    }
+
+                    @Override
+                    public Boolean wasAlreadyPresent() {
+                        return Boolean.FALSE;
+                    }
+                };
             }
 
             states.add(state);
@@ -82,8 +113,18 @@ public class AttractorFinderTask<T extends State>{
 
         return new AttractorFinderResult(){
             @Override
+            public MutableAttractor attractorFound() {
+                return null;
+            }
+
+            @Override
             public Boolean isCutOff() {
-                return true;
+                return Boolean.TRUE;
+            }
+
+            @Override
+            public Boolean wasAlreadyPresent() {
+                return Boolean.FALSE;
             }
         };
     }
