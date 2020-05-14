@@ -3,11 +3,9 @@ package attractor;
 import interfaces.attractor.Attractor;
 import interfaces.attractor.Attractors;
 import interfaces.attractor.ImmutableAttractor;
-import interfaces.attractor.MutableAttractor;
 import interfaces.state.BinaryState;
 import interfaces.state.State;
 import states.ImmutableRealState;
-import utility.GenericUtility;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,7 +55,7 @@ public class AttractorsUtility {
      * @param attrs
      * @return
      */
-    public static Set<Integer> fixedNodesAllAttractors(Attractors<BinaryState> attrs){
+    public static Set<Integer> nodesBelongingToCommonSea(Attractors<BinaryState> attrs){
         if (attrs.numberOfAttractors() == 0){
             return null;
         }
@@ -89,18 +87,18 @@ public class AttractorsUtility {
     }
 
     /**
-     * Blinking nodes, considering all aattractors' states at once.
+     * Blinking nodes, considering all attractors' states at once.
      * @param attrs
      * @return
      */
-    public static Set<Integer> blinkingNodesAllAttractors(Attractors<BinaryState> attrs){
+    public static Set<Integer> specificNodes(Attractors<BinaryState> attrs){
         if (attrs.numberOfAttractors() == 0){
             return null;
         }
         Integer numNodes = attrs.getAttractors().get(0).getFirstState().getLength();
 
         Set<Integer> allIndices = IntStream.range(0, numNodes).boxed().collect(Collectors.toSet());
-        allIndices.removeAll(Objects.requireNonNull(fixedNodesAllAttractors(attrs))); //we subtract the fixed nodes.
+        allIndices.removeAll(Objects.requireNonNull(nodesBelongingToCommonSea(attrs))); //we subtract the fixed nodes.
 
         return allIndices;
     }
