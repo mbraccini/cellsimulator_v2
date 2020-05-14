@@ -51,7 +51,7 @@ public class AttractorFinderTask<T extends State>{
         return null;
     }*/
 
-    public AttractorFinderResult findAttractor() {
+    public AttractorFinderResult<T> findAttractor() {
         T state = initialState;
 
         int iter = 0;
