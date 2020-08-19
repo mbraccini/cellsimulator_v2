@@ -41,7 +41,7 @@ public class TwinklingIslandsByPerturbation {
 
     private static final int MAX_STEPS_TO_FIND_ATTRS = 10000; //serve perché potrei non trovarmi in uno degli attrattori trovati con la ricerca incompleta, senza di questa controllerebbe all'infinito
     private static final int INIT_SAMPLES = 1000;
-    private static final int NUM_OF_BNS = 30;
+    private static final int NUM_OF_BNS = 100;
 
     public static void main(String [] args){
         System.out.println("Specific Islands v0");
@@ -74,7 +74,7 @@ public class TwinklingIslandsByPerturbation {
                             BooleanNetworkFactory.newBNwithSelfLoop(k,bias,nodesNumber,r,sl_number, BooleanNetworkFactory.WIRING_TYPE.RND_K_FIXED);
                         //BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
                         analiseNet(bn,folder, idBN, r, Boolean.FALSE);});
-        } else {
+        } else if (type == 1){
             System.out.println("RND_K_plus_1");
             String folder = "RND_K_plus_1" + Files.FILE_SEPARATOR;
             Files.createDirectories(folder);
@@ -82,6 +82,15 @@ public class TwinklingIslandsByPerturbation {
                     idBN -> { BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn =
                             BooleanNetworkFactory.newBNwithSelfLoop(k,bias,nodesNumber,r,sl_number, BooleanNetworkFactory.WIRING_TYPE.RND_K_plus_1);
                         //BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
+                        analiseNet(bn,folder, idBN, r, Boolean.FALSE);});
+        } else {
+            System.out.println("RND_without_selfloop");
+            String folder = "RND_without_selfloop" + Files.FILE_SEPARATOR;
+            Files.createDirectories(folder);
+            IntStream.range(0, NUM_OF_BNS).forEach(
+                    idBN -> { BNClassic<BitSet, Boolean, NodeDeterministic<BitSet, Boolean>> bn =
+                            //BooleanNetworkFactory.newBNwithSelfLoop(k,bias,nodesNumber,r,sl_number, BooleanNetworkFactory.WIRING_TYPE.RND_K_plus_1);
+                        BooleanNetworkFactory.newRBN(BNKBias.BiasType.CLASSICAL, BooleanNetworkFactory.SelfLoop.WITHOUT, nodesNumber, k, bias, r);
                         analiseNet(bn,folder, idBN, r, Boolean.FALSE);});
         }
 
