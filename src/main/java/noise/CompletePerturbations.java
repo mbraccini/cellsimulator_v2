@@ -59,7 +59,7 @@ public class CompletePerturbations {
             }
         }
         //System.out.println("Perturbations LOST: " + perturbationsLost);
-        return new AtmImpl<>(atm, attractors);
+        return new AtmImpl<>(atm, attractors,perturbationsLost);
     }
 
     /**
@@ -124,7 +124,7 @@ public class CompletePerturbations {
             }
         }
         //System.out.println("Perturbations LOST: " + perturbationsLost);
-        return new AtmImpl<>(atm, attractors);
+        return new AtmImpl<>(atm, attractors,perturbationsLost);
     }
 
 }

@@ -29,15 +29,18 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 	protected BigDecimal[][] atm;
 	protected Double[][] doubleAtm;
 	protected int[] perturbationsNumberPerAttractor;
+	protected Integer lostPerturbations;
+
 
 	/**
 	 * It is assumed that the occurrences structure follows the ordering of the attractorsList passed.
 	 * @param occurrenciesIntMatrix
 	 * @param attractors
 	 */
-	public AtmImpl(int[][] occurrenciesIntMatrix, Attractors<T> attractors) {
+	public AtmImpl(int[][] occurrenciesIntMatrix, Attractors<T> attractors, int lostPerturbations) {
 		this.attractors = attractors;
 		this.intMatrix = occurrenciesIntMatrix;
+		this.lostPerturbations = lostPerturbations;
 		initPerturbationsPerAttractor();
 	}
 
@@ -150,6 +153,11 @@ public class AtmImpl<T extends State> implements Atm<T>, Serializable{
 			}
 		}
 		return newAtm;
+	}
+
+	@Override
+	public Integer lostPerturbations() {
+		return this.lostPerturbations;
 	}
 
 

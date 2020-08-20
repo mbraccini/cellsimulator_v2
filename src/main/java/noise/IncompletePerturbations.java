@@ -108,7 +108,7 @@ public class IncompletePerturbations  {
 			}
 		}
 		//System.out.println("Perturbations LOST: " + perturbationsLost);
-		return new AtmImpl<>(atm, attractors);
+		return new AtmImpl<>(atm, attractors,perturbationsLost);
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class IncompletePerturbations  {
 
 		}
 		//GenericUtility.printMatrix(atm);
-		return new AtmImpl<>(atm, attractors);
+		return new AtmImpl<>(atm, attractors,perturbationsLost);
 
 	}
 

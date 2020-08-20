@@ -134,7 +134,7 @@ public class TestAtm {
 
             //GenericUtility.printMatrix(a);
 
-            Double[][] atm = new AtmImpl<>(a, null).getMatrix();
+            Double[][] atm = new AtmImpl<>(a, null,0).getMatrix();
             //GenericUtility.printMatrix(atm);
 
             iterations --;

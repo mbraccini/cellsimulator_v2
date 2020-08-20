@@ -23,4 +23,6 @@ public interface Atm<T extends State> {
 
 	Double[][] getMatrixCopy();
 
+	Integer lostPerturbations();
+
 }
